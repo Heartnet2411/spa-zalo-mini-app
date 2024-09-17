@@ -3,6 +3,7 @@ import { Avatar, Box, Text } from "zmp-ui";
 import { useRecoilValue } from "recoil";
 import { userState } from "../state";
 
+
 const UserCard = () => {
   const { userInfo } = useRecoilValue(userState);
 
@@ -17,7 +18,7 @@ const UserCard = () => {
       </Avatar>
       <Box ml={4}>
         <Text.Title>{userInfo.name}</Text.Title>
-        <Text>{userInfo.id}</Text>
+        <Text>{userInfo.id}  </Text>
       </Box>
     </Box>
   );
