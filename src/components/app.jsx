@@ -7,6 +7,7 @@ import Booking from '../pages/booking';
 import Shop from '../pages/shop';
 import Profile from '../pages/profile';
 import Taskbar from "../components/taskbar";
+import Form from '../pages/form';
 
 const MyApp = () => {
   return (
@@ -19,6 +20,7 @@ const MyApp = () => {
             <Route path="/booking" element={<Booking></Booking>}></Route>
             <Route path="/shop" element={<Shop></Shop>}></Route>
             <Route path="/profile" element={<Profile></Profile>}></Route>
+            <Route path="/form" element={<Form></Form>}></Route>
           </AnimationRoutes>
           <Taskbar />
         </ZMPRouter>
