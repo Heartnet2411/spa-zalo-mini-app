@@ -1,13 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { GoHomeFill } from 'react-icons/go';
 import { FaRegCalendarCheck } from 'react-icons/fa6';
 import { FaCartShopping } from 'react-icons/fa6';
 import { IoPersonSharp } from 'react-icons/io5';
 
 const Taskbar = () => {
+  const location = useLocation();
+  const hideTaskbar =
+    location.pathname.startsWith('/product/') ||
+    location.pathname.startsWith('/cart');
+  if (hideTaskbar) {
+    return null; // Không hiển thị Taskbar
+  }
   return (
-    <div className="fixed bottom-0 w-full bg-white shadow-lg py-2 flex justify-around border-t border-gray-400">
+    <div className="sticky bottom-0 w-full bg-white shadow-lg py-2 flex justify-around border-t border-gray-400">
       <Link
         to="/"
         className="text-base taskbar-button text-center text-gray-700 hover:bg-gray-100 w-full flex flex-col items-center"

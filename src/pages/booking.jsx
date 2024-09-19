@@ -13,7 +13,6 @@ const BookingPage = () => {
           </div>
         </Suspense>
       </Page>
-      <Taskbar />
     </div>
   );
 };

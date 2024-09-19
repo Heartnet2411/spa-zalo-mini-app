@@ -21,7 +21,6 @@ const ProfilePage = () => {
           </div>
         </Suspense>
       </Page>
-      <Taskbar />
     </div>
   );
 };

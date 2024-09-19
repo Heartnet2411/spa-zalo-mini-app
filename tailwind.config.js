@@ -4,6 +4,11 @@ module.exports = {
     content: ['./src/**/*.{js,jsx,ts,tsx,vue}'],
   },
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        roboto: ['Work Sans', 'sans-serif'],
+        // Thêm các font khác nếu cần
+      },
+    },
   },
 };
