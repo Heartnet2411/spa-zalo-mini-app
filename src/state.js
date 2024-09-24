@@ -1,17 +1,41 @@
+import { atom } from "recoil";
+import { authorize, getUserInfo, getPhoneNumber } from "zmp-sdk/apis";
 
-import { atom, selector } from "recoil";
-import { getUserInfo } from "zmp-sdk";
-
-export const userState = selector({
-  key: "user",
-  get: () =>
-    getUserInfo({
-      avatarType: "normal",
-    }),
+export const userState = atom({
+  key: "userState",
+  default: {
+    userInfo: {},
+    phoneNumber: '',
+  },
 });
 
-export const displayNameState = atom({
-  key: "displayName",
-  default: "",
-});
 
+export const fetchUserData = () => {
+  return new Promise((resolve, reject) => {
+    authorize({
+      scopes: ["scope.userInfo", "scope.userLocation", "scope.userPhonenumber"],
+      success: (authData) => {
+        getUserInfo({
+          success: (userData) => {
+            const { userInfo } = userData;
+            getPhoneNumber({
+              success: (phoneData) => {
+                const { token } = phoneData;
+                resolve({ userInfo, phoneNumber: token });
+              },
+              fail: (error) => {
+                reject("Get Phone Number Error: " + error);
+              }
+            });
+          },
+          fail: (error) => {
+            reject("Get User Info Error: " + error);
+          }
+        });
+      },
+      fail: (error) => {
+        reject("Authorization Error: " + error);
+      }
+    });
+  });
+};

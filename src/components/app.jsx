@@ -10,7 +10,7 @@ import Taskbar from "../components/taskbar";
 import Form from '../pages/form';
 import ProductDetail from '../pages/productdetail';
 import CartPage from '../pages/cart';
-
+import BookingForm from '../pages/bookingform'; 
 const MyApp = () => {
   //Hide taskbar with path
 
@@ -22,6 +22,7 @@ const MyApp = () => {
             <AnimationRoutes>
               <Route path="/" element={<HomePage></HomePage>}></Route>
               <Route path="/booking" element={<Booking></Booking>}></Route>
+              <Route path="/bookingform" element={<BookingForm></BookingForm>}></Route>
               <Route path="/shop" element={<Shop></Shop>}></Route>
               <Route path="/profile" element={<Profile></Profile>}></Route>
               <Route path="/product/:id" element={<ProductDetail />}></Route>

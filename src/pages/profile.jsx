@@ -1,29 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Avatar,
   List,
-  Text, 
+  Text,
   Box,
   Page,
   Button,
   Icon,
   useNavigate,
 } from 'zmp-ui';
-import { useRecoilValue } from 'recoil';
-import { displayNameState, userState } from '../state';
-
-const users = {
-  id: 1,
-  name: 'Nguyen Van A',
-  address: '123 Main St',
-  gender: 'Nam',
-  birth: '2000-01-01',
-};
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { userState, fetchUserData } from '../state';
 
 const ProfilePage = () => {
-  const { userInfo: user } = useRecoilValue(userState);
-  const displayName = useRecoilValue(displayNameState);
+  const setUserState = useSetRecoilState(userState);
+  const { userInfo: user, phoneNumber } = useRecoilValue(userState);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const { userInfo, phoneNumber } = await fetchUserData();
+        setUserState({ userInfo, phoneNumber });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getUserData();
+  }, [setUserState]);
 
   return (
     <div>
@@ -34,21 +39,23 @@ const ProfilePage = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Box
-            mt={10}
-          >
+          <Box mt={10}>
             <Avatar
               story="default"
               size={96}
               online
-              src={user.avatar.startsWith('http') ? user.avatar : undefined}
+              src={
+                user.avatar && user.avatar.startsWith('http')
+                  ? user.avatar
+                  : undefined
+              }
             >
               {user.avatar}
             </Avatar>
           </Box>
           <Box flex flexDirection="row" alignItems="center" ml={8}>
             <Box>
-              <Text.Title>{displayName || user.name}</Text.Title>
+              <Text.Title>{user.name}</Text.Title>
             </Box>
             <Box ml={4}>
               <Button
@@ -64,11 +71,9 @@ const ProfilePage = () => {
         <Box m={0} p={0} mt={4}>
           <div className="section-container">
             <List>
-              <List.Item title="Họ tên" subTitle={displayName} />
-              <List.Item title="Địa chỉ" subTitle={users.address} />
-              <List.Item title="Giới tính" subTitle={users.gender} />
-              <List.Item title="Ngày sinh" subTitle={users.birth} />
-              <List.Item title="ID" subTitle={user.id} />
+              <List.Item title="Họ tên" subTitle={user.name}/>
+              <List.Item title="ID" subTitle={user.id}/>
+              <List.Item title="Số điện thoại" subTitle={phoneNumber}/> 
             </List>
           </div>
         </Box>
