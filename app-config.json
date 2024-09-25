@@ -1,16 +1,17 @@
 {
   "app": {
     "title": "spa-mini-app",
-    "headerTitle": "zmp-blank-templates",
+    "headerTitle": "spa-mini-app",
     "headerColor": "#1843EF",
     "textColor": "white",
     "textAlign": "left",
     "statusBarColor": "#1843EF",
     "leftButton": "back",
     "statusBar": "normal",
-    "actionBarHidden": false,
+    "actionBarHidden": true,
     "hideAndroidBottomNavigationBar": false,
     "hideIOSSafeAreaBottom": false
+    
   },
   "debug": false,
   "pages": [],
