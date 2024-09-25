@@ -13,7 +13,7 @@ export const userState = atom({
 export const fetchUserData = () => {
   return new Promise((resolve, reject) => {
     authorize({
-      scopes: ["scope.userInfo", "scope.userLocation", "scope.userPhonenumber"],
+      scopes: ["scope.userInfo", "scope.userPhonenumber"],
       success: (authData) => {
         getUserInfo({
           success: (userData) => {
