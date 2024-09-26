@@ -9,14 +9,15 @@ import {
   Icon,
   useNavigate,
 } from 'zmp-ui';
-import Taskbar from '../components/taskbar';
+import Header from '../components/header';
 
 const ProfilePage = () => {
   return (
     <div>
-      <Page className="page">
+      <Page className="page relative">
+        <Header />
         <Suspense>
-          <div className="section-container">
+          <div className="section-container mt-14">
             <span>Trang cá nhân</span>
           </div>
         </Suspense>

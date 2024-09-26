@@ -19,7 +19,7 @@ const Taskbar = () => {
     location.pathname === path ? 'text-blue-500' : 'text-gray-700';
 
   return (
-    <div className="sticky bottom-0 w-full bg-white shadow-lg py-2 flex justify-around border-t border-gray-400">
+    <div className="fixed bottom-0 w-full bg-white shadow-lg py-2 flex justify-around border-t border-gray-400">
       <Link
         to="/"
         className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(

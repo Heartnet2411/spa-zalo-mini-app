@@ -19,7 +19,7 @@ const ProductDetail = () => {
   return (
     <Page className="page flex flex-col h-screen">
       <Suspense>
-        <div className="p-4 flex-grow overflow-y-auto scroll-container ">
+        <div className="p-4 flex-grow overflow-y-auto scroll-container relative mb-20">
           <div className="flex flex-col items-center md:flex-row md:items-start relative ">
             <img
               src={product.image}
@@ -51,17 +51,18 @@ const ProductDetail = () => {
               <p className="text-xl font-bold">Thông tin sản phẩm</p>
               <p className="text-base">{product.description}</p>
             </div>
-            <div className="sticky bottom-0 flex justify-between w-full px-4 bg-white py-4">
-              <button className="w-1/4 rounded-xl border-2 border-gray-500 flex justify-center items-center bg-white">
-                <MdOutlineAddShoppingCart size={24} />
-              </button>
-              <button className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500">
-                <IoBagCheckOutline size={24} />
-                <span className="ml-2 text-base font-semibold">
-                  Thanh toán ngay
-                </span>
-              </button>
-            </div>
+          </div>
+
+          <div className="fixed bottom-0 flex justify-between w-full px-4 bg-white py-4">
+            <button className="w-1/4 rounded-xl border-2 border-gray-500 flex justify-center items-center bg-white">
+              <MdOutlineAddShoppingCart size={24} />
+            </button>
+            <button className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500">
+              <IoBagCheckOutline size={24} />
+              <span className="ml-2 text-base font-semibold">
+                Thanh toán ngay
+              </span>
+            </button>
           </div>
         </div>
       </Suspense>

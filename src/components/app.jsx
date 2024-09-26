@@ -7,8 +7,7 @@ import Booking from '../pages/booking';
 import Shop from '../pages/shop';
 import Profile from '../pages/profile';
 import Taskbar from '../components/taskbar';
-import Header from './header';
-import ProductDetail from '../pages/productdetail';
+import ProductDetail from '../pages/product-detail';
 import CartPage from '../pages/cart';
 
 const MyApp = () => {
@@ -19,7 +18,6 @@ const MyApp = () => {
       <App>
         <SnackbarProvider>
           <ZMPRouter>
-            <Header />
             <AnimationRoutes>
               <Route path="/" element={<HomePage></HomePage>}></Route>
               <Route path="/booking" element={<Booking></Booking>}></Route>

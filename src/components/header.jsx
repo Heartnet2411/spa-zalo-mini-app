@@ -28,7 +28,7 @@ const Header = () => {
   const showBackButton = location.pathname !== '/';
 
   return (
-    <header className="w-full bg-blue-600 text-white py-3 px-6 flex items-center shadow-md relative">
+    <header className="fixed top-0 w-full bg-blue-600 text-white py-3 px-6 flex items-center shadow-md z-10">
       {showBackButton && (
         <button
           onClick={() => navigate(-1)}
