@@ -3,6 +3,8 @@ import { Button, Input, Box, Page, useSnackbar, Avatar, List } from 'zmp-ui';
 import { useNavigate } from 'react-router';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState, fetchUserData } from '../state';
+import Header from '../components/header';
+
 const FormPage = () => {
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user, phoneNumber } = useRecoilValue(userState);
@@ -10,7 +12,8 @@ const FormPage = () => {
 
   return (
     <Page className="page">
-      <div className="section-container">
+      <Header/>
+      <div className="section-container p-4 mt-14 mb-14">
         <Box
           flex
           flexDirection="column"

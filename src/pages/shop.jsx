@@ -1,12 +1,14 @@
 import React, { Suspense, useState, useRef } from 'react';
 import { Button, Input, Box, Page, useSnackbar } from 'zmp-ui';
-import FilterTags from '../components/filtertag';
+import FilterTags from '../components/filter-tag';
 import { IoSearch } from 'react-icons/io5';
 import { LiaTimesSolid } from 'react-icons/lia';
 import { IoFilter } from 'react-icons/io5';
 import { IoCart } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import { products } from '../utils/productdemo';
+import Header from '../components/header';
+import ProductCard from '../components/product-card';
 
 const ShopPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
@@ -38,15 +40,16 @@ const ShopPage = () => {
 
   return (
     <div>
-      <Page className="page scroll-container">
+      <Page className="page relative">
         <Suspense>
-          <div className="p-4">
+        <Header />
+          <div className="p-4 mt-14 mb-14">
             <h1 className="text-4xl font-bold mb-4 custom-font ">
               Danh Sách Sản Phẩm
             </h1>
 
             <div className="mb-2">
-              <div className="relative flex items-center justify-between mb-4">
+              <div className="relative flex items-center justify-around mb-4">
                 {/* Search button */}
                 <button
                   onClick={handleSearchClick}
@@ -79,7 +82,7 @@ const ShopPage = () => {
                   >
                     <div className="flex items-center justify-between">
                       <IoCart size={24} />
-                      <span className="ml-1 text-lg">Cart</span>
+                      <span className="ml-1 text-lg">Giỏ hàng</span>
                     </div>
                     <span className="border border-white text-white rounded-full  text-base w-8 h-8 flex items-center justify-center">
                       3
@@ -115,30 +118,7 @@ const ShopPage = () => {
               )}
             </div>
 
-            <div className="scroll-container grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProducts.map((product) => (
-                <Link
-                  to={`/product/${product.id}`}
-                  key={product.id}
-                  className="border rounded-lg p-4 bg-white shadow-md flex flex-col items-center"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-32 h-32 object-contain mb-4 rounded"
-                  />
-                  <h2 className="text-xl font-semibold mb-2 text-center">
-                    {product.name}
-                  </h2>
-                  <p className="text-gray-700 mb-2 text-center">
-                    Giá: {product.price.toLocaleString()} VNĐ
-                  </p>
-                  <p className="text-gray-500 text-center">
-                    Loại: {product.type}
-                  </p>
-                </Link>
-              ))}
-            </div>
+            <ProductCard productList={filteredProducts} />
           </div>
         </Suspense>
       </Page>

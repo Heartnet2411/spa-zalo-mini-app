@@ -5,7 +5,7 @@ import { IoBagCheckOutline } from 'react-icons/io5';
 import { LiaTimesSolid } from 'react-icons/lia';
 import anh1 from '../assets/img/example1.jpg';
 import anh2 from '../assets/img/example2.jpg';
-
+import Header from '../components/header';
 const cartItems = [
   {
     id: 1,
@@ -54,7 +54,8 @@ const CartPage = () => {
   return (
     <Page className="page">
       <Suspense>
-        <div className="p-4 h-screen">
+      <Header />
+        <div className="p-4 mt-14 mb-14 h-screen">
           <div className="h-4/6 overflow-scroll scroll-container ">
             <h1 className="text-2xl font-bold mb-4 text-center">Giỏ Hàng</h1>
             {cart.map((item) => (

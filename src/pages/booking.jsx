@@ -1,19 +1,20 @@
 import React, { Suspense } from 'react';
 import { Button, Page, Text, useNavigate } from 'zmp-ui';
 import { FiPlus } from 'react-icons/fi';
-
+import Header from '../components/header';
+import ServiceChoose from '../components/service-choose';
 const BookingPage = () => {
   const navigate = useNavigate();
   return (
     <Page className="page">
-      <div className="flex items-center justify-center">
+       <Header/>
+      <div className="p-4 mb-14 mt-14 flex items-center justify-center">
         <div className="text-center">
           <Text className="text-lg font-bold">Chưa có lịch hẹn</Text>
         </div>
         {/* <Text className="text-lg mb-4">
           Thời gian đặt lịch: tháng 9 năm 2024
         </Text> */}
-
         {/* <div className="bg-white p-4 rounded-lg shadow-md">
           <Text className="text-base font-bold mb-1">Mã đặt lịch:</Text>
           <Text className="text-base mb-2">
@@ -42,6 +43,7 @@ const BookingPage = () => {
           <FiPlus size={20} />
         </button>
       </div>
+      <ServiceChoose />
     </Page>
   );
 };

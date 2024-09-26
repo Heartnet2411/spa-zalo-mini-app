@@ -1,11 +1,12 @@
 import React, { Suspense, useState } from 'react';
 import { Button, Page, Text, useNavigate, Input, Select } from 'zmp-ui';
-
+import Header from '../components/header';
 const BookingFormPage = () => {
   const [selectedBranch, setSelectedBranch] = useState('');
   return (
     <Page className="page">
-      <div className="p-4">
+      <Header/>
+      <div className="p-4 mt-14 mb-14">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h1 className="text-1xl mb-4 custom-font ">THÔNG TIN KHÁCH HÀNG</h1>
           <Text>Họ và tên</Text>

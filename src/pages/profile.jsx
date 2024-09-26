@@ -11,6 +11,7 @@ import {
 } from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState, fetchUserData } from '../state';
+import Header from '../components/header';
 
 const ProfilePage = () => {
   const setUserState = useSetRecoilState(userState);
@@ -31,15 +32,16 @@ const ProfilePage = () => {
   }, [setUserState]);
 
   return (
-    <div>
-      <Page className="page">
+    <Page className="page">
+      <Header />
+      <div className="p-4 mt-14 mb-14">
         <Box
           flex
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
         >
-          <Box mt={10}>
+          <Box>
             <Avatar
               size={96}
               src={
@@ -116,8 +118,8 @@ const ProfilePage = () => {
             </button>
           </div>
         </div>
-      </Page>
-    </div>
+      </div>
+    </Page>
   );
 };
 
