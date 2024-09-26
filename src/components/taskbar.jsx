@@ -13,32 +13,45 @@ const Taskbar = () => {
   if (hideTaskbar) {
     return null; // Không hiển thị Taskbar
   }
+
+  // Function to determine active status
+  const getActiveClass = (path) =>
+    location.pathname === path ? 'text-blue-500' : 'text-gray-700';
+
   return (
     <div className="sticky bottom-0 w-full bg-white shadow-lg py-2 flex justify-around border-t border-gray-400">
       <Link
         to="/"
-        className="text-base taskbar-button text-center text-gray-700 hover:bg-gray-100 w-full flex flex-col items-center"
+        className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
+          '/'
+        )}`}
       >
         <GoHomeFill size={20} />
         <span>Trang chủ</span>
       </Link>
       <Link
         to="/booking"
-        className="text-base taskbar-button text-center text-gray-700 hover:bg-gray-100 w-full flex flex-col items-center"
+        className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
+          '/booking'
+        )}`}
       >
         <FaRegCalendarCheck size={20} />
         <span>Đặt lịch</span>
       </Link>
       <Link
         to="/shop"
-        className="text-base taskbar-button text-center text-gray-700 hover:bg-gray-100 w-full flex flex-col items-center"
+        className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
+          '/shop'
+        )}`}
       >
         <FaCartShopping size={20} />
         <span>Mua hàng</span>
       </Link>
       <Link
         to="/profile"
-        className=" taskbar-button text-center text-gray-700 hover:bg-gray-100 w-full flex flex-col items-center"
+        className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
+          '/profile'
+        )}`}
       >
         <IoPersonSharp size={20} />
         <span>Cá nhân</span>

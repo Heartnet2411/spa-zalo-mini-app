@@ -1,9 +1,11 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { List, Page, Icon, useNavigate } from 'zmp-ui';
 import Taskbar from '../components/taskbar';
+import zm from 'zmp-sdk';
 
 const HomePage = () => {
   const navigate = useNavigate();
+
   return (
     <div>
       <Page className="page">

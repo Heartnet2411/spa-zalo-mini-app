@@ -6,15 +6,15 @@ const BookingPage = () => {
   const navigate = useNavigate();
   return (
     <Page className="page">
-      <div className="flex items-center justify-center h-full">
-        {/* <div className="text-center">
+      <div className="flex items-center justify-center">
+        <div className="text-center">
           <Text className="text-lg font-bold">Chưa có lịch hẹn</Text>
-        </div> */}
+        </div>
         {/* <Text className="text-lg mb-4">
           Thời gian đặt lịch: tháng 9 năm 2024
         </Text> */}
 
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        {/* <div className="bg-white p-4 rounded-lg shadow-md">
           <Text className="text-base font-bold mb-1">Mã đặt lịch:</Text>
           <Text className="text-base mb-2">
             9647BB7A04204EA19EC788E2616BDB12
@@ -30,7 +30,7 @@ const BookingPage = () => {
           <Text className="text-base text-red-500 mb-4">Đã huỷ</Text>
 
           <Button className="w-full">Xem chi tiết đặt lịch</Button>
-        </div>
+        </div> */}
       </div>
       <div className="">
         <button

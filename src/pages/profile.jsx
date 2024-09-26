@@ -48,12 +48,13 @@ const ProfilePage = () => {
                   : undefined
               }
             >
-              {user.avatar}
+              {/* Hiển thị chữ cái đầu nếu không có avatar */}
+              {!user.avatar && user.name ? user.name.charAt(0) : ''}
             </Avatar>
           </Box>
           <Box flex flexDirection="row" alignItems="center" ml={8}>
             <Box>
-              <Text.Title>{user.name}</Text.Title>
+              <Text.Title>{user.name || 'Tên người dùng'}</Text.Title>
             </Box>
             <Box ml={4}>
               <Button
@@ -66,10 +67,11 @@ const ProfilePage = () => {
             </Box>
           </Box>
         </Box>
+        {/* Hiển thị các phần khác của Profile */}
         <div className="flex items-center justify-center">
           <div className="w-80 mt-10 rounded-lg border flex items-center justify-center flex-col">
             <span className="text-xl font-bold text-blue-500 mt-3 ">Hạng:</span>
-            <span className="mt-3 mb-3">Khách hàng</span>
+            <span className="mt-3 mb-3">{user.membershipTier}</span>
 
             <button className="w-14 h-6 rounded-xl bg-red-500 mb-5 ">
               <span className="text-white">Ưu đãi</span>
@@ -82,10 +84,20 @@ const ProfilePage = () => {
           </button>
         </div>
         <div className="flex items-center justify-center mt-5">
+          <button
+            className="w-80 h-10 rounded-full flex items-center justify-center border"
+            onClick={() => {
+              navigate('/rating');
+            }}
+          >
+            <span className="ml-2 text-base ">Đánh giá sản phẩm</span>
+          </button>
+        </div>
+        <div className="flex items-center justify-center mt-5">
           <div className="w-80 rounded-lg border flex items-center justify-around">
             <div className="flex flex-col items-start mr-20">
               <span className="text-xl font-bold mb-1">Điểm</span>
-
+              <span className="text-orange-500">{user.points}</span>
               <Icon icon="zi-star" className="text-orange-500" />
             </div>
             <button className="w-20 h-10 rounded-xl bg-green-500 ">
