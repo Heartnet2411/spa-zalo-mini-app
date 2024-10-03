@@ -1,35 +1,106 @@
-import React, { useEffect } from 'react';
-import {
-  Avatar,
-  List,
-  Text,
-  Box,
-  Page,
-  Button,
-  Icon,
-  useNavigate,
-} from 'zmp-ui';
+import React, { useEffect, useState, Suspense } from 'react';
+import { Avatar, List, Text, Box, Page, Button, Icon, useNavigate } from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { userState, fetchUserData } from '../state';
 import Header from '../components/header';
+import { getZaloAccessToken, getZaloInfo } from '../services/zalo.service'; // From zalo.service.js
+import { loginAPI, registerAPI } from '../services/auth.service'; // From auth.server.js
+import { testAPI } from '../services/test.service'; // From test.service.js
+import { userState } from '../state'; 
 
 const ProfilePage = () => {
-  const setUserState = useSetRecoilState(userState);
-  const { userInfo: user, phoneNumber } = useRecoilValue(userState);
-  const navigate = useNavigate();
+  const [data, setData] = useState('');
+  const [accessToken, setAccessToken] = useState('');
+  const [authData, setAuthData] = useState(null); 
+  const [loginData, setLoginData] = useState(null); 
 
-  useEffect(() => {
-    const getUserData = async () => {
+  const setUserState = useSetRecoilState(userState); 
+  const navigate = useNavigate();
+  
+  
+  const { userInfo: user } = useRecoilValue(userState); 
+
+  // Hàm xử lý xác thực và lấy access token
+  const handleAuthorization = async () => {
+    try {
+      const authResult = await getZaloInfo();
+      setAuthData(authResult);
+      const token = await getZaloAccessToken();
+      setAccessToken(token);
+    } catch (error) {
+      console.error('Lỗi khi xác thực hoặc lấy access token:', error);
+    }
+  };
+
+  // Hàm gọi API test
+  const fetchData = async () => {
+    try {
+      const response = await testAPI();
+      setData(response);
+    } catch (error) {
+      console.error('Lỗi khi gọi API test:', error);
+    }
+  };
+
+  // // Hàm gọi API đăng nhập
+  // const handleLogin = async () => {
+  //   if (!accessToken) {
+  //     console.error('Không có access token để đăng nhập');
+  //     alert("Không có thông tin để đăng nhập");
+  //     return;
+  //   }
+  
+  //   try {
+  //     const result = await loginAPI(accessToken);
+  //     if (result) {
+  //       setLoginData(result); 
+  //       setUserState({
+  //         userInfo: result.userProfile, 
+  //         phoneNumber: result.phoneNumber 
+  //       }); 
+  //     } else {
+  //       alert('Đăng nhập không thành công');
+  //     }
+  //   } catch (error) {
+  //     alert('Lỗi khi gọi API đăng nhập:', error);
+  //   }
+  // };
+
+    // Hàm gọi API đăng nhập
+    const handleLogin = async () => {
+      if (!accessToken) {
+        console.error('Không có access token để đăng nhập');
+        return;
+      }
+  
       try {
-        const { userInfo, phoneNumber } = await fetchUserData();
-        setUserState({ userInfo, phoneNumber });
+        const result = await loginAPI(accessToken);
+        if (result) {
+          // Cập nhật thông tin người dùng vào Recoil state
+          setUserState({
+            userInfo: result.userProfile,
+            phoneNumber: result.phoneNumber,
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+          });
+        } else {
+          console.error('Đăng nhập không thành công');
+        }
       } catch (error) {
-        console.error(error);
+        console.error('Lỗi khi gọi API đăng nhập:', error);
       }
     };
 
-    getUserData();
-  }, [setUserState]);
+  useEffect(() => {
+    handleAuthorization();
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (accessToken) {
+      handleLogin(); 
+    }
+  }, [accessToken]); 
+
 
   return (
     <Page className="page">

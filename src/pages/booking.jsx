@@ -33,16 +33,11 @@ const BookingPage = () => {
           <Button className="w-full">Xem chi tiết đặt lịch</Button>
         </div> */}
       </div>
-      <div className="">
-        <button
-          className="mb-5 ml-auto w-12 h-12 rounded-full bg-red-500 flex items-center justify-center shadow-lg"
-          onClick={() => {
-            navigate('/bookingform');
-          }}
-        >
-          <FiPlus size={20} />
-        </button>
-      </div>
+      <div className="flex items-center justify-center mt-5">
+          <button className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500">
+            <span className="ml-2 text-base text-white">Đặt lịch</span>
+          </button>
+        </div>
       <ServiceChoose />
     </Page>
   );

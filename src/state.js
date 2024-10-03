@@ -1,117 +1,185 @@
 import { atom } from 'recoil';
 import { authorize, getUserInfo, getPhoneNumber } from 'zmp-sdk/apis';
+import Cookies from 'js-cookie';
 
 export const userState = atom({
   key: 'userState',
   default: {
     userInfo: {},
     phoneNumber: '',
+    accessToken: '',
+    refreshToken: '',
   },
 });
 
-// Hàm gọi API Backend để lấy thông tin người dùng
-const fetchBackendUserInfo = async (zaloId, token) => {
-  try {
-    const response = await fetch(`http://localhost:8080/api/users/user-info/${zaloId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch user info from backend");
-    }
-
-    const userInfo = await response.json();
-    return userInfo;
-  } catch (error) {
-    console.error("Error fetching user info from backend:", error);
-    throw error;
-  }
-};
-
-// Hàm gọi API từ Zalo SDK và Backend, cập nhật userState
-export const fetchUserData = () => {
-  return new Promise((resolve, reject) => {
-    authorize({
-      scopes: ["scope.userInfo", "scope.userPhonenumber"],
-      success: async (authData) => {
-        try {
-          // Lấy thông tin từ Zalo SDK
-          getUserInfo({
-            success: async (userData) => {
-              const { userInfo } = userData;
-
-              getPhoneNumber({
-                success: async (phoneData) => {
-                  const { token } = phoneData;
-
-                  // Gọi API từ Backend để cập nhật thông tin
-                  try {
-                    const backendUserInfo = await fetchBackendUserInfo(userInfo.zaloId, token);
-
-                    // Cập nhật trạng thái người dùng
-                    resolve({
-                      userInfo: backendUserInfo,
-                      phoneNumber: phoneData.phoneNumber,
-                    });
-                  } catch (error) {
-                    reject("Backend Fetch Error: " + error.message);
-                  }
-                },
-                fail: (error) => {
-                  reject("Get Phone Number Error: " + error);
-                }
-              });
-            },
-            fail: (error) => {
-              reject("Get User Info Error: " + error);
-            }
-          });
-        } catch (error) {
-          reject("Authorization Error: " + error);
-        }
-      },
-      fail: (error) => {
-        reject("Authorization Error: " + error);
-      }
-    });
-  });
-};
-
-
-// export const fetchUserData = async () => {
+// //FETCH DỮ LIỆU TỪ BÊN ZALO NÊN GỌI DUY NHẤT 1 LẦN
+// export const fetchUserData = () => {
 //   return new Promise((resolve, reject) => {
 //     authorize({
-//       scopes: ["scope.userInfo", "scope.userPhonenumber"],
-//       success: async (authData) => {
-//         try {
-//           const userData = await new Promise((res, rej) => {
-//             getUserInfo({
-//               success: (data) => res(data),
-//               fail: (error) => rej("Get User Info Error: " + error),
-//             });
-//           });
-
-//           const { userInfo } = userData;
-
-//           const phoneData = await new Promise((res, rej) => {
+//       scopes: ['scope.userInfo', 'scope.userPhonenumber'],
+//       success: (authData) => {
+//         getUserInfo({
+//           success: (userData) => {
+//             const { userInfo } = userData;
+//             console.log('User Info:', userInfo);
 //             getPhoneNumber({
-//               success: (data) => res(data),
-//               fail: (error) => rej("Get Phone Number Error: " + error),
+//               success: (phoneData) => {
+//                 const { token } = phoneData;
+//                 resolve({ userInfo, phoneNumber: token });
+//                 // THÊM TẠM ĐĂNG KÝ Ở ĐÂY
+//                 registerAPI(userInfo);
+//               },
+//               fail: (error) => {
+//                 reject('Get Phone Number Error: ' + error);
+//               },
 //             });
-//           });
-
-//           const { token: phoneNumber } = phoneData;
-
-//           resolve({ userInfo, phoneNumber });
-//         } catch (error) {
-//           reject(error);
-//         }
+//           },
+//           fail: (error) => {
+//             reject('Get User Info Error: ' + error);
+//           },
+//         });
 //       },
 //       fail: (error) => {
-//         reject("Authorization Error: " + error);
-//       }
+//         reject('Authorization Error: ' + error);
+//       },
 //     });
 //   });
+// };
+
+// //KIỂM TRA XEM TÀI KHOẢN CÓ KẾT NỐI VỚI SERVER CHƯA
+// export const testFetchAPI = async () => {
+//   try {
+//     const response = await fetch('http://localhost:8080');
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const data = await response.text();
+//     console.log(data);
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+
+// // ĐĂNG KÝ TÀI KHOẢN MINI APP CHO LẦN ĐẦU DÙNG APP
+// export const registerAPI = async (userData) => {
+//   try {
+//     const { id, name, avatar } = userData;
+//     const response = await fetch('http://localhost:8080/auth/register', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         zaloId: id,
+//         name,
+//         urlImage: avatar,
+//         role: 'user',
+//       }),
+//     });
+//     if (!response.ok) {
+//       console.log('Đăng ký bằng Zalo ID thành công');
+//     }
+//     if (!response.ok) {
+//       //Nếu tài khoản đã tồn tại thì đăng nhập
+//       if (response.status === 409) {
+//         console.log('Đăng nhập bằng Zalo ID');
+//         loginAPI(userData);
+//       } else {
+//         throw new Error(`HTTP error! status: ${response.status}`);
+//       }
+//     }
+//     const data = await response.json();
+//     console.table({
+//       accessToken: data.accessToken,
+//       refreshToken: data.refreshToken,
+//     });
+//     Cookies.set('accessToken', data.accessToken, { expires: 1 / 24 });
+//     Cookies.set('refreshToken', data.refreshToken, { expires: 7 });
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+
+// // ĐĂNG NHẬP TÀI KHOẢN MINI APP
+// export const loginAPI = async (userData) => {
+//   try {
+//     const { id } = userData;
+//     const response = await fetch('http://localhost:8080/auth/login', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         zaloId: id,
+//         role: 'user',
+//       }),
+//     });
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     console.table({
+//       accessToken: data.accessToken,
+//       refreshToken: data.refreshToken,
+//     });
+//     Cookies.set('accessToken', data.accessToken, { expires: 1 / 24 });
+//     Cookies.set('refreshToken', data.refreshToken, { expires: 7 });
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+
+// // LẤY THÔNG TIN NGƯỜI DÙNG
+// export const getUserInfoAPI = async (zaloId) => {
+//   try {
+//     const response = await fetch(
+//       `http://localhost:8080/auth/users/user-info/${zaloId}`,
+//       {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Authorization: 'Bearer ' + Cookies.get('accessToken'),
+//         },
+//         body: JSON.stringify({}),
+//       }
+//     );
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     console.log(data);
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+
+// // LẤY THÔNG TIN NGƯỜI DÙNG
+// export const updateUserInfoAPI = async (zaloId, name, phone) => {
+//   try {
+//     const response = await fetch(
+//       `http://localhost:8080/auth/users/update-user-info/${zaloId}`,
+//       {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Authorization: 'Bearer ' + Cookies.get('accessToken'),
+//         },
+//         body: JSON.stringify({
+//           name,
+//           phone
+//         }),
+//       }
+//     );
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     console.log(data);
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
 // };

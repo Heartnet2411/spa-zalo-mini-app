@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Input, Box, Page, useSnackbar, Avatar, List } from 'zmp-ui';
+import { Box, Page, Avatar } from 'zmp-ui';
 import { useNavigate } from 'react-router';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { userState, fetchUserData } from '../state';
+import { userState } from '../state';
 import Header from '../components/header';
 
 const FormPage = () => {
@@ -41,9 +41,7 @@ const FormPage = () => {
                 <input
                   id="phone"
                   type="text"
-                  value={phoneNumber}
                   className="w-full border p-2 rounded-md"
-                  readOnly
                 />
               </div>
               <div className="mb-4 flex items-center justify-center flex-row">
@@ -58,7 +56,7 @@ const FormPage = () => {
                   readOnly
                 />
               </div>
-              <div className="mb-4 flex items-center justify-center flex-row">
+              {/* <div className="mb-4 flex items-center justify-center flex-row">
                 <label className="block text-gray-700 text-sm font-bold mb-2 w-40">
                   ID
                 </label>
@@ -69,7 +67,7 @@ const FormPage = () => {
                   className="w-full border p-2 rounded-md bg-gray-100"
                   readOnly
                 />
-              </div>
+              </div> */}
               <div className="mb-4 flex items-center justify-center flex-row">
                 <label className="block text-gray-700 text-sm font-bold mb-2 w-40">
                   Giới tính <span className="text-red-500">*</span>

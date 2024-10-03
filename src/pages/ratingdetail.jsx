@@ -62,12 +62,12 @@ const RatingDetailPage = () => {
             </div>
           </div>
           <div className="flex flex-row space-x-4 mb-5">
-            <button className="w-44 rounded-lg border border-orange-500 mt-5 flex flex-col items-center justify-center p-1 ">
+            <button className="px-3 rounded-lg border border-orange-500 mt-5 flex flex-col items-center justify-center ">
               <Icon icon="zi-camera" className="text-orange-500" />
               <span className="text-orange-500">Thêm hình ảnh</span>
             </button>
 
-            <button className="w-44 rounded-lg border border-orange-500 mt-5 flex flex-col items-center justify-center">
+            <button className="px-6  rounded-lg border border-orange-500 mt-5 flex flex-col items-center justify-center">
               <Icon icon="zi-video" className="text-orange-500" />
               <span className="text-orange-500">Thêm video</span>
             </button>
