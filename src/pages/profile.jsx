@@ -2,9 +2,9 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { Avatar, List, Text, Box, Page, Button, Icon, useNavigate } from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import Header from '../components/header';
-import { getZaloAccessToken, getZaloInfo } from '../services/zalo.service'; // From zalo.service.js
-import { loginAPI, registerAPI } from '../services/auth.service'; // From auth.server.js
-import { testAPI } from '../services/test.service'; // From test.service.js
+import { getZaloAccessToken, getZaloInfo } from '../services/zalo.service'; 
+import { loginAPI, registerAPI } from '../services/auth.service'; 
+import { testAPI } from '../services/test.service'; 
 import { userState } from '../state'; 
 
 const ProfilePage = () => {
@@ -40,30 +40,6 @@ const ProfilePage = () => {
       console.error('Lỗi khi gọi API test:', error);
     }
   };
-
-  // // Hàm gọi API đăng nhập
-  // const handleLogin = async () => {
-  //   if (!accessToken) {
-  //     console.error('Không có access token để đăng nhập');
-  //     alert("Không có thông tin để đăng nhập");
-  //     return;
-  //   }
-  
-  //   try {
-  //     const result = await loginAPI(accessToken);
-  //     if (result) {
-  //       setLoginData(result); 
-  //       setUserState({
-  //         userInfo: result.userProfile, 
-  //         phoneNumber: result.phoneNumber 
-  //       }); 
-  //     } else {
-  //       alert('Đăng nhập không thành công');
-  //     }
-  //   } catch (error) {
-  //     alert('Lỗi khi gọi API đăng nhập:', error);
-  //   }
-  // };
 
     // Hàm gọi API đăng nhập
     const handleLogin = async () => {

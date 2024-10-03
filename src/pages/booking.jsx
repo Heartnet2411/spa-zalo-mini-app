@@ -34,7 +34,11 @@ const BookingPage = () => {
         </div> */}
       </div>
       <div className="flex items-center justify-center mt-5">
-          <button className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500">
+          <button className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500" 
+            onClick={() => {
+              navigate('/bookingform');
+            }}
+          >
             <span className="ml-2 text-base text-white">Đặt lịch</span>
           </button>
         </div>

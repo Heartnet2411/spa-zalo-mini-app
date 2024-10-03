@@ -6,7 +6,7 @@ import { products } from '../utils/productdemo';
 import { services } from '../utils/servicedemo';
 import ProductCard from '../components/product-card';
 import ServiceCard from '../components/service-card';
-
+import ServiceChoose from '../components/service-choose';
 export default function HomePage() {
   return (
     <Page className="page">
@@ -67,6 +67,7 @@ export default function HomePage() {
         </div>
         <ServiceCard services={services} />
       </div>
+      <ServiceChoose />
     </Page>
   );
 }
