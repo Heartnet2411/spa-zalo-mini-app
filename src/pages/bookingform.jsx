@@ -49,13 +49,13 @@ const BookingFormPage = () => {
             placeholder="Nhập ghi chú "
           ></textarea>
         </div>
-        <button className="mt-5 w-full rounded-full flex items-center justify-center bg-blue-500">
+        <button className="mt-5 h-8 w-full rounded-full flex items-center justify-center bg-blue-500">
           <span className="ml-2 text-base text-white">Thêm dịch vụ</span>
         </button>
-        <button className="mt-5 w-full rounded-full flex items-center justify-center bg-blue-500">
+        <button className="mt-5 h-8 w-full rounded-full flex items-center justify-center bg-blue-500">
           <span className="ml-2 text-base text-white">Thêm sản phẩm</span>
         </button>
-        <button className="mt-5  w-full rounded-full flex items-center justify-center bg-red-500">
+        <button className="mt-5 h-8 w-full rounded-full flex items-center justify-center bg-red-500">
           <span className="ml-2 text-base text-white">Đặt lịch</span>
         </button>
       </div>

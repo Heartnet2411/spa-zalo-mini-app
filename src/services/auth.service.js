@@ -87,34 +87,6 @@ export const loginAPI = async (zaloAccessToken) => {
   }
 };
 
-// //UPDATE THÔNG TIN NGƯỜI DÙNG THEO ZALOID
-// export const updateUserInfoAPI = async (zaloId, userInfo) => {
-//   try {
-//     const { name, phone, gender } = userInfo;
-//     const response = await fetch(
-//       `${import.meta.env.VITE_SERVER_URL}/api/users/update-user-info/${zaloId}`,
-//       {
-//         method: 'PUT',
-//         headers: {
-//           'Content-Type': 'application/json', 
-//           //'Authorization': `Bearer ${localStorage.getItem('accessToken')}`, 
-//           // Lấy nơi lưu trữ access token để xác thực api hợp lệ
-//         },
-//         body: JSON.stringify({ name, phone, gender }), 
-//       }
-//     );
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     const data = await response.json();
-//     return data;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//   }
-// };
-
 export const updateUserInfoAPI = async (zaloId, userInfo, accessToken) => {
   try {
     const { name, phone, gender } = userInfo;

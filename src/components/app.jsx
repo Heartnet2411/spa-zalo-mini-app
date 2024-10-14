@@ -13,6 +13,8 @@ import CartPage from '../pages/cart';
 import BookingForm from '../pages/bookingform'; 
 import Rating from '../pages/rating';
 import RatingDetail from '../pages/ratingdetail';
+import OrderStatusPage from '../pages/order-status';
+import VoucherPage from '../pages/voucher';
 const MyApp = () => {
   //Hide taskbar with path
 
@@ -32,6 +34,8 @@ const MyApp = () => {
               <Route path="/product/:id" element={<ProductDetail />}></Route>
               <Route path="/cart" element={<CartPage />} />
               <Route path="/form" element={<Form></Form>}></Route>
+              <Route path="/order-status" element={<OrderStatusPage/>}></Route>
+              <Route path="/voucher" element={<VoucherPage/>}></Route>
             </AnimationRoutes>
             <Taskbar />
           </ZMPRouter>
