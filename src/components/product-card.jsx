@@ -7,12 +7,16 @@ const ProductCard = ({ productList }) => {
     <div className="scroll-container grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {productList.map((product) => (
         <Link
-          to={`/product/${product.id}`}
-          key={product.id}
+          to={`/product/${product._id}`}
+          key={product._id}
           className="border rounded-lg p-4 bg-white shadow-md flex flex-col items-center justify-between"
         >
           <img
-            src={product.image}
+            src={
+              product.images && product.images.length > 0
+                ? product.images[0]
+                : product.image
+            }
             alt={product.name}
             className="w-40 h-32 object-contain mb-2 rounded"
           />

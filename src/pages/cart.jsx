@@ -1,37 +1,32 @@
-import React, { Suspense, useState, useRef } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Button, Input, Box, Page, useSnackbar } from 'zmp-ui';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 import { IoBagCheckOutline } from 'react-icons/io5';
 import { LiaTimesSolid } from 'react-icons/lia';
-import anh1 from '../assets/img/example1.jpg';
-import anh2 from '../assets/img/example2.jpg';
 import Header from '../components/header';
-const cartItems = [
-  {
-    id: 1,
-    name: 'Kem Dưỡng Mặt',
-    price: 250000,
-    quantity: 2,
-    image: anh1,
-  },
-  {
-    id: 2,
-    name: 'Serum Mắt',
-    price: 300000,
-    quantity: 1,
-    image: anh2,
-  },
-  {
-    id: 3,
-    name: 'Son Môi',
-    price: 150000,
-    quantity: 3,
-    image: anh1,
-  },
-];
+import { fetchUserCart, removeItemFromCart } from '../services/cart.service';
+import { userState } from '../state';
+import { useRecoilState } from 'recoil';
 
 const CartPage = () => {
-  const [cart, setCart] = useState(cartItems);
+  const [cart, setCart] = useState([]);
+
+  const [user, setUserState] = useRecoilState(userState);
+  console.log(user);
+
+  const getUserCart = async () => {
+    const cart = await fetchUserCart(user.accessToken);
+    if (cart) {
+      setCart(cart.carts);
+    } else {
+      throw new Error('Failed to fetch cart data');
+    }
+  };
+
+  useEffect(() => {
+    getUserCart();
+    // Gọi hàm fetchProducts
+  }, []);
 
   const updateQuantity = (id, amount) => {
     setCart(
@@ -51,60 +46,81 @@ const CartPage = () => {
     0
   );
 
+  const handleRemoveCartItem = async (productId) => {
+    const result = await removeItemFromCart(productId, user.accessToken);
+    if (result) {
+      console.log('Sản phẩm đã được thêm vào giỏ hàng:', result);
+      alert('Sản phẩm đã được xóa khỏi giỏ hàng!');
+      getUserCart();
+    } else {
+      console.log('Không thể thêm sản phẩm vào giỏ hàng.');
+    }
+  };
+
   return (
     <Page className="page">
       <Suspense>
-      <Header />
+        <Header />
         <div className="p-4 mt-14 mb-14 h-screen">
-          <div className="h-4/6 overflow-scroll scroll-container ">
+          <div className="flex-1 overflow-scroll scroll-container ">
             <h1 className="text-2xl font-bold mb-4 text-center">Giỏ Hàng</h1>
-            {cart.map((item) => (
-              <div
-                key={item.id}
-                className=" border rounded-lg p-4 bg-gray-100 mb-2  flex items-center justify-between"
-              >
-                <div className="flex items-center">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-28 h-28 object-contain mr-4 bg-white rounded-lg"
-                  />
-                  <div style={{ width: 'calc(100vw - 13rem)' }} className="">
-                    <h2 className="text-xl font-semibold">{item.name}</h2>
-                    <span className="my-4">30 ml</span>
+            {cart.length > 0 ? ( // Kiểm tra xem giỏ hàng có sản phẩm hay không
+              cart.map((item) => (
+                <div
+                  key={item.productId}
+                  className="border rounded-lg p-4 bg-gray-100 mb-2 flex items-center justify-between"
+                >
+                  <div className="flex items-center">
+                    <img
+                      src={item.images}
+                      alt={item.name}
+                      className="w-28 h-28 object-contain mr-4 bg-white rounded-lg"
+                    />
+                    <div style={{ width: 'calc(100vw - 13rem)' }} className="">
+                      <h2 className="text-xl font-semibold">
+                        {item.productName}
+                      </h2>
+                      <span className="my-4">30 ml</span>
 
-                    <div>
-                      <p className="font-bold text-lg">
-                        {(item.price * item.quantity).toLocaleString()} VNĐ
-                      </p>
-                    </div>
+                      <div>
+                        <p className="font-bold text-lg">
+                          {(item.price * item.quantity).toLocaleString()} VNĐ
+                        </p>
+                      </div>
 
-                    <div className="flex justify-between w-full">
-                      <div className="flex items-center border border-gray-500 p-1 px-3 rounded-lg mt-2">
+                      <div className="flex justify-between w-full">
+                        <div className="flex items-center border border-gray-500 p-1 px-3 rounded-lg mt-2">
+                          <button
+                            disabled={item.quantity <= 1}
+                            onClick={() => updateQuantity(item.id, -1)}
+                          >
+                            <FiMinus size={24} />
+                          </button>
+                          <span className="text-lg font-bold px-4">
+                            {item.quantity}
+                          </span>
+                          <button onClick={() => updateQuantity(item.id, 1)}>
+                            <FiPlus size={24} />
+                          </button>
+                        </div>
                         <button
-                          disabled={item.quantity <= 1}
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() => handleRemoveCartItem(item.productId)}
                         >
-                          <FiMinus size={24} />
-                        </button>
-                        <span className="text-lg font-bold px-4">
-                          {item.quantity}
-                        </span>
-                        <button onClick={() => updateQuantity(item.id, 1)}>
-                          <FiPlus size={24} />
+                          <LiaTimesSolid size={24} />
                         </button>
                       </div>
-                      <button>
-                        <LiaTimesSolid size={24} />
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-center text-lg font-bold text-gray-500 mt-4">
+                Giỏ hàng trống
+              </p> // Hiển thị thông báo giỏ hàng trống
+            )}
           </div>
 
-          <div className="h-2/6 pt-4 flex flex-col justify-end bg-white -mx-4">
+          <div className="h-fit pt-4 flex flex-col justify-end bg-white -mx-4 pb-4">
             <div className="relative mb-2 mx-4">
               <input
                 type="text"

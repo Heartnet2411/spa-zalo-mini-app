@@ -13,6 +13,7 @@ export default function HomePage() {
       <Header />
       <div className="p-4 mb-14">
         <div className="mt-12 flex flex-col items-center justify-center">
+          
           <Swiper autoplay duration={5000} loop>
             <Swiper.Slide>
               <img

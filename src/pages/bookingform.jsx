@@ -1,25 +1,20 @@
 import React, { Suspense, useState } from 'react';
 import { Button, Page, Text, useNavigate, Input, Select } from 'zmp-ui';
 import Header from '../components/header';
-import {userState} from '../state'
+import { userState } from '../state';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 const BookingFormPage = () => {
- 
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user, phoneNumber } = useRecoilValue(userState);
 
   return (
     <Page className="page">
-      <Header/>
+      <Header />
       <div className="p-4 mt-14 mb-14">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h1 className="text-1xl mb-4 custom-font ">THÔNG TIN KHÁCH HÀNG</h1>
           <Text>Họ và tên</Text>
-          <Input 
-            id="name"
-            type="text"
-            value={user.name}
-          />
+          <Input id="name" type="text" value={user.name} />
           <Text>Số điện thoại liên hệ</Text>
           <Input placeholder="Nhập số điện thoại"></Input>
         </div>
