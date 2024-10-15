@@ -36,3 +36,11 @@
 .text-bold{
   font-weight: bolder;
 }
+
+.radius-custom{
+  border-bottom-right-radius: 15px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  overflow: hidden;
+}

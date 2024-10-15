@@ -1,23 +1,31 @@
 import React, { useEffect, useState, Suspense } from 'react';
-import { Avatar, List, Text, Box, Page, Button, Icon, useNavigate } from 'zmp-ui';
+import {
+  Avatar,
+  List,
+  Text,
+  Box,
+  Page,
+  Button,
+  Icon,
+  useNavigate,
+} from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import Header from '../components/header';
-import { getZaloAccessToken, getZaloInfo } from '../services/zalo.service'; // From zalo.service.js
-import { loginAPI, registerAPI } from '../services/auth.service'; // From auth.server.js
-import { testAPI } from '../services/test.service'; // From test.service.js
-import { userState } from '../state'; 
+import { getZaloAccessToken, getZaloInfo } from '../services/zalo.service';
+import { loginAPI, registerAPI } from '../services/auth.service';
+import { testAPI } from '../services/test.service';
+import { userState } from '../state';
 
 const ProfilePage = () => {
   const [data, setData] = useState('');
   const [accessToken, setAccessToken] = useState('');
-  const [authData, setAuthData] = useState(null); 
-  const [loginData, setLoginData] = useState(null); 
+  const [authData, setAuthData] = useState(null);
+  const [loginData, setLoginData] = useState(null);
 
-  const setUserState = useSetRecoilState(userState); 
+  const setUserState = useSetRecoilState(userState);
   const navigate = useNavigate();
-  
-  
-  const { userInfo: user } = useRecoilValue(userState); 
+
+  const { userInfo: user } = useRecoilValue(userState);
 
   // Hàm xử lý xác thực và lấy access token
   const handleAuthorization = async () => {
@@ -41,54 +49,30 @@ const ProfilePage = () => {
     }
   };
 
-  // // Hàm gọi API đăng nhập
-  // const handleLogin = async () => {
-  //   if (!accessToken) {
-  //     console.error('Không có access token để đăng nhập');
-  //     alert("Không có thông tin để đăng nhập");
-  //     return;
-  //   }
-  
-  //   try {
-  //     const result = await loginAPI(accessToken);
-  //     if (result) {
-  //       setLoginData(result); 
-  //       setUserState({
-  //         userInfo: result.userProfile, 
-  //         phoneNumber: result.phoneNumber 
-  //       }); 
-  //     } else {
-  //       alert('Đăng nhập không thành công');
-  //     }
-  //   } catch (error) {
-  //     alert('Lỗi khi gọi API đăng nhập:', error);
-  //   }
-  // };
+  // Hàm gọi API đăng nhập
+  const handleLogin = async () => {
+    if (!accessToken) {
+      console.error('Không có access token để đăng nhập');
+      return;
+    }
 
-    // Hàm gọi API đăng nhập
-    const handleLogin = async () => {
-      if (!accessToken) {
-        console.error('Không có access token để đăng nhập');
-        return;
+    try {
+      const result = await loginAPI(accessToken);
+      if (result) {
+        // Cập nhật thông tin người dùng vào Recoil state
+        setUserState({
+          userInfo: result.userProfile,
+          phoneNumber: result.phoneNumber,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        });
+      } else {
+        console.error('Đăng nhập không thành công');
       }
-  
-      try {
-        const result = await loginAPI(accessToken);
-        if (result) {
-          // Cập nhật thông tin người dùng vào Recoil state
-          setUserState({
-            userInfo: result.userProfile,
-            phoneNumber: result.phoneNumber,
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          });
-        } else {
-          console.error('Đăng nhập không thành công');
-        }
-      } catch (error) {
-        console.error('Lỗi khi gọi API đăng nhập:', error);
-      }
-    };
+    } catch (error) {
+      console.error('Lỗi khi gọi API đăng nhập:', error);
+    }
+  };
 
   useEffect(() => {
     handleAuthorization();
@@ -97,10 +81,9 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (accessToken) {
-      handleLogin(); 
+      handleLogin();
     }
-  }, [accessToken]); 
-
+  }, [accessToken]);
 
   return (
     <Page className="page">
@@ -146,13 +129,23 @@ const ProfilePage = () => {
             <span className="text-xl font-bold text-blue-500 mt-3 ">Hạng:</span>
             <span className="mt-3 mb-3">{user.membershipTier}</span>
 
-            <button className="w-14 h-6 rounded-xl bg-red-500 mb-5 ">
+            <button
+              className="w-14 h-6 rounded-xl bg-red-500 mb-5 "
+              onClick={() => {
+                navigate('/voucher');
+              }}
+            >
               <span className="text-white">Ưu đãi</span>
             </button>
           </div>
         </div>
         <div className="flex items-center justify-center mt-5">
-          <button className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500">
+          <button
+            className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500"
+            onClick={() => {
+              navigate('/order-status');
+            }}
+          >
             <span className="ml-2 text-base text-white">Đơn hàng đã mua</span>
           </button>
         </div>

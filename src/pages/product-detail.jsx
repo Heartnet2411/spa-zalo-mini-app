@@ -1,11 +1,13 @@
 // src/pages/ProductDetail.js
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Button, Input, Text, Page, useSnackbar } from 'zmp-ui';
+import { Page, Swiper, Box, Text } from 'zmp-ui';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { products } from '../utils/productdemo';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { MdOutlineAddShoppingCart } from 'react-icons/md';
 import { IoBagCheckOutline } from 'react-icons/io5';
+import { IoReturnDownBack } from 'react-icons/io5';
 import { getProductById } from '../services/product.service';
 import { addToCart } from '../services/cart.service';
 import { useRecoilState } from 'recoil';
@@ -13,6 +15,7 @@ import { userState } from '../state';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [count, setCount] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -59,17 +62,44 @@ const ProductDetail = () => {
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
 
+  const textStyles = {
+    Header: {
+      normal: {
+        size: 16,
+        lineHeight: 22,
+      },
+      small: {
+        size: 15,
+        lineHeight: 20,
+      },
+    },
+  };
+
   return (
     <Page className="page flex flex-col h-screen">
       <Suspense>
-        <div className="  relative mb-24">
+        <div className="relative mb-24">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-0 left-0 bg-white z-50 px-4 py-1 radius-custom overflow-hidden active:bg-slate-300"
+          >
+            <IoReturnDownBack size={30} />
+          </button>
           <div className="flex  flex-col  md:flex-row md:items-start relative ">
-            <img
-              src={product.images}
-              alt={product.name}
-              className="h-[40vh] w-auto object-contain mb-4 md:mr-4 border-b border-gray-300"
-            />
-            <div className="px-8">
+            <Swiper>
+              {product.images.map((image, index) => (
+                <Swiper.Slide key={index}>
+                  <div className="flex justify-center h-[40vh] w-full">
+                    <img
+                      className="h-max w-max object-contain mb-4 md:mr-4 border-b border-gray-300"
+                      src={image}
+                      alt={`slide-${index + 1}`}
+                    />
+                  </div>
+                </Swiper.Slide>
+              ))}
+            </Swiper>
+            <div className="px-8 mt-2">
               <h1 className="text-3xl font-bold ">{product.name}</h1>
 
               <div className="my-4 flex space-x-2">
@@ -113,9 +143,9 @@ const ProductDetail = () => {
                 </p>
               </div>
 
-              <Text size="xLarge M" bold>
+              <p className="text-xl font-bold mt-4 bold-text">
                 Thông tin sản phẩm
-              </Text>
+              </p>
               <p className="text-base">{product.description}</p>
 
               <h2 className="text-xl font-bold mt-4">Thành phần</h2>
@@ -149,13 +179,15 @@ const ProductDetail = () => {
           <div className="fixed bottom-0 flex justify-between w-full px-4 bg-white py-4">
             <button
               onClick={handleAddProductToCart}
-              className="w-1/4 rounded-xl border-2 border-gray-500 flex justify-center items-center bg-white"
+              className="w-1/4 rounded-xl border-2 border-gray-500 flex justify-center items-center bg-white active:bg-slate-300"
             >
               <MdOutlineAddShoppingCart size={24} />
             </button>
-            <button className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500">
-              <IoBagCheckOutline size={24} />
-              <span className="ml-2 text-base font-bold">Thanh toán ngay</span>
+            <button className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500 active:bg-blue-300">
+              <IoBagCheckOutline size={24} color="white" />
+              <span className="ml-2 text-lg text-white font-bold">
+                Thanh toán ngay
+              </span>
             </button>
           </div>
         </div>
