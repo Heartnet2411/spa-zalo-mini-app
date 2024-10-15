@@ -1,45 +1,105 @@
-import React, { Suspense } from 'react';
-import { Button, Page, Text, useNavigate } from 'zmp-ui';
-import { FiPlus } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { Page, Text, useNavigate } from 'zmp-ui';
 import Header from '../components/header';
 import ServiceChoose from '../components/service-choose';
+import BookingTags from '../components/booking-tag';
+import { bookings } from '../utils/bookingdemo';
+
 const BookingPage = () => {
   const navigate = useNavigate();
+  const [filterStatus, setFilterStatus] = useState('Tất cả');
+
+  const statusMapping = {
+    'Tất cả': 'all',
+    'Chờ xác nhận': 'pending',
+    'Đã xác nhận': 'approve',
+    'Đã đặt lịch': 'completed',
+    'Đã hủy lịch': 'cancelled',
+  };
+
+  const statusDisplayMapping = {
+    cancelled: 'Đã hủy lịch',
+    completed: 'Đã đặt lịch',
+    pending: 'Chờ xác nhận',
+    approve: 'Đã xác nhận',
+  };
+
+  const filteredBookings =
+    statusMapping[filterStatus] === 'all'
+      ? bookings
+      : bookings.filter(
+          (booking) => booking.bookingStatus === statusMapping[filterStatus]
+        );
+
   return (
-    <Page className="page">
-       <Header/>
-      <div className="p-4 mb-14 mt-14 flex items-center justify-center">
-        <div className="text-center">
-          <Text className="text-lg font-bold">Chưa có lịch hẹn</Text>
+    
+      <Page className="page">
+        <Header />
+
+        {/* Filter Tags */}
+        <div className="mt-16 mb-2">
+          <BookingTags
+            selectedCategory={filterStatus}
+            onSelectCategory={setFilterStatus}
+          />
         </div>
-        {/* <Text className="text-lg mb-4">
-          Thời gian đặt lịch: tháng 9 năm 2024
-        </Text> */}
-        {/* <div className="bg-white p-4 rounded-lg shadow-md">
-          <Text className="text-base font-bold mb-1">Mã đặt lịch:</Text>
-          <Text className="text-base mb-2">
-            9647BB7A04204EA19EC788E2616BDB12
-          </Text>
 
-          <Text className="text-base font-bold mb-1">Khách hàng:</Text>
-          <Text className="text-base mb-2">Lê Quang Trung</Text>
+        {/* Hiển thị thông báo khi không có booking */}
+        {filteredBookings.length === 0 ? (
+          <div className="p-4 mb-14 mt-14 flex items-center justify-center">
+            <div className="text-center">
+              <Text className="text-lg font-bold">Chưa có lịch hẹn</Text>
+            </div>
+          </div>
+        ) : (
+          // Hiển thị danh sách các booking đã lọc
+          <div className="grid gap-6">
+            {filteredBookings.map((booking) => (
+              <div
+                key={booking.id}
+                className="border rounded-lg p-4 bg-white shadow-md "
+              >
+                <Text>Mã đặt lịch:</Text>
+                <Text>{booking.bookingCode}</Text>
 
-          <Text className="text-base font-bold mb-1">Thời gian đặt lịch:</Text>
-          <Text className="text-base mb-2">09:45 - 23/09/2024</Text>
+                <Text>Thời gian đặt lịch:</Text>
+                <Text>{booking.bookingTime}</Text>
 
-          <Text className="text-base font-bold mb-1">Trạng thái đặt lịch:</Text>
-          <Text className="text-base text-red-500 mb-4">Đã huỷ</Text>
+                <Text>Trạng thái đặt lịch:</Text>
+                <Text
+                  className={`text-base mb-4 ${
+                    booking.bookingStatus === 'cancelled'
+                      ? 'text-red-500'
+                      : booking.bookingStatus === 'completed'
+                        ? 'text-green-500'
+                        : booking.bookingStatus === 'pending'
+                          ? 'text-yellow-500'
+                          : 'text-blue-500'
+                  }`}
+                >
+                  {statusDisplayMapping[booking.bookingStatus] ||
+                    booking.bookingStatus.charAt(0).toUpperCase() +
+                      booking.bookingStatus.slice(1)}
+                </Text>
+              </div>
+            ))}
+          </div>
+        )}
 
-          <Button className="w-full">Xem chi tiết đặt lịch</Button>
-        </div> */}
-      </div>
-      <div className="flex items-center justify-center mt-5">
-          <button className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500">
+        {/* Button đặt lịch */}
+        <div className="flex items-center justify-center mt-5">
+          <button
+            className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500"
+            onClick={() => {
+              navigate('/bookingform');
+            }}
+          >
             <span className="ml-2 text-base text-white">Đặt lịch</span>
           </button>
         </div>
-      <ServiceChoose />
-    </Page>
+
+        <ServiceChoose />
+      </Page>
   );
 };
 

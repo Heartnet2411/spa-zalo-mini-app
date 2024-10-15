@@ -23,6 +23,10 @@ const Header = () => {
         return 'Chỉnh sửa thông tin';
       case '/cart':
         return 'Giỏ hàng';
+      case '/order-status':
+        return 'Trạng thái đơn hàng';
+      case '/voucher':
+        return 'Danh sách Voucher';
       case '/rating':
         return 'Đánh giá của tôi';
       case '/ratingdetail':

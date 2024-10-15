@@ -6,7 +6,6 @@ export const userState = atom({
   key: 'userState',
   default: {
     userInfo: {},
-    phoneNumber: '',
     accessToken: '',
     refreshToken: '',
   },
