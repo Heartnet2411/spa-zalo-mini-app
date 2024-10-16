@@ -150,7 +150,7 @@ const ShopPage = () => {
                 </button>
 
                 {/*  Cart button */}
-                <button className="w-1/2 px-4 py-2 rounded-md bg-blue-500 text-white ">
+                <button className="w-1/2 px-4 py-2 rounded-md bg-blue-500 text-white active:bg-blue-300">
                   <Link
                     to={`/cart`}
                     className="w-auto flex  items-center justify-between"
