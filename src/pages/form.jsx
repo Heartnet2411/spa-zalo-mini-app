@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../state';
 import Header from '../components/header';
-import { updateUserInfoAPI } from '../services/auth.service';
+import { updateUserInfoAPI } from '../services/user.service';
 
 const FormPage = () => {
   const setUserState = useSetRecoilState(userState);

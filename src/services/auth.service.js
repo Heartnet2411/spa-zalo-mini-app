@@ -1,8 +1,12 @@
-export const registerAPI = async (zaloAccessToken) => {
-  try {
-    // alert('Đang đăng ký bằng Zalo ID');
-    // alert(`${import.meta.env.VITE_SERVER_URL}/auth/register`);
+import { getZaloPhoneNumber } from './zalo.service';
 
+export const registerAPI = async (zaloAccessToken, phoneToken = null) => {
+  try {
+    if (!phoneToken) {
+      phoneToken = await getZaloPhoneNumber();
+    } else {
+      phoneToken = null;
+    }
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/auth/register`,
       {
@@ -12,36 +16,78 @@ export const registerAPI = async (zaloAccessToken) => {
         },
         body: JSON.stringify({
           zaloAccessToken,
+          phoneToken,
           role: 'user',
         }),
       }
     );
 
     if (response.ok) {
-      // alert('Đăng ký bằng Zalo ID thành công');
       const data = await response.json();
       console.table(data.userProfile);
-      console.table({
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-      });
+      console.log('AcessToken::::');
+      console.log(data.accessToken);
+      console.log('RefreshToken::::');
+      console.log(data.refreshToken);
       return data;
     } else {
-      // alert('Đăng ký bằng Zalo ID thất bại');
-      // alert(`HTTP error! status: ${response.status}`);
-
-      // Lấy dữ liệu lỗi dưới dạng JSON
-      const errorData = await response.text();
-      // alert(`Error code: ${errorData}`);
+      const errorData = await response.json();
+      console.log(errorData.status);
 
       throw new Error(
         `HTTP error! status: ${response.status}, message: ${errorData.message}`
       );
     }
   } catch (error) {
-    // alert('Đã xảy ra lỗi trong quá trình gọi API.');
-    // alert(`Error: ${error.message}`);
     console.error('Error fetching data:', error);
+  }
+};
+
+// ĐĂNG KÝ VỚI MÃ NGƯỜI GIỚI THIỆU
+
+export const registerWithReferralAPI = async (
+  zaloAccessToken,
+  phoneToken = null,
+  refferalCode
+) => {
+  try {
+    if (!phoneToken) {
+      phoneToken = await getZaloPhoneNumber();
+    } else {
+      phoneToken = null;
+    }
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/auth/register/${refferalCode}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          zaloAccessToken,
+          phoneToken,
+          role: 'user',
+        }),
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      console.table(data.userProfile);
+      console.log('AcessToken::::');
+      console.log(data.accessToken);
+      console.log('RefreshToken::::');
+      console.log(data.refreshToken);
+      return data;
+    } else {
+      const errorData = await response.json();
+      console.log(errorData.error);
+
+      throw new Error(response);
+    }
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 };
 
@@ -61,53 +107,49 @@ export const loginAPI = async (zaloAccessToken) => {
         }),
       }
     );
-    // alert('Đang đăng nhap ');
+
     if (!response.ok) {
       // Kiểm tra mã lỗi
+      console.log(response);
       if (response.status === 404) {
-        console.log('Người dùng không tồn tại, tiến hành đăng ký...');
-        // alert('Người dùng không tồn tại, tiến hành đăng ký...');
+        console.log('Người dùng không tồn tại, hỏi mã tiếp thị liên kết...');
+        let registerResult = null;
+        // Nếu người dùng không tồn tại, yêu cầu nhập mã tiếp thị liên kết
+        while (!registerResult) {
+          const referralCode = prompt('Vui lòng nhập mã tiếp thị liên kết:');
+          console.log(referralCode);
 
-        // Gọi hàm đăng ký
-        return await registerAPI(zaloAccessToken);
+          if (referralCode) {
+            // Nếu có mã tiếp thị liên kết, gọi API đăng ký với mã referral
+            registerResult = await registerWithReferralAPI(
+              zaloAccessToken,
+              null,
+              referralCode
+            );
+          } else {
+            // Nếu không có mã referral, gọi API đăng ký thông thường
+            registerResult = await registerAPI(zaloAccessToken);
+          }
+          // Kiểm tra kết quả từ API, nếu trả về null, tiếp tục yêu cầu nhập lại mã referral
+          if (!registerResult) {
+            console.log('Mã tiếp thị liên kết không hợp lệ. Vui lòng nhập lại.');
+          }
+        }
+        return registerResult;
+      } else {
+        const errorData = await response.json();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorData.error?.message || 'Unknown error'}`
+        );
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    // alert('Đăng nhap thanh cong');
     console.table(data.userProfile);
     console.table({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
     });
-    //lưu data.accessToken, data.refreshToken, data.userProfile
-    return data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
-
-export const updateUserInfoAPI = async (zaloId, userInfo, accessToken) => {
-  try {
-    const { name, phone, gender } = userInfo;
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/users/update-user-info/${zaloId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`, // Sử dụng access token từ Recoil
-        },
-        body: JSON.stringify({ name, phone, gender }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error fetching data:', error);

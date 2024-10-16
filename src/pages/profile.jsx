@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Avatar,
   List,
@@ -11,45 +11,28 @@ import {
 } from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import Header from '../components/header';
-import { getZaloAccessToken, getZaloInfo } from '../services/zalo.service';
-import { loginAPI, registerAPI } from '../services/auth.service';
-import { testAPI } from '../services/test.service';
+import { getZaloAccessToken, getZaloPhoneNumber } from '../services/zalo.service';
+import { loginAPI } from '../services/auth.service';
 import { userState } from '../state';
 
 const ProfilePage = () => {
-  const [data, setData] = useState('');
   const [accessToken, setAccessToken] = useState('');
-  const [authData, setAuthData] = useState(null);
-  const [loginData, setLoginData] = useState(null);
-
+  const [phoneNumber, setPhoneNumber] = useState('');
   const setUserState = useSetRecoilState(userState);
+  const { userInfo: user } = useRecoilValue(userState);
   const navigate = useNavigate();
 
-  const { userInfo: user } = useRecoilValue(userState);
-
-  // Hàm xử lý xác thực và lấy access token
+  // Hàm xác thực người dùng và lấy access token
   const handleAuthorization = async () => {
     try {
-      const authResult = await getZaloInfo();
-      setAuthData(authResult);
-      const token = await getZaloAccessToken();
+      const token = await getZaloAccessToken(); // Lấy accessToken từ Zalo
       setAccessToken(token);
     } catch (error) {
-      console.error('Lỗi khi xác thực hoặc lấy access token:', error);
+      console.error('Lỗi khi lấy access token:', error);
     }
   };
 
-  // Hàm gọi API test
-  const fetchData = async () => {
-    try {
-      const response = await testAPI();
-      setData(response);
-    } catch (error) {
-      console.error('Lỗi khi gọi API test:', error);
-    }
-  };
-
-  // Hàm gọi API đăng nhập
+  // Hàm đăng nhập và lấy thông tin người dùng
   const handleLogin = async () => {
     if (!accessToken) {
       console.error('Không có access token để đăng nhập');
@@ -57,7 +40,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const result = await loginAPI(accessToken);
+      const result = await loginAPI(accessToken); // Gọi API đăng nhập
       if (result) {
         // Cập nhật thông tin người dùng vào Recoil state
         setUserState({
@@ -66,22 +49,30 @@ const ProfilePage = () => {
           accessToken: result.accessToken,
           refreshToken: result.refreshToken,
         });
-      } else {
-        console.error('Đăng nhập không thành công');
       }
     } catch (error) {
-      console.error('Lỗi khi gọi API đăng nhập:', error);
+      console.error('Lỗi khi đăng nhập:', error);
+    }
+  };
+
+  // Hàm lấy số điện thoại người dùng từ Zalo
+  const fetchPhoneNumber = async () => {
+    try {
+      const phone = await getZaloPhoneNumber(); // Lấy số điện thoại
+      setPhoneNumber(phone);
+    } catch (error) {
+      console.error('Lỗi khi lấy số điện thoại:', error);
     }
   };
 
   useEffect(() => {
-    handleAuthorization();
-    fetchData();
+    handleAuthorization(); // Bắt đầu xác thực khi component load
   }, []);
 
   useEffect(() => {
     if (accessToken) {
-      handleLogin();
+      handleLogin(); // Đăng nhập sau khi có accessToken
+      fetchPhoneNumber(); // Lấy số điện thoại người dùng
     }
   }, [accessToken]);
 
