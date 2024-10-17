@@ -74,6 +74,7 @@ const FormPage = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full border p-2 rounded-md"
+                  readOnly
                 />
               </div>
 
