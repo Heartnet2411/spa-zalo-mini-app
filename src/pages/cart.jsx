@@ -4,7 +4,11 @@ import { FiMinus, FiPlus } from 'react-icons/fi';
 import { IoBagCheckOutline } from 'react-icons/io5';
 import { LiaTimesSolid } from 'react-icons/lia';
 import Header from '../components/header';
-import { fetchUserCart, removeItemFromCart } from '../services/cart.service';
+import {
+  fetchUserCart,
+  removeItemFromCart,
+  updateQuantityInCart,
+} from '../services/cart.service';
 import { userState } from '../state';
 import { useRecoilState } from 'recoil';
 
@@ -12,7 +16,7 @@ const CartPage = () => {
   const [cart, setCart] = useState([]);
 
   const [user, setUserState] = useRecoilState(userState);
-  console.log(user);
+  console.log(cart);
 
   const getUserCart = async () => {
     const cart = await fetchUserCart(user.accessToken);
@@ -28,17 +32,46 @@ const CartPage = () => {
     // Gọi hàm fetchProducts
   }, []);
 
-  const updateQuantity = (id, amount) => {
-    setCart(
-      cart.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.max(0, item.quantity + amount),
-            }
-          : item
-      )
+  const plusCartQuantity = async (productId, variantId, quantity) => {
+    const result = await updateQuantityInCart(
+      productId,
+      variantId,
+      quantity + 1,
+      user.accessToken
     );
+    if (result) {
+      console.log('Cập nhật thành công', result);
+      const cart = await fetchUserCart(user.accessToken);
+      if (cart) {
+        setCart(cart.carts);
+      } else {
+        throw new Error('Failed to fetch cart data');
+      }
+    } else {
+      console.log('Cập nhật thất bại');
+      // Hiển thị thông báo lỗi cho người dùng nếu cần
+    }
+  };
+
+  const reduceCartQuantity = async (productId, variantId, quantity) => {
+    const result = await updateQuantityInCart(
+      productId,
+      variantId,
+      quantity - 1,
+      user.accessToken
+    );
+    if (result) {
+      console.log('Cập nhật thành công', result);
+      const cart = await fetchUserCart(user.accessToken);
+      if (cart) {
+        setCart(cart.carts);
+      } else {
+        throw new Error('Failed to fetch cart data');
+      }
+    } else {
+      console.log('Cập nhật thất bại');
+      // Hiển thị thông báo lỗi cho người dùng nếu cần
+    }
   };
 
   const totalAmount = cart.reduce(
@@ -61,7 +94,7 @@ const CartPage = () => {
     <Page className="page">
       <Suspense>
         <Header />
-        <div className="p-4 mt-14 mb-14 h-screen">
+        <div className="p-4 mt-14  min-h-screen">
           <div className="flex-1 overflow-scroll scroll-container ">
             <h1 className="text-2xl font-bold mb-4 text-center">Giỏ Hàng</h1>
             {cart.length > 0 ? ( // Kiểm tra xem giỏ hàng có sản phẩm hay không
@@ -72,7 +105,7 @@ const CartPage = () => {
                 >
                   <div className="flex items-center">
                     <img
-                      src={item.images}
+                      src={item.images[0]}
                       alt={item.name}
                       className="w-28 h-28 object-contain mr-4 bg-white rounded-lg"
                     />
@@ -80,7 +113,7 @@ const CartPage = () => {
                       <h2 className="text-xl font-semibold">
                         {item.productName}
                       </h2>
-                      <span className="my-4">30 ml</span>
+                      <span className="my-4">{item.volume}</span>
 
                       <div>
                         <p className="font-bold text-lg">
@@ -92,14 +125,28 @@ const CartPage = () => {
                         <div className="flex items-center border border-gray-500 p-1 px-3 rounded-lg mt-2">
                           <button
                             disabled={item.quantity <= 1}
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() =>
+                              reduceCartQuantity(
+                                item.productId,
+                                item.variantId,
+                                item.quantity
+                              )
+                            }
                           >
                             <FiMinus size={24} />
                           </button>
                           <span className="text-lg font-bold px-4">
                             {item.quantity}
                           </span>
-                          <button onClick={() => updateQuantity(item.id, 1)}>
+                          <button
+                            onClick={() =>
+                              plusCartQuantity(
+                                item.productId,
+                                item.variantId,
+                                item.quantity
+                              )
+                            }
+                          >
                             <FiPlus size={24} />
                           </button>
                         </div>
@@ -120,7 +167,7 @@ const CartPage = () => {
             )}
           </div>
 
-          <div className="h-fit pt-4 flex flex-col justify-end bg-white -mx-4 pb-4">
+          <div className="h-fit pt-4 flex flex-col justify-end bg-white -mx-4">
             <div className="relative mb-2 mx-4">
               <input
                 type="text"

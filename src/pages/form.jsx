@@ -21,9 +21,13 @@ const FormPage = () => {
       phone,
       gender,
     };
-  
+
     try {
-      const response = await updateUserInfoAPI(user.zaloId, updatedUserInfo, accessToken);
+      const response = await updateUserInfoAPI(
+        user.zaloId,
+        updatedUserInfo,
+        accessToken
+      );
       if (response) {
         setUserState((prevState) => ({
           ...prevState,
@@ -37,9 +41,8 @@ const FormPage = () => {
     } catch (error) {
       console.error('Error updating user info:', error);
     }
-
   };
-  
+
   return (
     <Page className="page">
       <Header />
