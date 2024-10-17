@@ -68,8 +68,22 @@ const ProductDetail = () => {
     const fetchProductRecommendation = async () => {
       try {
         const recommend = await fetchProductRecommendations(id);
-        if (recommend) {
-          setProductRecommendation(recommend.suggestions);
+        console.log(recommend);
+
+        if (recommend && recommend.suggestions) {
+          // Chuyển đổi itemId thành _id cho từng sản phẩm
+          const updatedRecommendations = recommend.suggestions.map(
+            (product) => {
+              // Tạo một bản sao của sản phẩm với itemId được thay bằng _id
+              return {
+                ...product,
+                _id: product.itemId, // Gán giá trị itemId cho _id
+                itemId: undefined, // Loại bỏ itemId (có thể không cần nếu bạn chỉ muốn giữ _id)
+              };
+            }
+          );
+
+          setProductRecommendation(updatedRecommendations);
         } else {
           throw new Error('Không tìm thấy sản phẩm đề xuất.'); // Ném lỗi nếu không tìm thấy sản phẩm
         }
@@ -216,11 +230,12 @@ const ProductDetail = () => {
                   <p className="text-gray-500">Chưa có thông tin về lợi ích.</p>
                 )}
               </ul>
-            </div>
-          </div>
 
-          <div className="mt-4 px-2">
-            <ProductCard products={productRecommendation} />
+              <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
+              <div className="mt-4 ">
+                <ProductCard products={productRecommendation} />
+              </div>
+            </div>
           </div>
 
           <div className="fixed bottom-0 flex justify-between w-full px-4 bg-white py-4">
