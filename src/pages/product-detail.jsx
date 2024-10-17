@@ -10,6 +10,8 @@ import { IoBagCheckOutline } from 'react-icons/io5';
 import { IoReturnDownBack } from 'react-icons/io5';
 import { getProductById } from '../services/product.service';
 import { addToCart } from '../services/cart.service';
+import { fetchProductRecommendations } from '../services/product.service';
+import ProductCard from '../components/product-card';
 import { useRecoilState } from 'recoil';
 import { userState } from '../state';
 
@@ -17,9 +19,12 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [productRecommendation, setProductRecommendation] = useState(null);
   const [count, setCount] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  console.log(selectedVariant);
+  console.log(count);
 
   const [user, setUserState] = useRecoilState(userState);
 
@@ -42,17 +47,37 @@ const ProductDetail = () => {
       }
     };
 
+    const fetchProductRecommendation = async () => {
+      try {
+        const recommend = await fetchProductRecommendations(id);
+        if (recommend) {
+          setProductRecommendation(recommend.suggestions);
+        } else {
+          throw new Error('Không tìm thấy sản phẩm đề xuất.'); // Ném lỗi nếu không tìm thấy sản phẩm
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProductRecommendation();
     fetchProduct();
     // Gọi hàm fetchProduct
   }, [id]);
 
   const handleAddProductToCart = async () => {
-    const result = await addToCart(id, count, user.accessToken);
+    const result = await addToCart(
+      id,
+      selectedVariant._id,
+      count,
+      selectedVariant.volume,
+      user.accessToken
+    );
     if (result) {
       console.log('Sản phẩm đã được thêm vào giỏ hàng:', result);
       alert('Sản phẩm đã được thêm vào giỏ hàng!');
     } else {
-      console.log('Không thể thêm sản phẩm vào giỏ hàng.');
+      console.log('Đã có lỗi xảy ra xin hãy thử lại sau');
     }
   };
 
@@ -174,6 +199,10 @@ const ProductDetail = () => {
                 )}
               </ul>
             </div>
+          </div>
+
+          <div className="mt-4 px-2">
+            <ProductCard products={productRecommendation} />
           </div>
 
           <div className="fixed bottom-0 flex justify-between w-full px-4 bg-white py-4">

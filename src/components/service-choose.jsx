@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Page } from 'zmp-ui';
-import { getAllServices } from '../services/service.service';
+import { getAllCategory } from '../services/service.service';
 
 const ServiceChoose = () => {
   const [showModal, setShowModal] = useState(false);
@@ -78,4 +78,3 @@ const ServiceChoose = () => {
 };
 
 export default ServiceChoose;
-

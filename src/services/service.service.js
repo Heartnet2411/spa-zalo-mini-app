@@ -1,4 +1,4 @@
-export const getAllServices = async () => {
+export const getAllCategory = async () => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/api/categories`,
@@ -20,5 +20,29 @@ export const getAllServices = async () => {
   } catch (error) {
     console.error('Error fetching services:', error);
     return null; // Hoặc có thể trả về một mảng rỗng nếu muốn
+  }
+};
+
+export const getFiveServices = async () => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/services?limit=5`,
+      {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching services:', error);
+    return null;
   }
 };

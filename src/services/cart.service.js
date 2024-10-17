@@ -25,7 +25,13 @@ export const fetchUserCart = async (accessToken) => {
   }
 };
 
-export const addToCart = async (productId, quantity, accessToken) => {
+export const addToCart = async (
+  productId,
+  variantId,
+  quantity,
+  volume,
+  accessToken
+) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/api/carts/add/${productId}`,
@@ -36,7 +42,7 @@ export const addToCart = async (productId, quantity, accessToken) => {
           Authorization: `Bearer ${accessToken}`,
           'ngrok-skip-browser-warning': 'true',
         },
-        body: JSON.stringify({ quantity }),
+        body: JSON.stringify({ quantity, variantId, volume }),
       }
     );
 
@@ -75,5 +81,47 @@ export const removeItemFromCart = async (itemId, accessToken) => {
   } catch (error) {
     console.error('Error removing item from cart:', error);
     return null; // Trả về null nếu có lỗi
+  }
+};
+
+export const updateQuantityInCart = async (
+  productId,
+  variantId,
+  quantity,
+  accessToken
+) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/carts/reduce/${productId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: JSON.stringify({
+          variantId,
+          quantity,
+        }),
+      }
+    );
+
+    // Kiểm tra và log thông tin phản hồi nếu không thành công
+    if (!response.ok) {
+      const errorDetails = await response.json();
+      console.error('Error details:', errorDetails);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(
+      'Cập nhật số lượng sản phẩm trong giỏ hàng thành công:',
+      result
+    );
+    return result;
+  } catch (error) {
+    console.error('Error updating quantity in cart:', error);
+    return null;
   }
 };

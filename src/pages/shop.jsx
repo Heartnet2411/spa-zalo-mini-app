@@ -18,6 +18,7 @@ import ProductCard from '../components/product-card';
 import Pagination from '../components/pagination';
 import { getAllProduct } from '../services/product.service';
 import { fetchUserCart } from '../services/cart.service';
+import { findProductToUpdateSuggestScore } from '../services/recommendersystem.service';
 import { userState } from '../state';
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 
@@ -26,7 +27,7 @@ const ShopPage = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState(''); // Trạng thái tìm kiếm
   const [showInput, setShowInput] = useState(false);
-  const [products, setProducts] = useState(false);
+  const [products, setProducts] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(5);
@@ -36,8 +37,8 @@ const ShopPage = () => {
   const [user, setUserState] = useRecoilState(userState);
   console.log(user);
 
-  const fetchProducts = async (pageNumber) => {
-    const data = await getAllProduct(pageNumber);
+  const fetchProducts = async (pageNumber, subCategory) => {
+    const data = await getAllProduct(pageNumber, subCategory);
     console.log(data);
 
     if (data) {
@@ -62,10 +63,10 @@ const ShopPage = () => {
     fetchProducts(currentPage);
   }, [currentPage]);
 
-  // useEffect(() => {
-  //   //Cart được gọi
-  //   getUserCart();
-  // }, []);
+  useEffect(() => {
+    //Cart được gọi
+    getUserCart();
+  }, []);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -74,34 +75,26 @@ const ShopPage = () => {
     }
   };
 
-  // Lọc sản phẩm theo danh mục và tên
-  const filteredProducts = products
-    ? products.filter((product) => {
-        // Lọc sản phẩm dựa trên loại được chọn
-        if (selectedCategory === 'Tất cả') return true;
+  const handleSearch = async () => {
+    if (searchQuery) {
+      try {
+        const response = await findProductToUpdateSuggestScore(
+          searchQuery,
+          user.userInfo.id
+        );
 
-        // Danh sách từ khóa cho mỗi loại
-        const keywords = {
-          Mặt: ['mặt', 'da', 'mụn'],
-          Mắt: ['mắt', 'kính'],
-          Môi: ['môi', 'son'],
-          Tóc: ['tóc', 'dầu gội', 'dưỡng', 'dầu xả'],
-          Da: ['da', 'kem dưỡng', 'body'],
-        };
+        setProducts(response.products);
+      } catch (error) {
+        console.error('Error fetching product suggestions:', error);
+      }
+    }
+  };
 
-        // Lấy danh sách từ khóa cho loại sản phẩm đã chọn
-        const selectedKeywords = keywords[selectedCategory] || [];
-
-        // Kiểm tra xem sản phẩm có category chứa bất kỳ từ khóa nào không
-        return selectedKeywords.some((keyword) => {
-          return (
-            product.category &&
-            typeof product.category === 'string' &&
-            product.category.toLowerCase().includes(keyword.toLowerCase())
-          );
-        });
-      })
-    : [];
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   // Xử lý khi nhấn vào nút tìm kiếm
   const handleSearchClick = () => {
@@ -174,12 +167,16 @@ const ShopPage = () => {
                     className="p-2 border rounded-md w-full  focus:outline-blue-500"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
                   />
                   {searchQuery && (
                     <LiaTimesSolid
                       size={18}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
-                      onClick={() => setSearchQuery('')} // Xóa nội dung khi nhấn vào X
+                      onClick={() => {
+                        setSearchQuery('');
+                        fetchProducts(1);
+                      }} // Xóa nội dung khi nhấn vào X
                     />
                   )}
                 </div>
@@ -189,16 +186,20 @@ const ShopPage = () => {
                 <FilterTags
                   selectedCategory={selectedCategory}
                   onSelectCategory={setSelectedCategory}
+                  fetchProducts={fetchProducts}
                 />
               )}
             </div>
 
-            <ProductCard productList={filteredProducts} />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+            <ProductCard products={products} />
+
+            {selectedCategory === 'Tất cả' && !searchQuery && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
         </Suspense>
       </Page>
