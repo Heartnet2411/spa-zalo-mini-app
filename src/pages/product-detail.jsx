@@ -1,7 +1,7 @@
 // src/pages/ProductDetail.js
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Page, Swiper, Box, Text } from 'zmp-ui';
-import { useParams } from 'react-router-dom';
+import { Page, Swiper, Box, Text, Button } from 'zmp-ui';
+import { Link, useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../utils/productdemo';
 import { FiPlus, FiMinus } from 'react-icons/fi';
@@ -27,6 +27,24 @@ const ProductDetail = () => {
   console.log(count);
 
   const [user, setUserState] = useRecoilState(userState);
+
+  const handlePayment = () => {
+    const cart = [
+      {
+        productId: product._id,
+        variantId: selectedVariant ? selectedVariant._id : null,
+        price: selectedVariant ? selectedVariant.price : product.price,
+        quantity: count,
+        images: product.images,
+        productName: product.name,
+      },
+    ];
+    navigate('/payment', {
+      state: {
+        cart,
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -212,7 +230,10 @@ const ProductDetail = () => {
             >
               <MdOutlineAddShoppingCart size={24} />
             </button>
-            <button className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500 active:bg-blue-300">
+            <button
+              onClick={handlePayment}
+              className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500 active:bg-blue-300"
+            >
               <IoBagCheckOutline size={24} color="white" />
               <span className="ml-2 text-lg text-white font-bold">
                 Thanh toán ngay

@@ -11,9 +11,19 @@ import {
 } from '../services/cart.service';
 import { userState } from '../state';
 import { useRecoilState } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const [cart, setCart] = useState([]);
+
+  const handleCheckout = () => {
+    navigate('/payment', {
+      state: {
+        cart, // Truyền mảng cart
+      },
+    });
+  };
 
   const [user, setUserState] = useRecoilState(userState);
   console.log(cart);
@@ -91,11 +101,11 @@ const CartPage = () => {
   };
 
   return (
-    <Page className="page">
+    <Page className="page ">
       <Suspense>
         <Header />
-        <div className="p-4 mt-14  min-h-screen">
-          <div className="flex-1 overflow-scroll scroll-container ">
+        <div className="p-4 mt-14 ">
+          <div className="overflow-scroll scroll-container ">
             <h1 className="text-2xl font-bold mb-4 text-center">Giỏ Hàng</h1>
             {cart.length > 0 ? ( // Kiểm tra xem giỏ hàng có sản phẩm hay không
               cart.map((item) => (
@@ -167,23 +177,7 @@ const CartPage = () => {
             )}
           </div>
 
-          <div className="h-fit pt-4 flex flex-col justify-end bg-white -mx-4">
-            <div className="relative mb-2 mx-4">
-              <input
-                type="text"
-                placeholder="Thêm mã giảm giá"
-                className="px-4 py-4 border rounded-md w-full  focus:outline-blue-500"
-              />
-
-              <button
-                size={18}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white cursor-pointer bg-blue-500 px-6 py-2 rounded-md"
-              >
-                {' '}
-                Add
-              </button>
-            </div>
-
+          <div className="h-fit pt-4 flex flex-col justify-end bg-white -mx-4 ">
             <div className="text-xl font-extrabold flex justify-between mx-4">
               <span className="text-lg font-medium">Giá</span>{' '}
               <span>{totalAmount.toLocaleString()} VNĐ</span>
@@ -200,7 +194,10 @@ const CartPage = () => {
               <span className="text-lg font-medium">Tổng:</span>{' '}
               <span>{totalAmount.toLocaleString()} VNĐ</span>
             </div>
-            <button className="mx-4 mt-4 w-11/12 px-6 py-3 rounded-lg bg-blue-500 text-white flex justify-center items-center">
+            <button
+              onClick={handleCheckout}
+              className="mx-4 mt-4 w-11/12 px-6 py-3 rounded-lg bg-blue-500 text-white flex justify-center items-center"
+            >
               <IoBagCheckOutline size={24} />
               <span className="ml-2">Thanh toán</span>
             </button>
