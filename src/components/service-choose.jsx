@@ -9,7 +9,7 @@ const ServiceChoose = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
-      const data = await getAllServices();
+      const data = await getAllCategory();
       if (data) {
         setServices(data);
       }

@@ -14,7 +14,7 @@ const Header = () => {
       case '/booking':
         return 'Đặt lịch';
       case '/bookingform':
-        return 'Đặt lịch'
+        return 'Đặt lịch';
       case '/shop':
         return 'Mua hàng';
       case '/profile':
@@ -31,6 +31,8 @@ const Header = () => {
         return 'Đánh giá của tôi';
       case '/ratingdetail':
         return 'Đánh giá sản phẩm';
+      case '/payment':
+        return 'Thanh toán';
       default:
         return 'Spa Mini App'; // Default title if no specific route matches
     }

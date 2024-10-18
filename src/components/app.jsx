@@ -6,15 +6,16 @@ import HomePage from '../pages';
 import Booking from '../pages/booking';
 import Shop from '../pages/shop';
 import Profile from '../pages/profile';
-import Taskbar from "../components/taskbar";
+import Taskbar from '../components/taskbar';
 import Form from '../pages/form';
 import ProductDetail from '../pages/product-detail';
 import CartPage from '../pages/cart';
-import BookingForm from '../pages/bookingform'; 
+import BookingForm from '../pages/bookingform';
 import Rating from '../pages/rating';
 import RatingDetail from '../pages/ratingdetail';
 import OrderStatusPage from '../pages/order-status';
 import VoucherPage from '../pages/voucher';
+import PaymentPage from '../pages/payment';
 const MyApp = () => {
   //Hide taskbar with path
 
@@ -26,16 +27,26 @@ const MyApp = () => {
             <AnimationRoutes>
               <Route path="/" element={<HomePage></HomePage>}></Route>
               <Route path="/booking" element={<Booking></Booking>}></Route>
-              <Route path="/bookingform" element={<BookingForm></BookingForm>}></Route>
+              <Route
+                path="/bookingform"
+                element={<BookingForm></BookingForm>}
+              ></Route>
               <Route path="/shop" element={<Shop></Shop>}></Route>
               <Route path="/profile" element={<Profile></Profile>}></Route>
               <Route path="/rating" element={<Rating></Rating>}></Route>
-              <Route path="/ratingdetail" element={<RatingDetail></RatingDetail>}></Route>
+              <Route
+                path="/ratingdetail"
+                element={<RatingDetail></RatingDetail>}
+              ></Route>
               <Route path="/product/:id" element={<ProductDetail />}></Route>
               <Route path="/cart" element={<CartPage />} />
               <Route path="/form" element={<Form></Form>}></Route>
-              <Route path="/order-status" element={<OrderStatusPage/>}></Route>
-              <Route path="/voucher" element={<VoucherPage/>}></Route>
+              <Route path="/order-status" element={<OrderStatusPage />}></Route>
+              <Route path="/voucher" element={<VoucherPage />}></Route>
+              <Route
+                path="/payment"
+                element={<PaymentPage></PaymentPage>}
+              ></Route>
             </AnimationRoutes>
             <Taskbar />
           </ZMPRouter>

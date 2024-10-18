@@ -9,7 +9,8 @@ const Taskbar = () => {
   const location = useLocation();
   const hideTaskbar =
     location.pathname.startsWith('/product/') ||
-    location.pathname.startsWith('/cart');
+    location.pathname.startsWith('/cart') ||
+    location.pathname.startsWith('/payment');
   if (hideTaskbar) {
     return null; // Không hiển thị Taskbar
   }

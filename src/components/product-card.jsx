@@ -31,7 +31,7 @@ const ProductCard = ({ products }) => {
           </Link>
         ))
       ) : (
-        <div>Đang tải sản phẩm</div>
+        <div></div>
       )}
     </div>
   );

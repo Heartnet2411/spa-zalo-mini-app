@@ -1,7 +1,7 @@
 // src/pages/ProductDetail.js
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Page, Swiper, Box, Text } from 'zmp-ui';
-import { useParams } from 'react-router-dom';
+import { Page, Swiper, Box, Text, Button } from 'zmp-ui';
+import { Link, useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../utils/productdemo';
 import { FiPlus, FiMinus } from 'react-icons/fi';
@@ -28,6 +28,24 @@ const ProductDetail = () => {
 
   const [user, setUserState] = useRecoilState(userState);
 
+  const handlePayment = () => {
+    const cart = [
+      {
+        productId: product._id,
+        variantId: selectedVariant ? selectedVariant._id : null,
+        price: selectedVariant ? selectedVariant.price : product.price,
+        quantity: count,
+        images: product.images,
+        productName: product.name,
+      },
+    ];
+    navigate('/payment', {
+      state: {
+        cart,
+      },
+    });
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -50,8 +68,22 @@ const ProductDetail = () => {
     const fetchProductRecommendation = async () => {
       try {
         const recommend = await fetchProductRecommendations(id);
-        if (recommend) {
-          setProductRecommendation(recommend.suggestions);
+        console.log(recommend);
+
+        if (recommend && recommend.suggestions) {
+          // Chuyển đổi itemId thành _id cho từng sản phẩm
+          const updatedRecommendations = recommend.suggestions.map(
+            (product) => {
+              // Tạo một bản sao của sản phẩm với itemId được thay bằng _id
+              return {
+                ...product,
+                _id: product.itemId, // Gán giá trị itemId cho _id
+                itemId: undefined, // Loại bỏ itemId (có thể không cần nếu bạn chỉ muốn giữ _id)
+              };
+            }
+          );
+
+          setProductRecommendation(updatedRecommendations);
         } else {
           throw new Error('Không tìm thấy sản phẩm đề xuất.'); // Ném lỗi nếu không tìm thấy sản phẩm
         }
@@ -198,11 +230,12 @@ const ProductDetail = () => {
                   <p className="text-gray-500">Chưa có thông tin về lợi ích.</p>
                 )}
               </ul>
-            </div>
-          </div>
 
-          <div className="mt-4 px-2">
-            <ProductCard products={productRecommendation} />
+              <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
+              <div className="mt-4 ">
+                <ProductCard products={productRecommendation} />
+              </div>
+            </div>
           </div>
 
           <div className="fixed bottom-0 flex justify-between w-full px-4 bg-white py-4">
@@ -212,7 +245,10 @@ const ProductDetail = () => {
             >
               <MdOutlineAddShoppingCart size={24} />
             </button>
-            <button className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500 active:bg-blue-300">
+            <button
+              onClick={handlePayment}
+              className="flex items-center justify-center w-8/12 py-3 rounded-xl bg-blue-500 active:bg-blue-300"
+            >
               <IoBagCheckOutline size={24} color="white" />
               <span className="ml-2 text-lg text-white font-bold">
                 Thanh toán ngay
