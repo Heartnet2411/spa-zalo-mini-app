@@ -11,6 +11,11 @@ export const userState = atom({
   },
 });
 
+export const paymentResultState = atom({
+  key: 'paymentResultState',
+  default: { orderId: '', status: 'pending' },
+});
+
 // //FETCH DỮ LIỆU TỪ BÊN ZALO NÊN GỌI DUY NHẤT 1 LẦN
 // export const fetchUserData = () => {
 //   return new Promise((resolve, reject) => {

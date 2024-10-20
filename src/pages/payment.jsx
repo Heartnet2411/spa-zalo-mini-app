@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Button, useNavigate, Input, List } from 'zmp-ui';
+import { Page, Button, Input, List } from 'zmp-ui';
 import Header from '../components/header';
-import { useLocation } from 'react-router-dom';
-import { userState } from '../state';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { paymentResultState, userState } from '../state';
 import { useRecoilState } from 'recoil';
 
 import {
   createMac,
+  createMacForGetOrderStatus,
   createOrder,
+  getZaloOrderStatus,
   updateOrderWithZaloOrderId,
 } from '../services/payment.service';
 import { Payment } from 'zmp-sdk';
+import { EventName, events, showToast } from 'zmp-sdk/apis';
 const { Item } = List;
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const [user, setUserState] = useRecoilState(userState);
+  const [paymentResult, setPaymentResult] = useRecoilState(paymentResultState);
+
   console.log(user);
   // DEMO TRƯỚC HÀM TẠO HÓA ĐƠN
   async function createOrderPayment(products, addedVoucher) {
@@ -57,7 +62,6 @@ const PaymentPage = () => {
       // THÔNG TIN THÊM
       const extraData = {
         orderId: order._id, // id mà chúng ta đã tạo ở server của mình
-        notes: JSON.stringify(order),
       };
 
       const orderData = {
@@ -81,27 +85,9 @@ const PaymentPage = () => {
             success: async (data) => {
               // Tạo đơn hàng thành công
               const { orderId } = data;
-              console.log('Good: ', orderId);
+              console.log('Good: ', data);
 
-              try {
-                // TẠO HÓA ĐƠN PHÍA ZALO THÀNH CÔNG THÌ GỌI HÀM NÀY ĐỂ CẬP NHẬT TRẠNG THÁI + GIẢM SỐ LƯỢNG SẢN PHẨM TRONG KHO
-                const updateOrder = await updateOrderWithZaloOrderId(
-                  order._id,
-                  {
-                    transactionId: orderId,
-                    paymentStatus: 'completed',
-                  },
-                  user.accessToken
-                );
-                if (updateOrder) {
-                  resolve(updateOrder);
-                } else {
-                  reject('Failed to update order');
-                }
-              } catch (err) {
-                console.log(err);
-                reject('Error updating order');
-              }
+              resolve(orderId)
             },
             fail: (err) => {
               // Tạo đơn hàng lỗi
@@ -184,6 +170,93 @@ const PaymentPage = () => {
   //   setProducts(demoProducts);
   //   setAddedVoucher('670c96962b6d99a13c41e749');
   // };
+
+  // Payment event handling inside useEffect
+  useEffect(() => {
+    const handleOpenAppEvent = (data) => {
+      const params = data?.path;
+
+      if (params.includes('/payment-result')) {
+        // Calling Zalo API to check the transaction
+        Payment.checkTransaction({
+          data: params,
+          success: async (rs) => {
+            const { orderId, transId, resultCode, extradata } = rs;
+
+            let parsedExtradata;
+            try {
+              parsedExtradata = typeof extradata === 'string' ? JSON.parse(extradata) : extradata;
+            } catch (error) {
+              console.error('Error parsing extradata:', error);
+            }
+
+
+            console.log(parsedExtradata?.orderId);
+
+            if (resultCode === 1) {
+              try {
+                const updateOrder = await updateOrderWithZaloOrderId(
+                  parsedExtradata.orderId,
+                  {
+                    transactionId: orderId,
+                    paymentStatus: 'completed',
+                  },
+                  user.accessToken
+                );
+
+                if (updateOrder.paymentStatus === 'completed') {
+                  console.log('Payment successfully updated', updateOrder.data);
+                  setPaymentResult({ orderId, status: 'success' });
+                  navigate('/payment-result');
+                } else {
+                  console.log('Payment update failed');
+                  setPaymentResult({ orderId, status: 'fail' });
+                  navigate('/payment-result');
+                  showToast({ message: "Lỗi cập nhật đơn hàng" })
+                }
+              } catch (err) {
+                console.error('Error updating order:', err);
+                showToast({ message: "Lỗi cập nhật đơn hàng" })
+              }
+            }
+          },
+          fail: (err) => {
+            console.error('Payment check failed:', err);
+            showToast({ message: "Lỗi giao dịch" })
+          },
+        });
+      }
+    };
+
+    const handlePaymentCloseEvent = (data) => {
+      const resultCode = data?.resultCode;
+
+      if (resultCode === 0) {
+        // Recheck the transaction on close
+        Payment.checkTransaction({
+          data: { zmpOrderId: data?.zmpOrderId },
+          success: (rs) => {
+            console.log('Transaction recheck:', rs);
+            showToast({ message: "Giao dịch bị gián đoạn!" })
+          },
+          fail: (err) => {
+            console.error('Recheck failed:', err);
+            showToast({ message: "Lỗi giao dịch!" })
+          },
+        });
+      }
+    };
+
+    // Register event listeners
+    events.on(EventName.OpenApp, handleOpenAppEvent);
+    events.on(EventName.PaymentClose, handlePaymentCloseEvent);
+
+    // Cleanup event listeners on unmount
+    return () => {
+      events.off(EventName.OpenApp, handleOpenAppEvent);
+      events.off(EventName.PaymentClose, handlePaymentCloseEvent);
+    };
+  }, []);
 
   const handleSubmit = async () => {
     try {
