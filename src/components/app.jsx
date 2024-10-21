@@ -16,6 +16,7 @@ import RatingDetail from '../pages/ratingdetail';
 import OrderStatusPage from '../pages/order-status';
 import VoucherPage from '../pages/voucher';
 import PaymentPage from '../pages/payment';
+import BookingDetailPage from '../pages/bookingdetail';
 const MyApp = () => {
   //Hide taskbar with path
 
@@ -30,6 +31,10 @@ const MyApp = () => {
               <Route
                 path="/bookingform"
                 element={<BookingForm></BookingForm>}
+              ></Route>
+              <Route
+                path="/bookingdetail"
+                element={<BookingDetailPage></BookingDetailPage>}
               ></Route>
               <Route path="/shop" element={<Shop></Shop>}></Route>
               <Route path="/profile" element={<Profile></Profile>}></Route>

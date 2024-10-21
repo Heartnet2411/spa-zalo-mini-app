@@ -1,6 +1,6 @@
 export const createBookingAPI = async (bookingData, accessToken) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/booking`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/bookings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,30 +23,31 @@ export const createBookingAPI = async (bookingData, accessToken) => {
 };
 
 
-export const getBookingHistoriesByUserId = async (userId, status, accessToken) => {
+export const getBookingHistoriesByUserId = async (status, accessToken) => {
   try {
-      let url = `${import.meta.env.VITE_SERVER_URL}/api/booking-histories`;
-      if (status) {
-          url += `?status=${encodeURIComponent(status)}`;
-      }
+    let url = `${import.meta.env.VITE_SERVER_URL}/api/bookings/user`;
+    if (status) {
+      url += `?status=${encodeURIComponent(status)}`;
+    }
 
-      const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`,
-          }
-      });
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
 
-      if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Error fetching booking histories');
-      }
+    if (!response.ok) {
+      throw new Error(errorData.message || 'Error fetching booking histories');
+    }
 
-      const bookingHistories = await response.json();
-      return bookingHistories;
+    const bookingHistories = await response.json();
+    return bookingHistories;
   } catch (error) {
-      console.error('Error in getBookingHistoriesByUserId:', error);
-      throw error; 
+    console.error('Error in getBookingHistoriesByUserId:', error);
+    throw error;
   }
 };
+
