@@ -15,6 +15,8 @@ const Header = () => {
         return 'Đặt lịch';
       case '/bookingform':
         return 'Đặt lịch';
+      case '/bookingdetail':
+        return 'Đặt lịch';
       case '/shop':
         return 'Mua hàng';
       case '/profile':

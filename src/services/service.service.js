@@ -23,6 +23,28 @@ export const getAllCategory = async () => {
   }
 };
 
+export const getAllServices = async (pageNumber) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/services?page=${pageNumber}&limit=10`, {
+      method: 'GET',
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching services data:', error);
+    return null;
+  }
+};
+
+
 export const getFiveServices = async () => {
   try {
     const response = await fetch(

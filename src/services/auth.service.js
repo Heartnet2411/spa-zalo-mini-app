@@ -132,9 +132,7 @@ export const loginAPI = async (zaloAccessToken) => {
           }
           // Kiểm tra kết quả từ API, nếu trả về null, tiếp tục yêu cầu nhập lại mã referral
           if (!registerResult) {
-            console.log(
-              'Mã tiếp thị liên kết không hợp lệ. Vui lòng nhập lại.'
-            );
+            console.log('Mã tiếp thị liên kết không hợp lệ. Vui lòng nhập lại.');
           }
         }
         return registerResult;

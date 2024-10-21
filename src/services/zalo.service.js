@@ -1,10 +1,4 @@
-import {
-  getAccessToken,
-  getPhoneNumber,
-  authorize,
-  setStorage,
-  getStorage,
-} from 'zmp-sdk/apis';
+import { getAccessToken, getPhoneNumber, authorize, setStorage, getStorage } from 'zmp-sdk/apis';
 
 // Hàm yêu cầu quyền truy cập
 const requestAuthorization = async (scopes) => {
@@ -12,7 +6,7 @@ const requestAuthorization = async (scopes) => {
     const scope = await authorize({ scopes });
     return scope;
   } catch (error) {
-    console.error('Lỗi khi yêu cầu quyền truy cập:', error);
+    console.error("Lỗi khi yêu cầu quyền truy cập:", error);
     return null;
   }
 };
@@ -21,35 +15,36 @@ const requestAuthorization = async (scopes) => {
 export const setDataToStorage = async (data) => {
   try {
     const { errorKeys } = await setStorage({
-      data: data,
+      data: data 
     });
     if (errorKeys && errorKeys.length > 0) {
-      console.error('Có lỗi khi lưu dữ liệu:', errorKeys);
+      console.error("Có lỗi khi lưu dữ liệu:", errorKeys);
     } else {
       console.log(data);
-      console.log('Dữ liệu đã được lưu vào storage thành công.');
+      console.log("Dữ liệu đã được lưu vào storage thành công.");
     }
   } catch (error) {
-    console.error('Lỗi khi gọi API setStorage:', error);
+    console.error("Lỗi khi gọi API setStorage:", error);
   }
 };
 
 // Hàm lấy dữ liệu từ storage
 export const getDataFromStorage = async () => {
   try {
-    console.log('Đang lấy dữ liệu từ storage');
+    console.log("Đang lấy dữ liệu từ storage");
 
     // Lấy dữ liệu từ storage với các key cần thiết
     const { userInfoConfig, userPhoneConfig } = await getStorage({
-      keys: ['userInfoConfig', 'userPhoneConfig'],
+      keys: ["userInfoConfig", "userPhoneConfig"]
     });
 
-    return { userInfoConfig, userPhoneConfig };
+    return { userInfoConfig, userPhoneConfig }; 
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu từ storage:', error);
-    return null;
+    console.error("Lỗi khi lấy dữ liệu từ storage:", error);
+    return null; 
   }
 };
+
 
 // Hàm lấy access token của Zalo
 export const getZaloAccessToken = async () => {
@@ -59,7 +54,7 @@ export const getZaloAccessToken = async () => {
     // Nếu đã có quyền truy cập thông tin người dùng, trả về access token mới
     if (userData && userData.userInfoConfig === true) {
       const accessToken = await getAccessToken({});
-      console.log('Zalo Access Token ::::', accessToken);
+      console.log("Zalo Access Token ::::", accessToken);
       return accessToken;
     }
 
@@ -69,19 +64,19 @@ export const getZaloAccessToken = async () => {
       // Cập nhật trạng thái userInfoConfig vào storage
       await setDataToStorage({
         ...userData,
-        userInfoConfig: true, // Cập nhật trạng thái userInfoConfig thành true
+        userInfoConfig: true // Cập nhật trạng thái userInfoConfig thành true
       });
 
       const accessToken = await getAccessToken({});
-      console.log('Zalo Access Token ::::', accessToken);
+      console.log("Zalo Access Token ::::", accessToken);
       return accessToken;
     } else {
-      console.log('Quyền truy cập thông tin người dùng chưa được cấp.');
+      console.log("Quyền truy cập thông tin người dùng chưa được cấp.");
       await setDataToStorage({ ...userData, userInfoConfig: false }); // Cập nhật trạng thái nếu không cấp quyền
       return null;
     }
   } catch (error) {
-    console.error('Lỗi khi lấy access token:', error);
+    console.error("Lỗi khi lấy access token:", error);
     return null;
   }
 };
@@ -107,17 +102,17 @@ export const getZaloPhoneNumber = async () => {
       // Lưu trạng thái userPhoneConfig vào storage (không lưu phoneToken)
       await setDataToStorage({
         ...userData,
-        userPhoneConfig: true, // Đánh dấu đã cấp quyền
+        userPhoneConfig: true // Đánh dấu đã cấp quyền
       });
 
       return phoneToken; // Trả về phoneToken nếu đã cấp quyền
     } else {
-      console.error('Quyền truy cập số điện thoại chưa được cấp.');
+      console.error("Quyền truy cập số điện thoại chưa được cấp.");
       await setDataToStorage({ ...userData, userPhoneConfig: false }); // Cập nhật trạng thái nếu không cấp quyền
       return null; // Trả về null nếu người dùng không cấp quyền
     }
   } catch (error) {
-    console.error('Lỗi khi lấy số điện thoại:', error);
+    console.error("Lỗi khi lấy số điện thoại:", error);
     return null;
   }
 };

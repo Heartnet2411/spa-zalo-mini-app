@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   Avatar,
-  List,
   Text,
   Box,
   Page,
@@ -11,16 +10,15 @@ import {
 } from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import Header from '../components/header';
-import {
-  getZaloAccessToken,
-  getZaloPhoneNumber,
-} from '../services/zalo.service';
+import { getZaloAccessToken, getZaloPhoneNumber } from '../services/zalo.service';
 import { loginAPI } from '../services/auth.service';
+import { getCurrentUserRank } from '../services/rank.service';
 import { userState } from '../state';
 
 const ProfilePage = () => {
   const [accessToken, setAccessToken] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [membershipTier, setMembershipTier] = useState(''); 
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user } = useRecoilValue(userState);
   const navigate = useNavigate();
@@ -43,8 +41,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const result = await loginAPI(accessToken); // Gọi API đăng nhập
-      console.log('réult', result);
+      const result = await loginAPI(accessToken); 
       if (result) {
         // Cập nhật thông tin người dùng vào Recoil state
         setUserState({
@@ -62,10 +59,23 @@ const ProfilePage = () => {
   // Hàm lấy số điện thoại người dùng từ Zalo
   const fetchPhoneNumber = async () => {
     try {
-      const phone = await getZaloPhoneNumber(); // Lấy số điện thoại
+      const phone = await getZaloPhoneNumber(); 
       setPhoneNumber(phone);
     } catch (error) {
       console.error('Lỗi khi lấy số điện thoại:', error);
+    }
+  };
+
+  // Hàm lấy hạng của người dùng
+  const fetchUserRank = async () => {
+    if (!accessToken) return; 
+
+    try {
+      const rankData = await getCurrentUserRank(accessToken);
+      console.log("access token",accessToken);
+      setMembershipTier(rankData.membershipTier); 
+    } catch (error) {
+      console.error('Lỗi khi lấy hạng người dùng:', error);
     }
   };
 
@@ -75,8 +85,9 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (accessToken) {
-      handleLogin(); // Đăng nhập sau khi có accessToken
-      fetchPhoneNumber(); // Lấy số điện thoại người dùng
+      handleLogin(); 
+      fetchPhoneNumber(); 
+      fetchUserRank(); 
     }
   }, [accessToken]);
 
@@ -93,11 +104,7 @@ const ProfilePage = () => {
           <Box>
             <Avatar
               size={96}
-              src={
-                user.avatar && user.avatar.startsWith('http')
-                  ? user.avatar
-                  : undefined
-              }
+              src={user.avatar && user.avatar.startsWith('http') ? user.avatar : undefined}
             >
               {/* Hiển thị chữ cái đầu nếu không có avatar */}
               {!user.avatar && user.name ? user.name.charAt(0) : ''}
@@ -118,14 +125,15 @@ const ProfilePage = () => {
             </Box>
           </Box>
         </Box>
-        {/* Hiển thị các phần khác của Profile */}
-        <div className="flex items-center justify-center">
-          <div className="w-80 mt-10 rounded-lg border flex items-center justify-center flex-col">
-            <span className="text-xl font-bold text-blue-500 mt-3 ">Hạng:</span>
-            <span className="mt-3 mb-3">{user.membershipTier}</span>
+
+        {/* Hiển thị hạng người dùng */}
+        <div className="flex items-center justify-center mt-10">
+          <div className="w-80 rounded-lg border flex items-center justify-center flex-col">
+            <span className="text-xl font-bold text-blue-500 mt-3">Hạng:</span>
+            <span className="mt-3 mb-3">{user.membershipTier || 'Chưa có hạng'}</span>
 
             <button
-              className="w-14 h-6 rounded-xl bg-red-500 mb-5 "
+              className="w-14 h-6 rounded-xl bg-red-500 mb-5"
               onClick={() => {
                 navigate('/voucher');
               }}
@@ -134,6 +142,8 @@ const ProfilePage = () => {
             </button>
           </div>
         </div>
+
+        {/* Các phần khác của Profile */}
         <div className="flex items-center justify-center mt-5">
           <button
             className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500"
@@ -151,7 +161,7 @@ const ProfilePage = () => {
               navigate('/rating');
             }}
           >
-            <span className="ml-2 text-base ">Đánh giá sản phẩm</span>
+            <span className="ml-2 text-base">Đánh giá sản phẩm</span>
           </button>
         </div>
         <div className="flex items-center justify-center mt-5">
@@ -161,7 +171,7 @@ const ProfilePage = () => {
               <span className="text-orange-500">{user.points}</span>
               <Icon icon="zi-star" className="text-orange-500" />
             </div>
-            <button className="w-20 h-10 rounded-xl bg-green-500 ">
+            <button className="w-20 h-10 rounded-xl bg-green-500">
               <span className="text-white">Đổi ưu đãi</span>
             </button>
           </div>
@@ -172,7 +182,7 @@ const ProfilePage = () => {
               <span className="text-xl font-bold mb-1">Tiếp thị liên kết</span>
               <span className="mt-1 text-orange-500">0 VND</span>
             </div>
-            <button className="w-20 h-10 rounded-xl bg-orange-400 ">
+            <button className="w-20 h-10 rounded-xl bg-orange-400">
               <span className="text-white">Chi tiết</span>
             </button>
           </div>

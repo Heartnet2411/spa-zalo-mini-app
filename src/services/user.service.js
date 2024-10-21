@@ -1,18 +1,18 @@
-import { getZaloAccessToken } from './zalo.service';
+import { getZaloAccessToken } from "./zalo.service";
 
 //UPDATE THÔNG TIN NGƯỜI DÙNG THEO ZALOID
-export const updateUserInfoAPI = async (zaloId, userInfo) => {
+export const updateUserInfoAPI = async (zaloId, userInfo, accessToken) => {
   try {
-    const { name, gender } = userInfo;
+    const { name, gender, phone } = userInfo; // Thêm phone để đảm bảo dữ liệu hợp lệ
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/api/users/update-user-info/${zaloId}`,
       {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`, 
         },
-        body: JSON.stringify({ name, phone, gender }),
+        body: JSON.stringify({ name, phone, gender }), 
       }
     );
 
@@ -23,9 +23,10 @@ export const updateUserInfoAPI = async (zaloId, userInfo) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error updating user info:', error);
   }
 };
+
 
 //UPDATE SĐT DÙNG THEO ZALOID
 export const updateUserPhoneAPI = async (zaloId) => {
@@ -45,8 +46,8 @@ export const updateUserPhoneAPI = async (zaloId) => {
           'Content-Type': 'application/json',
           //'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'phone-token': phoneToken,
-          'zalo-access-token': zaloAccessToken,
-        },
+          'zalo-access-token': zaloAccessToken
+        }
       }
     );
 
