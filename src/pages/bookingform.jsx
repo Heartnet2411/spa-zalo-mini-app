@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Text, Input, Select, Icon } from 'zmp-ui';
+import { Page, Text, Input, Select, Icon, Sheet, Button, Box, Grid, Modal, Radio, Stack, useNavigate } from 'zmp-ui';
 import Header from '../components/header';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
@@ -7,9 +7,11 @@ import { getAllProduct } from '../services/product.service';
 import { getAllServices } from '../services/service.service';
 import { createBookingAPI } from '../services/booking.service';
 import moment from 'moment';
+import ProductCard from '../components/product-card';
 
 const BookingFormPage = () => {
   const { userInfo: user, accessToken } = useRecoilValue(userState);
+  const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
   const [services, setServices] = useState([]);
@@ -19,101 +21,131 @@ const BookingFormPage = () => {
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
 
+  const [currentProductPage, setCurrentProductPage] = useState(1);
+  const [productTotalPages, setProductTotalPages] = useState(0);
+  const [productKeyword, setProductKeyword] = useState('')
+  const [currentServicePage, setCurrentServicePage] = useState(1);
+  const [serviceTotalPages, setServiceTotalPages] = useState(0);
+  const [serviceKeyword, setServiceKeyword] = useState('')
+
+  const [showProductSheet, setShowProductSheet] = useState(false);
+  const [showServiceSheet, setShowServiceSheet] = useState(false);
+
+  const openProductSheet = () => setShowProductSheet(true);
+  const closeProductSheet = () => setShowProductSheet(false);
+  const openServiceSheet = () => setShowServiceSheet(true);
+  const closeServiceSheet = () => setShowServiceSheet(false);
+
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const servicesData = await getAllServices(1);
+        const servicesData = await getAllServices(currentServicePage, serviceKeyword);
         console.log('Fetched Services:', servicesData);
         setServices(servicesData.services || []);
+        setServiceTotalPages(servicesData.totalPages)
       } catch (error) {
         console.error('Error fetching services:', error);
       }
     };
 
+    fetchServices();
+  }, [serviceKeyword]);
+
+  useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsData = await getAllProduct(1);
+        const productsData = await getAllProduct(currentProductPage, '', productKeyword);
         console.log('Fetched Products:', productsData);
         setProducts(productsData.products || []);
+        setProductTotalPages(productsData.totalPages)
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     };
 
-    fetchServices();
     fetchProducts();
-  }, []);
+  }, [productKeyword]);
 
-  const handleServiceSelect = (value) => {
-    if (!selectedServices.includes(value)) {
-      setSelectedServices([...selectedServices, value]);
-      console.log('Selected Services:', [...selectedServices, value]); // Hiển thị danh sách dịch vụ đã chọn
+  const loadMoreServices = async () => {
+    try {
+      const nextPage = currentServicePage + 1;
+      const servicesData = await getAllServices(nextPage);
+
+      // Cập nhật danh sách dịch vụ
+      setServices((prevServices) => [
+        ...prevServices,
+        ...(servicesData.services || []),
+      ]);
+
+      setCurrentServicePage(nextPage);
+    } catch (error) {
+      console.error('Error fetching more services:', error);
+    }
+  };
+
+  const loadMoreProducts = async () => {
+    try {
+      const nextPage = currentProductPage + 1;
+      const productsData = await getAllProduct(nextPage);
+
+      // Cập nhật danh sách dịch vụ
+      setProducts((prevProducts) => [
+        ...prevProducts,
+        ...(productsData.products || []),
+      ]);
+
+      setCurrentProductPage(nextPage);
+    } catch (error) {
+      console.error('Error fetching more products:', error);
+    }
+  };
+
+  const handleServiceSelect = (service) => {
+    if (selectedServices.some((selected) => selected.serviceId === service._id)) {
+      removeSelectedService(service._id)
+    } else {
+      setSelectedServices([...selectedServices, { serviceId: service._id, name: service.name, price: service.price }]);
     }
   };
 
   const handleProductSelect = (value) => {
     const selectedProduct = products.find((product) => product._id === value);
-    if (
-      selectedProduct &&
-      !selectedProducts.some(
-        (product) => product.productId === selectedProduct._id
-      )
-    ) {
-      const variantId = selectedProduct.variants[0]?._id; // Lấy variantId đầu tiên
-      setSelectedProducts([
-        ...selectedProducts,
-        { productId: selectedProduct._id, variantId, quantity: 1 },
-      ]);
-      setSelectedVariants({
-        ...selectedVariants,
-        [selectedProduct._id]: variantId,
-      }); // Lưu variant đã chọn
-      console.log('Selected Products:', [
-        ...selectedProducts,
-        { productId: selectedProduct._id, variantId, quantity: 1 },
-      ]);
+
+    if (selectedProducts.some((product) => product.productId === value)) {
+      removeSelectedProduct(value);
+    } else {
+      setCurrentProduct(selectedProduct);
+      setPopupVisible(true);
     }
   };
 
-  const handleVariantSelect = (productId, variantId) => {
-    setSelectedVariants({ ...selectedVariants, [productId]: variantId });
+  const handleVariantSelect = (variant, quantity) => {
+    const selectedProductId = currentProduct._id;
+
+    setSelectedProducts([
+      ...selectedProducts,
+      { productId: selectedProductId, variantId: variant._id, volume: variant.volume, quantity: parseInt(quantity), name: currentProduct.name, price: currentProduct.price },
+    ]);
+
+    // Đóng popup sau khi chọn xong
+    setPopupVisible(false);
   };
 
   const removeSelectedService = (serviceId) => {
-    setSelectedServices(selectedServices.filter((id) => id !== serviceId));
+    setSelectedServices(selectedServices.filter((service) => service.serviceId !== serviceId));
   };
 
   const removeSelectedProduct = (productId) => {
-    setSelectedProducts(selectedProducts.filter((id) => id !== productId));
+    setSelectedProducts(selectedProducts.filter((product) => product.productId !== productId));
   };
-
-  const renderSelectedProducts = () =>
-    selectedProducts.map(({ productId }) => {
-      const product = products.find((p) => p._id === productId);
-      return (
-        <div key={productId} className="flex items-center">
-          <div className="bg-gray-200 p-3 rounded">
-            <span>{product.name}</span>
-            <Select
-              value={selectedVariants[productId]}
-              onChange={(value) => handleVariantSelect(productId, value)}
-            >
-              {product.variants.map((variant) => (
-                <Select.Option key={variant._id} value={variant._id}>
-                  {variant.volume} - {variant.price}đ
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <button
-            className="ml-2 text-blue-500"
-            onClick={() => removeSelectedProduct(productId)}
-          >
-            <Icon icon="zi-edit-delete-solid" className="text-orange-500" />
-          </button>
-        </div>
-      );
-    });
 
   const handleSubmit = async () => {
     const formattedDateTime = moment(
@@ -123,24 +155,29 @@ const BookingFormPage = () => {
 
     const bookingData = {
       date: formattedDateTime,
-      services: selectedServices,
-      products: selectedProducts.map(({ productId }) => ({
-        productId,
-        variantId: selectedVariants[productId] || null,
-        quantity: 1,
+      services: selectedServices.map((service) => (service.serviceId)),
+      products: selectedProducts.map((product) => ({
+        productId: product.productId,
+        variantId: product.variantId || null,
+        quantity: product.quantity,
       })),
     };
+
+    console.log(bookingData)
 
     try {
       const result = await createBookingAPI(bookingData, accessToken);
       if (result) {
-        console.log('Booking created successfully:', result);
+        setDialogMessage('Đặt lịch thành công!'); 
       } else {
-        console.error('Failed to create booking');
+        setDialogMessage('Đặt lịch không thành công. Vui lòng thử lại.'); 
       }
     } catch (error) {
       console.error('Error creating booking:', error);
+      setDialogMessage('Có lỗi xảy ra. Vui lòng thử lại sau.'); 
     }
+
+    setDialogVisible(true); 
   };
 
   return (
@@ -149,7 +186,7 @@ const BookingFormPage = () => {
       <div className="p-4 mt-14 mb-14">
         <div className="bg-white p-4 rounded-lg border border-gray-500 shadow-md">
           <h1 className="text-2xl mb-4 text-center custom-font">THÔNG TIN ĐẶT HẸN</h1>
-          
+
           <Text className="mt-4">Khách hàng</Text>
           <Input id="name" type="text" value={user.name} readOnly />
 
@@ -168,51 +205,64 @@ const BookingFormPage = () => {
           />
 
           <Text className="mt-4">Dịch vụ</Text>
-          <div>
-            <Select placeholder="Chọn dịch vụ" onChange={handleServiceSelect}>
-              {services.map((service) => (
-                <Select.Option key={service._id} value={service._id}>
-                  <div className="flex items-center">
-                    <span>{service.name}</span>
-                  </div>
-                </Select.Option>
-              ))}
-            </Select>
-            {selectedServices.map((serviceId) => (
-              <div key={serviceId} className="flex items-center">
-                <div className="bg-gray-200 p-3 rounded">
-                  <span>
-                    {
-                      services.find((service) => service._id === serviceId)
-                        ?.name
-                    }
-                  </span>
-                </div>
-                <button
-                  className="ml-2 text-blue-500"
-                  onClick={() => removeSelectedService(serviceId)}
-                >
-                  <Icon
-                    icon="zi-edit-delete-solid"
-                    className="text-orange-500"
-                  />
-                </button>
-              </div>
+          <Button onClick={openServiceSheet} fullWidth className='mb-3'>Chọn Dịch Vụ</Button>
+          <div className='mt-3'>
+            {selectedServices.map((service) => (
+              <Box key={service.serviceId} className="flex items-center">
+                <Grid columnCount={2} className="border-2 p-3 rounded mb-2">
+                  <Stack space='1rem' style={{ width: "15rem" }}>
+                    <div>{service.name}</div>
+                    <div>{service.price.toLocaleString()} VND</div>
+                  </Stack>
+                  <button
+                    className="ml-2 text-blue-500"
+                    onClick={() => removeSelectedService(service.serviceId)}
+                  >
+                    <Icon icon="zi-close" className="text-orange-500" />
+                  </button>
+                </Grid>
+              </Box>
             ))}
+
           </div>
 
           <Text className="mt-4">Sản phẩm</Text>
-          <div>
-            <Select placeholder="Chọn sản phẩm" onChange={handleProductSelect}>
-              {products.map((product) => (
-                <Select.Option key={product._id} value={product._id}>
-                  <div className="flex items-center">
-                    <span>{product.name}</span>
-                  </div>
-                </Select.Option>
-              ))}
-            </Select>
-            {renderSelectedProducts()}
+          <Button onClick={openProductSheet} fullWidth>Chọn Sản Phẩm</Button>
+          <div className='mt-3'>
+            {selectedProducts.map(({ productId, volume, quantity, name, price }) => (
+              <Box key={productId} className="flex items-center">
+                <Grid columnCount={3} className="border-2 p-3 rounded mb-2">
+                  <Stack space='1rem' style={{ width: "11rem" }}>
+                    <div>{name}</div>
+                    <div>{volume} - {price.toLocaleString()} VND</div>
+                  </Stack>
+
+                  {/* Hiển thị số lượng */}
+                  <Input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => {
+                      const updatedQuantity = parseInt(e.target.value);
+
+                      // Cập nhật số lượng trong selectedProducts
+                      setSelectedProducts(selectedProducts.map((product) =>
+                        product.productId === productId
+                          ? { ...product, quantity: updatedQuantity }
+                          : product
+                      ));
+                    }}
+                  />
+                  <button
+                    className="ml-2 text-blue-500"
+                    onClick={() => removeSelectedProduct(productId)}
+                  >
+                    <Icon icon="zi-close" className="text-orange-500" />
+                  </button>
+                </Grid>
+              </Box>
+            ))}
+
           </div>
         </div>
 
@@ -223,6 +273,156 @@ const BookingFormPage = () => {
           <span className="ml-2 text-base text-white">Đặt lịch</span>
         </button>
       </div>
+
+      {/* DỊCH VỤ */}
+      <Sheet
+        visible={showServiceSheet}
+        onClose={closeServiceSheet}
+        autoHeight
+        title='Dịch Vụ'
+        mask
+        handler
+        swipeToClose
+      >
+        <Page className='section-container'>
+          <Box p={4} className='custom-bottom-sheet' flex flexDirection='column'>
+            <Input placeholder='Tìm kiếm...' value={serviceKeyword} onChange={(e) => setServiceKeyword(e.target.value)} />
+
+            <Grid columnSpace='1rem' rowSpace='1rem' columnCount={2} className='mt-3'>
+              {services.map((service) => (
+                <div key={service._id} onClick={() => handleServiceSelect(service)}>
+                  <Box className="relative">
+                    <input
+                      type="checkbox"
+                      className="absolute top-2 right-2 z-10"
+                      checked={selectedServices.some((selected) => selected.serviceId === service._id)}
+                    />
+                    <img
+                      src={service.images[0]}
+                      className="w-full aspect-square object-cover rounded-t-lg"
+                      alt={service.name}
+                    />
+                    <div className="py-2">
+                      <div className="text-sm h-9 line-clamp-2 mb-2">{service.name}</div>
+                      <div className="mt-0.5 text-sm font-medium">
+                        {service.price.toLocaleString() + ' VND'}
+                      </div>
+                    </div>
+                  </Box>
+                </div>
+              ))}
+            </Grid>
+            {currentServicePage < serviceTotalPages && (
+              <h2 className='mb-5 mt-2 w-100' style={{ textAlign: 'center' }} onClick={loadMoreServices}>
+                Xem thêm
+              </h2>
+            )}
+          </Box>
+          <div className='mb-7 mt-5 w-100'></div>
+        </Page>
+      </Sheet>
+
+      {/* SẢN PHẨM */}
+      <Sheet
+        visible={showProductSheet}
+        onClose={closeProductSheet}
+        autoHeight
+        title='Sản phẩm chọn thêm'
+        mask
+        handler
+        swipeToClose
+      >
+        <Page className='section-container'>
+          <Box p={4} className='custom-bottom-sheet' flex flexDirection='column'>
+            <Input placeholder='Tìm kiếm...' value={productKeyword} onChange={(e) => setProductKeyword(e.target.value)} />
+
+            <Grid columnSpace='1rem' rowSpace='1rem' columnCount={2} className='mt-3'>
+              {products.map((product) => (
+                <div key={product._id} onClick={() => handleProductSelect(product._id)}>
+                  <Box className="relative">
+                    <input
+                      type="checkbox"
+                      className="absolute top-2 right-2 z-10"
+                      checked={selectedProducts.some((selected) => selected.productId === product._id)}
+                    />
+                    <img
+                      src={product.images[0]}
+                      className="w-full aspect-square object-cover rounded-t-lg"
+                      alt={product.name}
+                    />
+                    <div className="py-2">
+                      <div className="text-sm h-9 line-clamp-2 mb-2">{product.name}</div>
+                      <div className="mt-0.5 text-sm font-medium">
+                        {product.price.toLocaleString() + ' VND'}
+                      </div>
+                    </div>
+                  </Box>
+                </div>
+              ))}
+            </Grid>
+            {currentProductPage < productTotalPages && (
+              <h2 className='mb-5 mt-2 w-100' style={{ textAlign: 'center' }} onClick={loadMoreProducts}>
+                Xem thêm
+              </h2>
+            )}
+          </Box>
+          <div className='mb-7 mt-5 w-100'></div>
+        </Page>
+      </Sheet>
+
+      {/* VARIANTS SELECTION MODAL */}
+      <Modal
+        visible={popupVisible}
+        title="Chọn Loại Sản Phẩm"
+        onClose={() => setPopupVisible(false)} // Đóng Modal
+        verticalActions
+      >
+        <Box p={6}>
+          {currentProduct?.variants.map((variant) => (
+            <Box mt={6} key={variant._id}>
+              <Radio
+                name="variant"
+                value={variant._id}
+                label={`${variant.volume} - ${variant.price.toLocaleString()} VNĐ`}
+                onChange={() => setSelectedVariant(variant)}
+              />
+            </Box>
+          ))}
+
+          <Input
+            label="Số lượng"
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            visibilityToggle
+          />
+
+          <Button
+            onClick={() => handleVariantSelect(selectedVariant, quantity)}
+            fullWidth
+          >
+            Xác Nhận
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Hiển thị thông báo */}
+      <Modal
+        visible={dialogVisible}
+        title={dialogMessage}
+        onClose={() => setDialogVisible(false)}
+        actions={[
+          {
+            text: "Xác nhận",
+            close: true,
+            highLight: true,
+            onClick: () => {
+              setDialogVisible(false); // Đóng modal
+              navigate('/booking'); // Chuyển trang
+            },
+          },
+        ]}
+      />
     </Page>
   );
 };

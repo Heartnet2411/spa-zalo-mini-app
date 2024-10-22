@@ -23,9 +23,9 @@ export const getAllCategory = async () => {
   }
 };
 
-export const getAllServices = async (pageNumber) => {
+export const getAllServices = async (pageNumber, keyword = '') => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/services?page=${pageNumber}&limit=10`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/services?page=${pageNumber}&limit=10&keyword=${keyword}`, {
       method: 'GET',
       headers: {
         'ngrok-skip-browser-warning': 'true',

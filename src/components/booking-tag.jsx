@@ -1,6 +1,6 @@
 import React from 'react';
 
-const categories = ['Tất cả', 'Chờ xác nhận', 'Đã xác nhận', 'Đã đặt lịch', 'Đã hủy lịch'];
+const categories = ['Tất cả', 'Chờ xác nhận', 'Đã xác nhận', 'Đã thành công', 'Đã hủy lịch'];
 
 const BookingTags = ({ selectedCategory, onSelectCategory }) => {
   return (

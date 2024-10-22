@@ -16,16 +16,16 @@ const BookingPage = () => {
   const statusMapping = {
     'Tất cả': 'all',
     'Chờ xác nhận': 'pending',
-    'Đã xác nhận': 'approve',
-    'Đã đặt lịch': 'completed',
+    'Đã xác nhận': 'approved',
+    'Đã thành công': 'completed',
     'Đã hủy lịch': 'cancelled',
   };
 
   const statusDisplayMapping = {
     cancelled: 'Đã hủy lịch',
-    completed: 'Đã đặt lịch',
+    completed: 'Đã thành công',
     pending: 'Chờ xác nhận',
-    approve: 'Đã xác nhận',
+    approved: 'Đã xác nhận',
   };
 
   // Gọi API để lấy danh sách booking
@@ -144,7 +144,7 @@ const BookingPage = () => {
         </div>
       )}
 
-      <ServiceChoose />
+      {/* <ServiceChoose /> */}
     </Page>
   );
 };
