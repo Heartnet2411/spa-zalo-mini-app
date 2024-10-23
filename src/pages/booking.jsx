@@ -28,7 +28,6 @@ const BookingPage = () => {
     approve: 'Đã xác nhận',
   };
 
-  // Gọi API để lấy danh sách booking
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -54,19 +53,19 @@ const BookingPage = () => {
           (booking) => booking.status === statusMapping[filterStatus]
         );
 
+  const handleViewDetail = (booking) => {
+    navigate('/bookingdetail', { state: { booking } });
+  };
+
   return (
     <Page className="page">
       <Header />
-
-      {/* Filter Tags */}
       <div className="mt-16">
         <BookingTags
           selectedCategory={filterStatus}
           onSelectCategory={setFilterStatus}
         />
       </div>
-
-      {/* Button đặt lịch */}
       <div className="flex items-center justify-center">
         <button
           className="w-full h-14 flex flex-col items-center justify-center bg-pink-200"
@@ -78,8 +77,6 @@ const BookingPage = () => {
           <span className="ml-2 text-base text-black">Đặt lịch tại đây</span>
         </button>
       </div>
-
-      {/* Hiển thị thông báo khi không có booking */}
       {filteredBookings.length === 0 ? (
         <div className="p-4">
           <div className="text-center">
@@ -87,14 +84,12 @@ const BookingPage = () => {
           </div>
         </div>
       ) : (
-        // Hiển thị danh sách các booking đã lọc
         <div className="">
           {filteredBookings.map((booking) => (
             <div
               key={booking._id}
               className="border border-gray-500 rounded-lg px-8 mt-5 mb-5 m-7"
             >
-              {/* Sử dụng Flexbox để sắp xếp các thông tin trên cùng một hàng */}
               <div className="mt-2 mb-2">
                 <Text>Mã đặt lịch:</Text>
                 <Text>{booking._id}</Text>
@@ -107,7 +102,7 @@ const BookingPage = () => {
                 <Text>Thời gian đặt lịch:</Text>
                 <Text className="ml-2">
                   {new Date(booking.date).toLocaleString()}
-                </Text>{' '}
+                </Text>
               </div>
               <div className="flex justify-start mt-2 mb-2">
                 <Text>Trạng thái đặt lịch:</Text>
@@ -130,9 +125,7 @@ const BookingPage = () => {
               <div className="flex justify-center mb-2">
                 <button
                   className="w-40 h-7 rounded-full bg-red-500"
-                  onClick={() => {
-                    navigate('/bookingdetail');
-                  }}
+                  onClick={() => handleViewDetail(booking)}
                 >
                   <span className="text-base text-white">
                     Xem chi tiết đặt lịch
@@ -143,7 +136,6 @@ const BookingPage = () => {
           ))}
         </div>
       )}
-
       <ServiceChoose />
     </Page>
   );
