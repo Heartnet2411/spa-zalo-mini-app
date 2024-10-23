@@ -53,8 +53,8 @@ const BookingPage = () => {
           (booking) => booking.status === statusMapping[filterStatus]
         );
 
-  const handleViewDetail = (booking) => {
-    navigate('/bookingdetail', { state: { booking } });
+  const handleViewDetail = (id) => {
+    navigate(`/bookingdetail/${id}`);
   };
 
   return (
@@ -89,7 +89,7 @@ const BookingPage = () => {
             {filteredBookings.map((booking) => (
               <div
                 key={booking._id}
-                className="border border-gray-500 rounded-lg px-8 mt-3 mb-3 m-7"
+                className="border border-gray-500 rounded-lg px-4 mt-3 mb-3 m-5"
               >
                 <div className="mt-2 mb-2">
                   <Text>Mã đặt lịch:</Text>
@@ -126,7 +126,7 @@ const BookingPage = () => {
                 <div className="flex justify-center mb-2">
                   <button
                     className="w-40 h-7 rounded-full bg-red-500"
-                    onClick={() => handleViewDetail(booking)}
+                    onClick={() => handleViewDetail(booking._id)}
                   >
                     <span className="text-base text-white">
                       Xem chi tiết đặt lịch

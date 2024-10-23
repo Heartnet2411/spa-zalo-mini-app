@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Text, Input, Select, Icon, Sheet, Button, Box, Grid, Modal, Radio, Stack, useNavigate } from 'zmp-ui';
+import { Page, Text, Input, Select, Icon, Sheet, Button, Box, Grid, Modal, Radio, Stack, useNavigate, useSnackbar } from 'zmp-ui';
 import Header from '../components/header';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
@@ -11,6 +11,7 @@ import ProductCard from '../components/product-card';
 
 const BookingFormPage = () => {
   const { userInfo: user, accessToken } = useRecoilValue(userState);
+  const { openSnackbar, closeSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -148,6 +149,12 @@ const BookingFormPage = () => {
   };
 
   const handleSubmit = async () => {
+    openSnackbar({
+      text: "Loading...",
+      type: "loading",
+      duration: 20000
+    });
+
     const formattedDateTime = moment(
       `${bookingDate} ${bookingTime}`,
       'YYYY-MM-DD HH:mm'
@@ -168,16 +175,30 @@ const BookingFormPage = () => {
     try {
       const result = await createBookingAPI(bookingData, accessToken);
       if (result) {
-        setDialogMessage('Đặt lịch thành công!'); 
+        openSnackbar({
+          text: "Success",
+          type: "success",
+          duration: 5000,
+          action: {
+            text: "close",
+            close: true
+          },
+        });
+        navigate('/booking');
       } else {
-        setDialogMessage('Đặt lịch không thành công. Vui lòng thử lại.'); 
+        openSnackbar({
+          text: "Error: " + result?.message,
+          type: "error",
+        });
       }
     } catch (error) {
       console.error('Error creating booking:', error);
-      setDialogMessage('Có lỗi xảy ra. Vui lòng thử lại sau.'); 
+      openSnackbar({
+        text: "Error",
+        type: "error",
+      });
     }
 
-    setDialogVisible(true); 
   };
 
   return (
@@ -407,7 +428,7 @@ const BookingFormPage = () => {
       </Modal>
 
       {/* Hiển thị thông báo */}
-      <Modal
+      {/* <Modal
         visible={dialogVisible}
         title={dialogMessage}
         onClose={() => setDialogVisible(false)}
@@ -422,7 +443,7 @@ const BookingFormPage = () => {
             },
           },
         ]}
-      />
+      /> */}
     </Page>
   );
 };

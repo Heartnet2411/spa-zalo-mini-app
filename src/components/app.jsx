@@ -35,7 +35,7 @@ const MyApp = () => {
                 element={<BookingForm></BookingForm>}
               ></Route>
               <Route
-                path="/bookingdetail"
+                path="/bookingdetail/:id"
                 element={<BookingDetailPage></BookingDetailPage>}
               ></Route>
               <Route path="/shop" element={<Shop></Shop>}></Route>
