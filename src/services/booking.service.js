@@ -51,3 +51,27 @@ export const getBookingHistoriesByUserId = async (status, accessToken) => {
   }
 };
 
+export const cancelBooking = async (bookingId, accessToken) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/bookings/${bookingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}` 
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to cancel the booking');
+    }
+
+    const data = await response.json();
+    return data; 
+
+  } catch (error) {
+    console.error('Error cancelling booking:', error.message);
+    throw error; 
+  }
+};
+

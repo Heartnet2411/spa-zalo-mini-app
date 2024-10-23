@@ -1,9 +1,9 @@
-export const getAllProduct = async (pagenumber, subCategoryId) => {
+export const getAllProduct = async (pagenumber, subCategoryId, keyword = '') => {
   try {
     var response;
     if (subCategoryId) {
       response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/products?page=${pagenumber}&limit=10&subCategoryId=${subCategoryId}`,
+        `${import.meta.env.VITE_SERVER_URL}/api/products?page=${pagenumber}&limit=10&subCategoryId=${subCategoryId}&keyword=${keyword}`,
         {
           method: 'GET',
           headers: {
@@ -13,7 +13,7 @@ export const getAllProduct = async (pagenumber, subCategoryId) => {
       );
     } else {
       response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/products?page=${pagenumber}&limit=10`,
+        `${import.meta.env.VITE_SERVER_URL}/api/products?page=${pagenumber}&limit=10&keyword=${keyword}`,
         {
           method: 'GET',
           headers: {

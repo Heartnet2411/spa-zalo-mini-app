@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Route, useLocation } from 'react-router-dom';
 import { App, ZMPRouter, AnimationRoutes, SnackbarProvider } from 'zmp-ui';
 import { RecoilRoot } from 'recoil';
@@ -17,6 +17,8 @@ import OrderStatusPage from '../pages/order-status';
 import VoucherPage from '../pages/voucher';
 import PaymentPage from '../pages/payment';
 import BookingDetailPage from '../pages/bookingdetail';
+import PaymentResult from '../pages/payment-result';
+
 const MyApp = () => {
   //Hide taskbar with path
 
@@ -52,6 +54,7 @@ const MyApp = () => {
                 path="/payment"
                 element={<PaymentPage></PaymentPage>}
               ></Route>
+              <Route path="/payment-result" element={<PaymentResult />}></Route>
             </AnimationRoutes>
             <Taskbar />
           </ZMPRouter>
