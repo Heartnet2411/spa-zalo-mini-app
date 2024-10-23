@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Avatar,
-  Text,
-  Box,
-  Page,
-  Button,
-  Icon,
-  useNavigate,
-} from 'zmp-ui';
+import { Avatar, Text, Box, Page, Button, Icon, useNavigate } from 'zmp-ui';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import Header from '../components/header';
-import { getZaloAccessToken, getZaloPhoneNumber } from '../services/zalo.service';
+import {
+  getZaloAccessToken,
+  getZaloPhoneNumber,
+} from '../services/zalo.service';
 import { loginAPI } from '../services/auth.service';
 import { getCurrentUserRank } from '../services/rank.service';
 import { userState } from '../state';
@@ -18,7 +13,7 @@ import { userState } from '../state';
 const ProfilePage = () => {
   const [accessToken, setAccessToken] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [membershipTier, setMembershipTier] = useState(''); 
+  const [membershipTier, setMembershipTier] = useState('');
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user } = useRecoilValue(userState);
   const navigate = useNavigate();
@@ -41,7 +36,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const result = await loginAPI(accessToken); 
+      const result = await loginAPI(accessToken);
       if (result) {
         // Cập nhật thông tin người dùng vào Recoil state
         setUserState({
@@ -59,7 +54,7 @@ const ProfilePage = () => {
   // Hàm lấy số điện thoại người dùng từ Zalo
   const fetchPhoneNumber = async () => {
     try {
-      const phone = await getZaloPhoneNumber(); 
+      const phone = await getZaloPhoneNumber();
       setPhoneNumber(phone);
     } catch (error) {
       console.error('Lỗi khi lấy số điện thoại:', error);
@@ -68,12 +63,12 @@ const ProfilePage = () => {
 
   // Hàm lấy hạng của người dùng
   const fetchUserRank = async () => {
-    if (!accessToken) return; 
+    if (!accessToken) return;
 
     try {
       const rankData = await getCurrentUserRank(accessToken);
-      console.log("access token",accessToken);
-      setMembershipTier(rankData.membershipTier); 
+      console.log('access token', accessToken);
+      setMembershipTier(rankData.membershipTier);
     } catch (error) {
       console.error('Lỗi khi lấy hạng người dùng:', error);
     }
@@ -85,9 +80,9 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (accessToken) {
-      handleLogin(); 
-      fetchPhoneNumber(); 
-      fetchUserRank(); 
+      handleLogin();
+      fetchPhoneNumber();
+      fetchUserRank();
     }
   }, [accessToken]);
 
@@ -104,7 +99,11 @@ const ProfilePage = () => {
           <Box>
             <Avatar
               size={96}
-              src={user.avatar && user.avatar.startsWith('http') ? user.avatar : undefined}
+              src={
+                user.avatar && user.avatar.startsWith('http')
+                  ? user.avatar
+                  : undefined
+              }
             >
               {/* Hiển thị chữ cái đầu nếu không có avatar */}
               {!user.avatar && user.name ? user.name.charAt(0) : ''}
@@ -127,49 +126,52 @@ const ProfilePage = () => {
         </Box>
 
         {/* Hiển thị hạng người dùng */}
-        <div className="flex items-center justify-center mt-10">
-          <div className="w-80 rounded-lg border flex items-center justify-center flex-col">
-            <span className="text-xl font-bold text-blue-500 mt-3">Hạng:</span>
-            <span className="mt-3 mb-3">{user.membershipTier || 'Chưa có hạng'}</span>
+        <div className="flex items-end justify-center rounded-md p-4 gap-2">
+          <span className="text-xl -mb-0.5">
+            {user.membershipTier || 'Chưa có hạng'}
+          </span>
 
-            <button
-              className="w-14 h-6 rounded-xl bg-red-500 mb-5"
-              onClick={() => {
-                navigate('/voucher');
-              }}
-            >
-              <span className="text-white">Ưu đãi</span>
-            </button>
-          </div>
+          <button
+            className="w-14 h-6 rounded-xl bg-purple-500"
+            onClick={() => {
+              navigate('/voucher');
+            }}
+          >
+            <span className="text-white">Ưu đãi</span>
+          </button>
         </div>
 
         {/* Các phần khác của Profile */}
-        <div className="flex items-center justify-center mt-5">
-          <button
-            className="w-80 h-10 rounded-full flex items-center justify-center bg-red-500"
-            onClick={() => {
-              navigate('/order-status');
-            }}
-          >
-            <span className="ml-2 text-base text-white">Đơn hàng đã mua</span>
-          </button>
-        </div>
-        <div className="flex items-center justify-center mt-5">
-          <button
-            className="w-80 h-10 rounded-full flex items-center justify-center border"
-            onClick={() => {
-              navigate('/rating');
-            }}
-          >
-            <span className="ml-2 text-base">Đánh giá sản phẩm</span>
-          </button>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center justify-center mt-5">
+            <button
+              className="px-2 py-2 rounded-full flex items-center justify-center bg-red-500"
+              onClick={() => {
+                navigate('/order-status');
+              }}
+            >
+              <span className="ml-2 text-base text-white">Đơn hàng đã mua</span>
+            </button>
+          </div>
+          <div className="flex items-center justify-center mt-5">
+            <button
+              className="px-2 py-2 rounded-full flex items-center justify-center border"
+              onClick={() => {
+                navigate('/rating');
+              }}
+            >
+              <span className="ml-2 text-base">Đánh giá sản phẩm</span>
+            </button>
+          </div>
         </div>
         <div className="flex items-center justify-center mt-5">
           <div className="w-80 rounded-lg border flex items-center justify-around">
             <div className="flex flex-col items-start mr-20">
               <span className="text-xl font-bold mb-1">Điểm</span>
-              <span className="text-orange-500">{user.points}</span>
-              <Icon icon="zi-star" className="text-orange-500" />
+              <div className="flex items-end text-orange-500 gap-2">
+                <span>{user.points}</span>
+                <Icon icon="zi-star" className="mb-0.5" size={20} />
+              </div>
             </div>
             <button className="w-20 h-10 rounded-xl bg-green-500">
               <span className="text-white">Đổi ưu đãi</span>
