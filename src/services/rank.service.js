@@ -5,6 +5,7 @@ export const getCurrentUserRank = async (accessToken) => {
       {
         method: 'GET',
         headers: {
+          'ngrok-skip-browser-warning': 'true',
           Authorization: `Bearer ${accessToken}`,
         },
       }

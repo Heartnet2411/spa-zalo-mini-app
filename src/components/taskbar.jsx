@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { GoHomeFill } from 'react-icons/go';
 import { FaRegCalendarCheck } from 'react-icons/fa6';
-import { FaCartShopping } from 'react-icons/fa6';
+import { FaCartShopping, FaGamepad } from 'react-icons/fa6';
 import { IoPersonSharp } from 'react-icons/io5';
 
 const Taskbar = () => {
@@ -47,6 +47,15 @@ const Taskbar = () => {
       >
         <FaCartShopping size={20} />
         <span>Mua hàng</span>
+      </Link>
+      <Link
+        to="/game"
+        className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
+          '/game'
+        )}`}
+      >
+        <FaGamepad size={20} />
+        <span>Game</span>
       </Link>
       <Link
         to="/profile"

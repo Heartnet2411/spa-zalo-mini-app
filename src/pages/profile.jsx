@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Avatar,
-  Text,
-  Box,
-  Page,
-  Button,
-  Icon,
-  useNavigate,
-} from 'zmp-ui';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { Avatar, Text, Box, Page, Button, Icon, useNavigate } from 'zmp-ui';
 import Header from '../components/header';
-import { getZaloAccessToken, getZaloPhoneNumber } from '../services/zalo.service';
+import {
+  getZaloAccessToken,
+  getZaloPhoneNumber,
+} from '../services/zalo.service';
 import { loginAPI } from '../services/auth.service';
-import { getCurrentUserRank } from '../services/rank.service';
 import { userState } from '../state';
-
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 const ProfilePage = () => {
   const [accessToken, setAccessToken] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [membershipTier, setMembershipTier] = useState(''); 
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user } = useRecoilValue(userState);
   const navigate = useNavigate();
+
+  const rankDisplayMapping = {
+    Member: 'Thành Viên',
+    Silver: 'Bạc',
+    Gold: 'Vàng',
+    Diamond: 'Kim Cương',
+  };
 
   // Hàm xác thực người dùng và lấy access token
   const handleAuthorization = async () => {
@@ -41,7 +40,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const result = await loginAPI(accessToken); 
+      const result = await loginAPI(accessToken);
       if (result) {
         // Cập nhật thông tin người dùng vào Recoil state
         setUserState({
@@ -59,23 +58,10 @@ const ProfilePage = () => {
   // Hàm lấy số điện thoại người dùng từ Zalo
   const fetchPhoneNumber = async () => {
     try {
-      const phone = await getZaloPhoneNumber(); 
+      const phone = await getZaloPhoneNumber();
       setPhoneNumber(phone);
     } catch (error) {
       console.error('Lỗi khi lấy số điện thoại:', error);
-    }
-  };
-
-  // Hàm lấy hạng của người dùng
-  const fetchUserRank = async () => {
-    if (!accessToken) return; 
-
-    try {
-      const rankData = await getCurrentUserRank(accessToken);
-      console.log("access token",accessToken);
-      setMembershipTier(rankData.membershipTier); 
-    } catch (error) {
-      console.error('Lỗi khi lấy hạng người dùng:', error);
     }
   };
 
@@ -85,9 +71,8 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (accessToken) {
-      handleLogin(); 
-      fetchPhoneNumber(); 
-      fetchUserRank(); 
+      handleLogin();
+      fetchPhoneNumber();
     }
   }, [accessToken]);
 
@@ -104,7 +89,11 @@ const ProfilePage = () => {
           <Box>
             <Avatar
               size={96}
-              src={user.avatar && user.avatar.startsWith('http') ? user.avatar : undefined}
+              src={
+                user.avatar && user.avatar.startsWith('http')
+                  ? user.avatar
+                  : undefined
+              }
             >
               {/* Hiển thị chữ cái đầu nếu không có avatar */}
               {!user.avatar && user.name ? user.name.charAt(0) : ''}
@@ -129,11 +118,15 @@ const ProfilePage = () => {
         {/* Hiển thị hạng người dùng */}
         <div className="flex items-center justify-center mt-10">
           <div className="w-80 rounded-lg border flex items-center justify-center flex-col">
-            <span className="text-xl font-bold text-blue-500 mt-3">Hạng:</span>
-            <span className="mt-3 mb-3">{user.membershipTier || 'Chưa có hạng'}</span>
+            <span className="text-xl font-bold text-blue-500 mt-3">
+              Hạng:{' '}
+              <span className="mt-3 mb-3 text-black font-normal">
+                {rankDisplayMapping[user.membershipTier] || 'Chưa có hạng'}
+              </span>
+            </span>
 
             <button
-              className="w-14 h-6 rounded-xl bg-red-500 mb-5"
+              className="w-14 h-6 rounded-xl bg-red-500 mt-5 mb-5"
               onClick={() => {
                 navigate('/voucher');
               }}
@@ -167,8 +160,11 @@ const ProfilePage = () => {
         <div className="flex items-center justify-center mt-5">
           <div className="w-80 rounded-lg border flex items-center justify-around">
             <div className="flex flex-col items-start mr-20">
-              <span className="text-xl font-bold mb-1">Điểm</span>
-              <span className="text-orange-500">{user.points}</span>
+              <span className="text-xl font-bold mb-1">
+                Điểm:{' '}
+                <span className="text-orange-400 mb-1 font-normal">{user.points}</span>
+              </span>
+
               <Icon icon="zi-star" className="text-orange-500" />
             </div>
             <button className="w-20 h-10 rounded-xl bg-green-500">
