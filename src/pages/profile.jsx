@@ -7,13 +7,11 @@ import {
   getZaloPhoneNumber,
 } from '../services/zalo.service';
 import { loginAPI } from '../services/auth.service';
-import { getCurrentUserRank } from '../services/rank.service';
 import { userState } from '../state';
 
 const ProfilePage = () => {
   const [accessToken, setAccessToken] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [membershipTier, setMembershipTier] = useState('');
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user } = useRecoilValue(userState);
   const navigate = useNavigate();
@@ -61,19 +59,6 @@ const ProfilePage = () => {
     }
   };
 
-  // Hàm lấy hạng của người dùng
-  const fetchUserRank = async () => {
-    if (!accessToken) return;
-
-    try {
-      const rankData = await getCurrentUserRank(accessToken);
-      console.log('access token', accessToken);
-      setMembershipTier(rankData.membershipTier);
-    } catch (error) {
-      console.error('Lỗi khi lấy hạng người dùng:', error);
-    }
-  };
-
   useEffect(() => {
     handleAuthorization(); // Bắt đầu xác thực khi component load
   }, []);
@@ -82,7 +67,6 @@ const ProfilePage = () => {
     if (accessToken) {
       handleLogin();
       fetchPhoneNumber();
-      fetchUserRank();
     }
   }, [accessToken]);
 
@@ -202,7 +186,10 @@ const ProfilePage = () => {
               <span className="text-xl font-bold mb-1">Tiếp thị liên kết</span>
               <span className="mt-1 text-orange-500">0 VND</span>
             </div>
-            <button className="w-20 h-10 rounded-xl bg-orange-400">
+            <button
+              className="w-20 h-10 rounded-xl bg-orange-400"
+              onClick={() => navigate('/referral')}
+            >
               <span className="text-white">Chi tiết</span>
             </button>
           </div>

@@ -37,6 +37,8 @@ const Header = () => {
         return 'Đánh giá sản phẩm';
       case '/payment':
         return 'Thanh toán';
+      case '/referral':
+        return 'Tiếp thị liên kết';
       default:
         return 'Spa Mini App'; // Default title if no specific route matches
     }

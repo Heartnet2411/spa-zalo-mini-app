@@ -20,6 +20,7 @@ import PaymentPage from '../pages/payment';
 import BookingDetailPage from '../pages/bookingdetail';
 import PaymentResult from '../pages/payment-result';
 import Game from '../pages/game';
+import ReferralPage from '../pages/referral';
 const MyApp = () => {
   //Hide taskbar with path
 
@@ -58,6 +59,7 @@ const MyApp = () => {
                 element={<PaymentPage></PaymentPage>}
               ></Route>
               <Route path="/payment-result" element={<PaymentResult />}></Route>
+              <Route path="/referral" element={<ReferralPage/>}></Route>
             </AnimationRoutes>
             <Taskbar />
           </ZMPRouter>
