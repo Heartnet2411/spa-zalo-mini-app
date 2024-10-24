@@ -121,9 +121,9 @@ const ShopPage = () => {
       <Page ref={topRef} className="page relative">
         <Suspense>
           <Header />
-          <div className="pt-4 my-14 relative">
-            <div className="fixed top-[52px] left-0 z-10 w-full bg-white py-2">
-              <div className="relative flex items-center justify-around">
+          <div className=" my-14 ">
+            <div className=" top-[52px] left-0 z-10 w-full bg-white py-2">
+              <div className=" flex items-center justify-around">
                 {/* Search button */}
                 <button
                   onClick={handleSearchClick}
@@ -165,7 +165,7 @@ const ShopPage = () => {
                 </button>
               </div>
               {showInput && (
-                <div className="relative mb-2">
+                <div className="mt-3 mb-2 px-4">
                   <input
                     ref={inputRef}
                     type="text"
@@ -189,14 +189,16 @@ const ShopPage = () => {
               )}
               {/* Hiển thị FilterTags khi showFilter là true */}
               {showFilter && (
-                <FilterTags
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={setSelectedCategory}
-                  fetchProducts={fetchProducts}
-                />
+                <div className="mt-3 px-2">
+                  <FilterTags
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
+                    fetchProducts={fetchProducts}
+                  />
+                </div>
               )}
             </div>
-            <div className="pt-12 pb-3 bg-gray-100 w-full px-1">
+            <div className="pt-2 pb-2 bg-gray-100 w-full px-2">
               <ProductCard products={products} />
 
               {selectedCategory === 'Tất cả' && !searchQuery && (

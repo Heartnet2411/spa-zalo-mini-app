@@ -88,7 +88,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   };
 
   return (
-    <div className="flex justify-center my-6">
+    <div className="flex justify-center my-4">
       {/* Nút về trang đầu */}
       {/* <button
         onClick={() => handleClick(1)}

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { GoHomeFill } from 'react-icons/go';
 import { FaRegCalendarCheck } from 'react-icons/fa6';
 import { FaCartShopping, FaGamepad } from 'react-icons/fa6';
 import { IoPersonSharp } from 'react-icons/io5';
+import { fetchUserCart } from '../services/cart.service';
+import { userState } from '../state';
+import { useRecoilState } from 'recoil';
 
 const Taskbar = () => {
+  const [user, setUserState] = useRecoilState(userState);
   const location = useLocation();
+  const [cartCount, setCartCount] = useState(0);
   const hideTaskbar =
     location.pathname.startsWith('/product/') ||
     location.pathname.startsWith('/cart') ||
@@ -14,6 +19,21 @@ const Taskbar = () => {
   if (hideTaskbar) {
     return null; // Không hiển thị Taskbar
   }
+
+  const getUserCart = async () => {
+    const cart = await fetchUserCart(user.accessToken);
+    if (cart) {
+      console.log(cart.carts.length);
+      setCartCount(cart.carts.length);
+    } else {
+      throw new Error('Failed to fetch cart data');
+    }
+  };
+
+  useEffect(() => {
+    //Cart được gọi
+    getUserCart();
+  }, []);
 
   // Function to determine active status
   const getActiveClass = (path) =>
@@ -41,12 +61,17 @@ const Taskbar = () => {
       </Link>
       <Link
         to="/shop"
-        className={`text-base taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
+        className={`text-base relative taskbar-button text-center w-full flex flex-col items-center ${getActiveClass(
           '/shop'
         )}`}
       >
         <FaCartShopping size={20} />
         <span>Mua hàng</span>
+        {cartCount > 0 ? (
+          <span className="absolute -top-2 right-2  bg-red-500 border border-white box-border  px-2 py-0 leading-6 rounded-full text-white text-sm">
+            {cartCount}
+          </span>
+        ) : null}
       </Link>
       <Link
         to="/game"
