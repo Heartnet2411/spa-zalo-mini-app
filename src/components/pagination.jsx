@@ -22,7 +22,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         className={`px-3 py-1 mx-1 rounded ${
           currentPage === 1
             ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
+            : 'bg-white text-gray-700'
         }`}
       >
         1
@@ -50,7 +50,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           className={`px-3 py-1 mx-1 rounded ${
             currentPage === i
               ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-gray-700'
+              : 'bg-white text-gray-700'
           }`}
         >
           {i}
@@ -76,7 +76,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           className={`px-3 py-1 mx-1 rounded ${
             currentPage === totalPages
               ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-gray-700'
+              : 'bg-white text-gray-700'
           }`}
         >
           {totalPages}
@@ -88,11 +88,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   };
 
   return (
-    <div className="flex justify-center mt-6">
+    <div className="flex justify-center my-6">
       {/* Nút về trang đầu */}
       {/* <button
         onClick={() => handleClick(1)}
-        className="px-2 py-1 mx-1 rounded bg-gray-200 text-gray-700"
+        className="px-2 py-1 mx-1 rounded bg-white text-gray-700"
         disabled={currentPage === 1}
       >
         <FaAngleDoubleLeft />
@@ -101,7 +101,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {/* Nút Back */}
       <button
         onClick={() => handleClick(Math.max(currentPage - 1, 1))}
-        className="px-3 py-1 mx-1 rounded bg-gray-200 text-gray-700"
+        className="px-3 py-1 mx-1 rounded bg-white text-gray-700"
         disabled={currentPage === 1}
       >
         <FaAngleLeft />
@@ -113,7 +113,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {/* Nút Next */}
       <button
         onClick={() => handleClick(Math.min(currentPage + 1, totalPages))}
-        className="px-3 py-1 mx-1 rounded bg-gray-200 text-gray-700"
+        className="px-3 py-1 mx-1 rounded bg-white text-gray-700"
         disabled={currentPage === totalPages}
       >
         <FaAngleRight />
@@ -122,7 +122,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {/* Nút về trang cuối */}
       {/* <button
         onClick={() => handleClick(totalPages)}
-        className="px-2 py-1 mx-1 rounded bg-gray-200 text-gray-700"
+        className="px-2 py-1 mx-1 rounded bg-white text-gray-700"
         disabled={currentPage === totalPages}
       >
         <FaAngleDoubleRight />

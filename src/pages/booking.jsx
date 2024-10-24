@@ -89,7 +89,7 @@ const BookingPage = () => {
             {filteredBookings.map((booking) => (
               <div
                 key={booking._id}
-                className="border border-gray-500 rounded-lg px-4 mt-4 mb-3 m-5"
+                className="border shadow-lg rounded-lg px-4 m-5"
               >
                 <Text className="mt-2">
                   <span>
@@ -97,7 +97,7 @@ const BookingPage = () => {
                       <span>
                         {/* <Icon icon="zi-clock-1" size={18} /> */}
                         Chỉ còn{' '}
-                        <span className="font-bold text-red-500">
+                        <span className="font-bold text-orange-500">
                           {(() => {
                             const now = new Date();
                             const bookingDate = new Date(booking.date);
@@ -131,28 +131,38 @@ const BookingPage = () => {
                   <span className="font-bold">Mã đặt lịch:</span>
                   <Text>{booking._id}</Text>
                 </div> */}
-                <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
-                  <Icon icon="zi-user-circle-solid" size={20} /> :
-                  {/* <span className="font-bold">Khách hàng:</span> */}
-                  <Text className="ml-2">{user.name}</Text>
-                </div>
-                <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
-                  <Icon icon="zi-calendar-solid" size={20} /> :
-                  {/* <span className="font-bold">Thời gian:</span> */}
-                  <Text className="ml-2">
+                {/* <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
+                  <Icon icon="zi-user-circle-solid" size={20} />
+                  <span className="font-bold">Khách hàng :</span>
+                  <Text className="ml-1">{user.name}</Text>
+                </div> */}
+                <div className="flex justify-start items-start my-4 gap-1 -mr-2">
+                  {/* <Icon icon="zi-calendar-solid" size={20} /> */}
+                  <span className="font-bold whitespace-nowrap">
+                    Thời gian :
+                  </span>
+                  <Text className="ml-1">
                     {`${['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][new Date(booking.date).getDay()]}, 
   ${new Date(booking.date).getDate().toString().padStart(2, '0')}/${(new Date(booking.date).getMonth() + 1).toString().padStart(2, '0')}/${new Date(booking.date).getFullYear()} - `}
 
-                    <span style={{ fontWeight: 'bold' }}>
+                    <span>
                       {`${new Date(booking.date).getHours()}h${new Date(booking.date).getMinutes().toString().padStart(2, '0')}`}
                     </span>
                   </Text>
                 </div>
-                <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
-                  <Icon icon="zi-info-circle-solid" size={20} /> :
-                  {/* <span className="font-bold">Trạng thái:</span> */}
+                <div className="flex justify-start items-start my-4 gap-1">
+                  {/* <Icon icon="zi-note" size={20} /> */}
+                  <span className="font-bold">Đã đặt :</span>
+                  <span>{booking?.services?.length || 0}</span>
+                  <span> dịch vụ - </span>
+                  <span>{booking?.products?.length || 0}</span>
+                  <span> sản phẩm</span>
+                </div>
+                <div className="flex justify-start items-center my-4 gap-1 -mr-2">
+                  {/* <Icon icon="zi-info-circle-solid" size={20} /> */}
+                  <span className="font-bold">Trạng thái :</span>
                   <div
-                    className={`px-4 py-0.5 ml-2 rounded-md ${
+                    className={`px-4 py-0.5 ml-1 rounded-md ${
                       booking?.status === 'cancelled'
                         ? 'bg-red-400'
                         : booking?.status === 'completed'
