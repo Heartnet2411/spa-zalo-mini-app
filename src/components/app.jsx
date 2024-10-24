@@ -19,6 +19,7 @@ import ListVoucherPage from '../pages/list-voucher';
 import PaymentPage from '../pages/payment';
 import BookingDetailPage from '../pages/bookingdetail';
 import PaymentResult from '../pages/payment-result';
+import ServiceDetail from '../pages/service-detail';
 import Game from '../pages/game';
 import ReferralPage from '../pages/referral';
 const MyApp = () => {
@@ -49,6 +50,7 @@ const MyApp = () => {
                 element={<RatingDetail></RatingDetail>}
               ></Route>
               <Route path="/product/:id" element={<ProductDetail />}></Route>
+              <Route path="/service/:id" element={<ServiceDetail />}></Route>
               <Route path="/cart" element={<CartPage />} />
               <Route path="/form" element={<Form></Form>}></Route>
               <Route path="/order-status" element={<OrderStatusPage />}></Route>
