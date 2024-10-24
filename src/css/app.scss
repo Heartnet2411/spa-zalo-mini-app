@@ -44,3 +44,14 @@
   border-bottom-left-radius: 5px;
   overflow: hidden;
 }
+
+.truncate-multiline {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  /* Đảm bảo chữ bị cắt sẽ xuống dòng */
+
+  /* Giới hạn chiều cao cho 2 dòng, tùy chỉnh theo kích thước chữ */
+  line-height: 1.2em;
+  /* Dòng chữ cách nhau 1.5em */
+}

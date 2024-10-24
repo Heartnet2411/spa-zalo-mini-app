@@ -109,7 +109,7 @@ export default function HomePage() {
                     {' '}
                     {/* Sử dụng _id làm key */}
                     <img
-                      className="slide-img rounded-xl"
+                      className="slide-img rounded-xl w-full h-full object-cover"
                       src={image.url} // Lấy URL từ trường url
                       alt={`slide-${image.index}`} // Tạo alt cho ảnh dựa trên index
                     />

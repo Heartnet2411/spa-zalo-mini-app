@@ -21,6 +21,7 @@ import { fetchUserCart } from '../services/cart.service';
 import { findProductToUpdateSuggestScore } from '../services/recommendersystem.service';
 import { userState } from '../state';
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { useLocation } from 'react-router-dom';
 
 const ShopPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
@@ -33,6 +34,7 @@ const ShopPage = () => {
   const [totalPages, setTotalPages] = useState(5);
   const inputRef = useRef(null);
   const topRef = useRef(null);
+  const location = useLocation();
 
   const [user, setUserState] = useRecoilState(userState);
   console.log(user);
@@ -59,9 +61,17 @@ const ShopPage = () => {
   };
 
   useEffect(() => {
-    //useeffect đượcgọi lại mỗi khi trang thay đổi
-    fetchProducts(currentPage);
-  }, [currentPage]);
+    const queryParams = new URLSearchParams(location.search);
+    const categoryId = queryParams.get('category');
+    const categoryName = queryParams.get('categoryName'); // Lấy tên danh mục từ URL
+    if (categoryId) {
+      setSelectedCategory(categoryName); // Thiết lập tên danh mục đã chọn
+      fetchProducts(currentPage, categoryId); // Fetch sản phẩm theo category
+      setShowFilter(true);
+    } else {
+      fetchProducts(currentPage); // Fetch tất cả sản phẩm nếu không có category
+    }
+  }, [currentPage, location]);
 
   useEffect(() => {
     //Cart được gọi
