@@ -121,9 +121,9 @@ const ShopPage = () => {
       <Page ref={topRef} className="page relative">
         <Suspense>
           <Header />
-          <div className=" my-14 ">
-            <div className=" top-[52px] left-0 z-10 w-full bg-white py-2">
-              <div className=" flex items-center justify-around">
+          <div className="pt-4 my-14 relative">
+            <div className="fixed top-[52px] left-0 z-10 w-full bg-white py-2">
+              <div className="relative flex items-center justify-around">
                 {/* Search button */}
                 <button
                   onClick={handleSearchClick}
@@ -198,7 +198,7 @@ const ShopPage = () => {
                 </div>
               )}
             </div>
-            <div className="pt-2 pb-2 bg-gray-100 w-full px-2">
+            <div className="pt-12 pb-3 bg-gray-100 w-full h-screen px-1">
               <ProductCard products={products} />
 
               {selectedCategory === 'Tất cả' && !searchQuery && (

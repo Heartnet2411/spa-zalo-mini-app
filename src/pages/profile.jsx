@@ -145,7 +145,7 @@ const ProfilePage = () => {
             {user.membershipTier || 'Chưa có hạng'}
             <sub className="absolute right-[-40px] top-[-10px]">
               <button
-                className="px-2 py-1 rounded-xl bg-purple-500"
+                className="px-2 py-1 rounded-xl bg-blue-500"
                 onClick={() => {
                   navigate('/voucher');
                 }}
