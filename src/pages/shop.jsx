@@ -21,6 +21,7 @@ import { fetchUserCart } from '../services/cart.service';
 import { findProductToUpdateSuggestScore } from '../services/recommendersystem.service';
 import { userState } from '../state';
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { useLocation } from 'react-router-dom';
 
 const ShopPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
@@ -33,6 +34,7 @@ const ShopPage = () => {
   const [totalPages, setTotalPages] = useState(5);
   const inputRef = useRef(null);
   const topRef = useRef(null);
+  const location = useLocation();
 
   const [user, setUserState] = useRecoilState(userState);
   console.log(user);
@@ -59,9 +61,17 @@ const ShopPage = () => {
   };
 
   useEffect(() => {
-    //useeffect đượcgọi lại mỗi khi trang thay đổi
-    fetchProducts(currentPage);
-  }, [currentPage]);
+    const queryParams = new URLSearchParams(location.search);
+    const categoryId = queryParams.get('category');
+    const categoryName = queryParams.get('categoryName'); // Lấy tên danh mục từ URL
+    if (categoryId) {
+      setSelectedCategory(categoryName); // Thiết lập tên danh mục đã chọn
+      fetchProducts(currentPage, categoryId); // Fetch sản phẩm theo category
+      setShowFilter(true);
+    } else {
+      fetchProducts(currentPage); // Fetch tất cả sản phẩm nếu không có category
+    }
+  }, [currentPage, location]);
 
   useEffect(() => {
     //Cart được gọi
@@ -111,13 +121,9 @@ const ShopPage = () => {
       <Page ref={topRef} className="page relative">
         <Suspense>
           <Header />
-          <div className="p-4 mt-14 mb-14">
-            <p className="text-4xl font-black mb-4 ">
-              <strong>Danh Sách Sản Phẩm</strong>
-            </p>
-
-            <div className="mb-2">
-              <div className="relative flex items-center justify-around mb-4">
+          <div className=" my-14 ">
+            <div className=" top-[52px] left-0 z-10 w-full bg-white py-2">
+              <div className=" flex items-center justify-around">
                 {/* Search button */}
                 <button
                   onClick={handleSearchClick}
@@ -159,7 +165,7 @@ const ShopPage = () => {
                 </button>
               </div>
               {showInput && (
-                <div className="relative mb-2">
+                <div className="mt-3 mb-2 px-4">
                   <input
                     ref={inputRef}
                     type="text"
@@ -183,23 +189,26 @@ const ShopPage = () => {
               )}
               {/* Hiển thị FilterTags khi showFilter là true */}
               {showFilter && (
-                <FilterTags
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={setSelectedCategory}
-                  fetchProducts={fetchProducts}
+                <div className="mt-3 px-2">
+                  <FilterTags
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
+                    fetchProducts={fetchProducts}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="pt-2 pb-2 bg-gray-100 w-full px-2">
+              <ProductCard products={products} />
+
+              {selectedCategory === 'Tất cả' && !searchQuery && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
                 />
               )}
             </div>
-
-            <ProductCard products={products} />
-
-            {selectedCategory === 'Tất cả' && !searchQuery && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            )}
           </div>
         </Suspense>
       </Page>

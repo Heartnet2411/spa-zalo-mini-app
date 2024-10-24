@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useEffect } from 'react';
-import { Button, Input, Box, Page, useSnackbar } from 'zmp-ui';
+import { Page } from 'zmp-ui';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 import { IoBagCheckOutline } from 'react-icons/io5';
 import { LiaTimesSolid } from 'react-icons/lia';
@@ -9,13 +9,16 @@ import {
   removeItemFromCart,
   updateQuantityInCart,
 } from '../services/cart.service';
-import { userState } from '../state';
-import { useRecoilState } from 'recoil';
+
 import { useNavigate } from 'react-router-dom';
+import { userState } from '../state';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 
 const CartPage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
+  const [user, setUserState] = useRecoilState(userState);
+  console.log('Cart', user);
 
   const handleCheckout = () => {
     navigate('/payment', {
@@ -25,22 +28,18 @@ const CartPage = () => {
     });
   };
 
-  const [user, setUserState] = useRecoilState(userState);
-  console.log(cart);
-
   const getUserCart = async () => {
     const cart = await fetchUserCart(user.accessToken);
     if (cart) {
       setCart(cart.carts);
     } else {
-      throw new Error('Failed to fetch cart data');
+      console.log('fail');
     }
   };
 
   useEffect(() => {
     getUserCart();
-    // Gọi hàm fetchProducts
-  }, []);
+  }, [user]);
 
   const plusCartQuantity = async (productId, variantId, quantity) => {
     const result = await updateQuantityInCart(
@@ -55,7 +54,7 @@ const CartPage = () => {
       if (cart) {
         setCart(cart.carts);
       } else {
-        throw new Error('Failed to fetch cart data');
+        console.log('Failed to fetch cart data');
       }
     } else {
       console.log('Cập nhật thất bại');
@@ -76,7 +75,7 @@ const CartPage = () => {
       if (cart) {
         setCart(cart.carts);
       } else {
-        throw new Error('Failed to fetch cart data');
+        console.log('ádkl');
       }
     } else {
       console.log('Cập nhật thất bại');
@@ -104,9 +103,11 @@ const CartPage = () => {
     <Page className="page ">
       <Suspense>
         <Header />
-        <div className="p-4 mt-14 ">
+        <div className="px-6 mt-14 mb-28">
           <div className="overflow-scroll scroll-container ">
-            <h1 className="text-2xl font-bold mb-4 text-center">Giỏ Hàng</h1>
+            <h1 className="text-xl font-bold mb-2 text-center mt-2">
+              Các sản phẩm của bạn
+            </h1>
             {cart.length > 0 ? ( // Kiểm tra xem giỏ hàng có sản phẩm hay không
               cart.map((item) => (
                 <div
@@ -120,7 +121,7 @@ const CartPage = () => {
                       className="w-28 h-28 object-contain mr-4 bg-white rounded-lg"
                     />
                     <div style={{ width: 'calc(100vw - 13rem)' }} className="">
-                      <h2 className="text-xl font-semibold">
+                      <h2 className="text-lg font-semibold">
                         {item.productName}
                       </h2>
                       <span className="my-4">{item.volume}</span>
@@ -176,32 +177,19 @@ const CartPage = () => {
               </p> // Hiển thị thông báo giỏ hàng trống
             )}
           </div>
-
-          <div className="h-fit pt-4 flex flex-col justify-end bg-white -mx-4 ">
-            <div className="text-xl font-extrabold flex justify-between mx-4">
-              <span className="text-lg font-medium">Giá</span>{' '}
-              <span>{totalAmount.toLocaleString()} VNĐ</span>
-            </div>
-
-            <div className="text-xl font-extrabold flex justify-between mx-4">
-              <span className="text-lg font-medium">Giảm giá</span>{' '}
-              <span>0 VNĐ</span>
-            </div>
-
-            <div className="border-t-2 border-dashed border-gray-300 my-2 mx-4"></div>
-
-            <div className="text-xl font-extrabold flex justify-between mx-4">
-              <span className="text-lg font-medium">Tổng:</span>{' '}
-              <span>{totalAmount.toLocaleString()} VNĐ</span>
-            </div>
-            <button
-              onClick={handleCheckout}
-              className="mx-4 mt-4 w-11/12 px-6 py-3 rounded-lg bg-blue-500 text-white flex justify-center items-center"
-            >
-              <IoBagCheckOutline size={24} />
-              <span className="ml-2">Thanh toán</span>
-            </button>
+        </div>
+        <div className="h-fit pt-2 flex flex-col items-center bg-white border-t fixed bottom-0 w-full pb-2">
+          <div className="text-xl font-extrabold flex justify-between w-4/5">
+            <span className="text-lg font-medium">Tổng:</span>{' '}
+            <span>{totalAmount.toLocaleString()} VNĐ</span>
           </div>
+          <button
+            onClick={handleCheckout}
+            className=" mt-2 py-3 w-4/5 rounded-lg bg-blue-500 text-white flex justify-center items-center"
+          >
+            <IoBagCheckOutline size={24} />
+            <span className="ml-2">Thanh toán</span>
+          </button>
         </div>
       </Suspense>
     </Page>

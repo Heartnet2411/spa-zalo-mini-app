@@ -1,4 +1,4 @@
-import { getZaloAccessToken } from "./zalo.service";
+import { getZaloAccessToken } from './zalo.service';
 
 //UPDATE THÔNG TIN NGƯỜI DÙNG THEO ZALOID
 export const updateUserInfoAPI = async (zaloId, userInfo, accessToken) => {
@@ -10,9 +10,9 @@ export const updateUserInfoAPI = async (zaloId, userInfo, accessToken) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`, 
+          Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ name, phone, gender }), 
+        body: JSON.stringify({ name, phone, gender }),
       }
     );
 
@@ -26,7 +26,6 @@ export const updateUserInfoAPI = async (zaloId, userInfo, accessToken) => {
     console.error('Error updating user info:', error);
   }
 };
-
 
 //UPDATE SĐT DÙNG THEO ZALOID
 export const updateUserPhoneAPI = async (zaloId) => {
@@ -46,8 +45,8 @@ export const updateUserPhoneAPI = async (zaloId) => {
           'Content-Type': 'application/json',
           //'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'phone-token': phoneToken,
-          'zalo-access-token': zaloAccessToken
-        }
+          'zalo-access-token': zaloAccessToken,
+        },
       }
     );
 
@@ -67,5 +66,31 @@ export const updateUserPhoneAPI = async (zaloId) => {
     return data;
   } catch (error) {
     console.error('Error fetching data:', error);
+  }
+};
+
+export const getAllAddress = async (accessToken) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/users/address/all`,
+      {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
   }
 };

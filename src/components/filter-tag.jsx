@@ -38,7 +38,7 @@ const FilterTags = ({ selectedCategory, onSelectCategory, fetchProducts }) => {
         {subCategories.map((category) => (
           <button
             key={category.id || 'all'}
-            className={`text-sm px-7 py-2 rounded-2xl ${
+            className={`text-base px-5 py-2 rounded-2xl font-medium  ${
               selectedCategory === category.name
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700'

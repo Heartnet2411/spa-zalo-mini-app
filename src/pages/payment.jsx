@@ -5,6 +5,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { paymentResultState, userState } from '../state';
 import { getUserVouchers } from '../services/voucher.service';
 import { useRecoilState } from 'recoil';
+import { getAllAddress } from '../services/user.service';
+import AddAddressModal from '../components/add-address-modal';
 
 import {
   createMac,
@@ -88,7 +90,7 @@ const PaymentPage = () => {
               const { orderId } = data;
               console.log('Good: ', data);
 
-              resolve(orderId)
+              resolve(orderId);
             },
             fail: (err) => {
               // Tạo đơn hàng lỗi
@@ -110,6 +112,11 @@ const PaymentPage = () => {
   const location = useLocation();
   const { cart } = location.state || { cart: [] };
   console.log('hello', location.state);
+
+  const totalAmount = cart.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   const [products, setProducts] = useState([]);
   console.log('nihao', products);
@@ -220,11 +227,13 @@ const PaymentPage = () => {
 
             let parsedExtradata;
             try {
-              parsedExtradata = typeof extradata === 'string' ? JSON.parse(extradata) : extradata;
+              parsedExtradata =
+                typeof extradata === 'string'
+                  ? JSON.parse(extradata)
+                  : extradata;
             } catch (error) {
               console.error('Error parsing extradata:', error);
             }
-
 
             console.log(parsedExtradata?.orderId);
 
@@ -247,23 +256,23 @@ const PaymentPage = () => {
                   console.log('Payment update failed');
                   setPaymentResult({ orderId, status: 'fail' });
                   navigate('/payment-result');
-                  showToast({ message: "Lỗi cập nhật đơn hàng" })
+                  showToast({ message: 'Lỗi cập nhật đơn hàng' });
                 }
               } catch (err) {
                 console.error('Error updating order:', err);
-                showToast({ message: "Lỗi cập nhật đơn hàng" })
+                showToast({ message: 'Lỗi cập nhật đơn hàng' });
               }
             }
           },
           fail: (err) => {
             console.error('Payment check failed:', err);
-            showToast({ message: "Lỗi giao dịch" })
+            showToast({ message: 'Lỗi giao dịch' });
           },
         });
       }
     };
 
-    const handlePaymentCloseEvent = (data) => {
+    const handlePaymentCloseEvent = async (data) => {
       const resultCode = data?.resultCode;
 
       if (resultCode === 0) {
@@ -272,11 +281,11 @@ const PaymentPage = () => {
           data: { zmpOrderId: data?.zmpOrderId },
           success: (rs) => {
             console.log('Transaction recheck:', rs);
-            showToast({ message: "Giao dịch bị gián đoạn!" })
+            showToast({ message: 'Giao dịch bị gián đoạn!' });
           },
           fail: (err) => {
             console.error('Recheck failed:', err);
-            showToast({ message: "Lỗi giao dịch!" })
+            showToast({ message: 'Lỗi giao dịch!' });
           },
         });
       }
@@ -302,16 +311,95 @@ const PaymentPage = () => {
     }
   };
 
+  const [userAddress, setUserAddress] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAllAddresses, setShowAllAddresses] = useState(false);
+  const handleAddAddressClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+      const data = await getAllAddress(user.accessToken);
+      if (data) setUserAddress(data);
+      if (data.length > 0) {
+        setSelectedAddress(data[0]);
+      }
+    };
+    fetchAddress();
+  }, []);
+
+  const handleSelectAddress = (address) => {
+    setSelectedAddress(address); // Cập nhật địa chỉ đã chọn
+  };
+
+  const toggleShowAllAddresses = () => {
+    setShowAllAddresses((prev) => !prev); // Chuyển đổi trạng thái hiển thị
+  };
+
   return (
-    <Page className="page ">
+    <Page className="page absolute">
       <Header />
-      <div className="px-4 mt-16">
+      <div className="px-4 relative min-h-screen mb-40">
+        <h2 className=" text-center font-semibold text-xl mb-2 mt-16 ">
+          Địa chỉ của bạn
+        </h2>
+        {userAddress.length > 0 ? (
+          <>
+            {/* Hiển thị toàn bộ địa chỉ nếu được yêu cầu */}
+            {showAllAddresses ? (
+              <ul className="space-y-2 mt-2">
+                {userAddress.map((address, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleSelectAddress(address)}
+                    className={`cursor-pointer p-4 border rounded-lg ${
+                      selectedAddress === address ? 'bg-gray-300' : 'bg-white'
+                    }`}
+                  >
+                    {address.city}, {address.district}, {address.ward},{' '}
+                    {address.number}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="cursor-pointer p-4 border rounded-lg bg-gray-200">
+                {userAddress[0].city}, {userAddress[0].district},{' '}
+                {userAddress[0].ward}, {userAddress[0].number}
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-gray-600">Chưa có địa chỉ nào.</p>
+        )}
+        <div className="flex justify-between">
+          <button
+            onClick={toggleShowAllAddresses}
+            className="py-2 text-blue-500 hover:underline"
+          >
+            {showAllAddresses ? 'Ẩn bớt' : 'Xem thêm'}
+          </button>
+          <button
+            onClick={handleAddAddressClick}
+            className=" text-blue-500 py-2 rounded hover:underline"
+          >
+            Thêm địa chỉ
+          </button>
+        </div>
+
+        <AddAddressModal isOpen={isModalOpen} onClose={handleCloseModal} />
+
         <div>
           {cart.length > 0 ? (
             cart.map((item, index) => (
               <div
                 key={item.productId}
-                className="border rounded-lg p-4 bg-gray-100 mb-2 flex items-center justify-between"
+                className="border rounded-lg p-4 bg-gray-100 mb-1 flex items-center justify-between"
               >
                 <div className="flex items-center">
                   <img
@@ -377,12 +465,27 @@ const PaymentPage = () => {
             </p>
           )}
         </div>
-
-        <div className="flex justify-center">
-          <Button type="primary" onClick={handleSubmit}>
-            Thanh toán ngay
-          </Button>
+      </div>
+      <div className="h-fit pt-2 flex flex-col items-center bg-white border-t fixed bottom-0 w-full pb-2">
+        <div className="text-base font-extrabold flex justify-between w-4/5">
+          <span className="text-base font-medium">Tổng:</span>{' '}
+          <span>{totalAmount.toLocaleString()} VNĐ</span>
         </div>
+        <div className="text-basel font-extrabold flex justify-between w-4/5">
+          <span className="text-base font-medium">Giảm giá:</span>{' '}
+          <span>0 VNĐ</span>
+        </div>
+        <div className="border-t-2 border-dashed border-gray-500 my-2 w-4/5"></div>
+        <div className="text-base font-extrabold flex justify-between w-4/5">
+          <span className="text-base font-medium">Tổng thanh toáns</span>{' '}
+          <span>{totalAmount.toLocaleString()} VNĐ</span>
+        </div>
+        <button
+          className="bg-blue-500 mt-2 w-4/5 py-2 rounded-xl text-white"
+          onClick={handleSubmit}
+        >
+          Thanh toán ngay
+        </button>
       </div>
     </Page>
   );
