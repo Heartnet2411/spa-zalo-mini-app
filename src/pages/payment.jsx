@@ -237,7 +237,7 @@ const PaymentPage = () => {
       }
     };
 
-    const handlePaymentCloseEvent = (data) => {
+    const handlePaymentCloseEvent = async (data) => {
       const resultCode = data?.resultCode;
 
       if (resultCode === 0) {
