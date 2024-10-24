@@ -1,5 +1,5 @@
 import React, { Suspense, useState, useEffect } from 'react';
-import { Button, Input, Box, Page, useSnackbar } from 'zmp-ui';
+import { Page } from 'zmp-ui';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 import { IoBagCheckOutline } from 'react-icons/io5';
 import { LiaTimesSolid } from 'react-icons/lia';
@@ -9,13 +9,16 @@ import {
   removeItemFromCart,
   updateQuantityInCart,
 } from '../services/cart.service';
-import { userState } from '../state';
-import { useRecoilState } from 'recoil';
+
 import { useNavigate } from 'react-router-dom';
+import { userState } from '../state';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 
 const CartPage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
+  const [user, setUserState] = useRecoilState(userState);
+  console.log('Cart', user);
 
   const handleCheckout = () => {
     navigate('/payment', {
@@ -25,22 +28,18 @@ const CartPage = () => {
     });
   };
 
-  const [user, setUserState] = useRecoilState(userState);
-  console.log(cart);
-
   const getUserCart = async () => {
     const cart = await fetchUserCart(user.accessToken);
     if (cart) {
       setCart(cart.carts);
     } else {
-      throw new Error('Failed to fetch cart data');
+      console.log('fail');
     }
   };
 
   useEffect(() => {
     getUserCart();
-    // Gọi hàm fetchProducts
-  }, []);
+  }, [user]);
 
   const plusCartQuantity = async (productId, variantId, quantity) => {
     const result = await updateQuantityInCart(
@@ -55,7 +54,7 @@ const CartPage = () => {
       if (cart) {
         setCart(cart.carts);
       } else {
-        throw new Error('Failed to fetch cart data');
+        console.log('Failed to fetch cart data');
       }
     } else {
       console.log('Cập nhật thất bại');
@@ -76,7 +75,7 @@ const CartPage = () => {
       if (cart) {
         setCart(cart.carts);
       } else {
-        throw new Error('Failed to fetch cart data');
+        console.log('ádkl');
       }
     } else {
       console.log('Cập nhật thất bại');

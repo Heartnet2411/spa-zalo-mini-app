@@ -9,7 +9,7 @@ import { userState } from '../state';
 import { useRecoilState } from 'recoil';
 
 const Taskbar = () => {
-  const [user, setUserState] = useRecoilState(userState);
+  // const [user, setUserState] = useRecoilState(userState);
   const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
   const hideTaskbar =
@@ -20,20 +20,20 @@ const Taskbar = () => {
     return null; // Không hiển thị Taskbar
   }
 
-  const getUserCart = async () => {
-    const cart = await fetchUserCart(user.accessToken);
-    if (cart) {
-      console.log(cart.carts.length);
-      setCartCount(cart.carts.length);
-    } else {
-      throw new Error('Failed to fetch cart data');
-    }
-  };
+  // const getUserCart = async () => {
+  //   const cart = await fetchUserCart(user.accessToken);
+  //   if (cart) {
+  //     console.log(cart.carts.length);
+  //     setCartCount(cart.carts.length);
+  //   } else {
+  //     throw new Error('Failed to fetch cart data');
+  //   }
+  // };
 
-  useEffect(() => {
-    //Cart được gọi
-    getUserCart();
-  }, []);
+  // useEffect(() => {
+  //   //Cart được gọi
+  //   getUserCart();
+  // }, [user]);
 
   // Function to determine active status
   const getActiveClass = (path) =>
