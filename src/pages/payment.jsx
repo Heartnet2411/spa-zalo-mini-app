@@ -87,7 +87,7 @@ const PaymentPage = () => {
               const { orderId } = data;
               console.log('Good: ', data);
 
-              resolve(orderId)
+              resolve(orderId);
             },
             fail: (err) => {
               // Tạo đơn hàng lỗi
@@ -185,11 +185,13 @@ const PaymentPage = () => {
 
             let parsedExtradata;
             try {
-              parsedExtradata = typeof extradata === 'string' ? JSON.parse(extradata) : extradata;
+              parsedExtradata =
+                typeof extradata === 'string'
+                  ? JSON.parse(extradata)
+                  : extradata;
             } catch (error) {
               console.error('Error parsing extradata:', error);
             }
-
 
             console.log(parsedExtradata?.orderId);
 
@@ -212,23 +214,23 @@ const PaymentPage = () => {
                   console.log('Payment update failed');
                   setPaymentResult({ orderId, status: 'fail' });
                   navigate('/payment-result');
-                  showToast({ message: "Lỗi cập nhật đơn hàng" })
+                  showToast({ message: 'Lỗi cập nhật đơn hàng' });
                 }
               } catch (err) {
                 console.error('Error updating order:', err);
-                showToast({ message: "Lỗi cập nhật đơn hàng" })
+                showToast({ message: 'Lỗi cập nhật đơn hàng' });
               }
             }
           },
           fail: (err) => {
             console.error('Payment check failed:', err);
-            showToast({ message: "Lỗi giao dịch" })
+            showToast({ message: 'Lỗi giao dịch' });
           },
         });
       }
     };
 
-    const handlePaymentCloseEvent = (data) => {
+    const handlePaymentCloseEvent = async (data) => {
       const resultCode = data?.resultCode;
 
       if (resultCode === 0) {
@@ -237,11 +239,57 @@ const PaymentPage = () => {
           data: { zmpOrderId: data?.zmpOrderId },
           success: (rs) => {
             console.log('Transaction recheck:', rs);
-            showToast({ message: "Giao dịch bị gián đoạn!" })
+            showToast({ message: 'Giao dịch bị gián đoạn!' });
           },
           fail: (err) => {
             console.error('Recheck failed:', err);
-            showToast({ message: "Lỗi giao dịch!" })
+            showToast({ message: 'Lỗi giao dịch!' });
+          },
+        });
+      } else {
+        Payment.checkTransaction({
+          data: { zmpOrderId: data?.zmpOrderId },
+          success: async (rs) => {
+            const { orderId, transId, resultCode, extradata } = rs;
+            let parsedExtradata;
+            try {
+              parsedExtradata =
+                typeof extradata === 'string'
+                  ? JSON.parse(extradata)
+                  : extradata;
+            } catch (error) {
+              console.error('Error parsing extradata:', error);
+            }
+            console.log(parsedExtradata?.orderId);
+            if (resultCode === 1) {
+              try {
+                const updateOrder = await updateOrderWithZaloOrderId(
+                  parsedExtradata.orderId,
+                  {
+                    transactionId: orderId,
+                    paymentStatus: 'completed',
+                  },
+                  user.accessToken
+                );
+                if (updateOrder.paymentStatus === 'completed') {
+                  console.log('Payment successfully updated', updateOrder.data);
+                  setPaymentResult({ orderId, status: 'success' });
+                  navigate('/payment-result');
+                } else {
+                  console.log('Payment update failed');
+                  setPaymentResult({ orderId, status: 'fail' });
+                  navigate('/payment-result');
+                  showToast({ message: 'Lỗi cập nhật đơn hàng' });
+                }
+              } catch (err) {
+                console.error('Error updating order:', err);
+                showToast({ message: 'Lỗi cập nhật đơn hàng' });
+              }
+            }
+          },
+          fail: (err) => {
+            console.error('Payment check failed:', err);
+            showToast({ message: 'Lỗi giao dịch' });
           },
         });
       }
