@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Text, Input, Select, Icon, Sheet, Button, Box, Grid, Modal, Radio, Stack, useNavigate } from 'zmp-ui';
+import {
+  Page,
+  Text,
+  Input,
+  Select,
+  Icon,
+  Sheet,
+  Button,
+  Box,
+  Grid,
+  Modal,
+  Radio,
+  Stack,
+  useNavigate,
+  useSnackbar,
+} from 'zmp-ui';
 import Header from '../components/header';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
@@ -11,6 +26,7 @@ import ProductCard from '../components/product-card';
 
 const BookingFormPage = () => {
   const { userInfo: user, accessToken } = useRecoilValue(userState);
+  const { openSnackbar, closeSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -23,10 +39,10 @@ const BookingFormPage = () => {
 
   const [currentProductPage, setCurrentProductPage] = useState(1);
   const [productTotalPages, setProductTotalPages] = useState(0);
-  const [productKeyword, setProductKeyword] = useState('')
+  const [productKeyword, setProductKeyword] = useState('');
   const [currentServicePage, setCurrentServicePage] = useState(1);
   const [serviceTotalPages, setServiceTotalPages] = useState(0);
-  const [serviceKeyword, setServiceKeyword] = useState('')
+  const [serviceKeyword, setServiceKeyword] = useState('');
 
   const [showProductSheet, setShowProductSheet] = useState(false);
   const [showServiceSheet, setShowServiceSheet] = useState(false);
@@ -47,10 +63,13 @@ const BookingFormPage = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const servicesData = await getAllServices(currentServicePage, serviceKeyword);
+        const servicesData = await getAllServices(
+          currentServicePage,
+          serviceKeyword
+        );
         console.log('Fetched Services:', servicesData);
         setServices(servicesData.services || []);
-        setServiceTotalPages(servicesData.totalPages)
+        setServiceTotalPages(servicesData.totalPages);
       } catch (error) {
         console.error('Error fetching services:', error);
       }
@@ -62,10 +81,14 @@ const BookingFormPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsData = await getAllProduct(currentProductPage, '', productKeyword);
+        const productsData = await getAllProduct(
+          currentProductPage,
+          '',
+          productKeyword
+        );
         console.log('Fetched Products:', productsData);
         setProducts(productsData.products || []);
-        setProductTotalPages(productsData.totalPages)
+        setProductTotalPages(productsData.totalPages);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -109,10 +132,15 @@ const BookingFormPage = () => {
   };
 
   const handleServiceSelect = (service) => {
-    if (selectedServices.some((selected) => selected.serviceId === service._id)) {
-      removeSelectedService(service._id)
+    if (
+      selectedServices.some((selected) => selected.serviceId === service._id)
+    ) {
+      removeSelectedService(service._id);
     } else {
-      setSelectedServices([...selectedServices, { serviceId: service._id, name: service.name, price: service.price }]);
+      setSelectedServices([
+        ...selectedServices,
+        { serviceId: service._id, name: service.name, price: service.price },
+      ]);
     }
   };
 
@@ -132,7 +160,14 @@ const BookingFormPage = () => {
 
     setSelectedProducts([
       ...selectedProducts,
-      { productId: selectedProductId, variantId: variant._id, volume: variant.volume, quantity: parseInt(quantity), name: currentProduct.name, price: currentProduct.price },
+      {
+        productId: selectedProductId,
+        variantId: variant._id,
+        volume: variant.volume,
+        quantity: parseInt(quantity),
+        name: currentProduct.name,
+        price: currentProduct.price,
+      },
     ]);
 
     // Đóng popup sau khi chọn xong
@@ -140,14 +175,24 @@ const BookingFormPage = () => {
   };
 
   const removeSelectedService = (serviceId) => {
-    setSelectedServices(selectedServices.filter((service) => service.serviceId !== serviceId));
+    setSelectedServices(
+      selectedServices.filter((service) => service.serviceId !== serviceId)
+    );
   };
 
   const removeSelectedProduct = (productId) => {
-    setSelectedProducts(selectedProducts.filter((product) => product.productId !== productId));
+    setSelectedProducts(
+      selectedProducts.filter((product) => product.productId !== productId)
+    );
   };
 
   const handleSubmit = async () => {
+    openSnackbar({
+      text: 'Loading...',
+      type: 'loading',
+      duration: 20000,
+    });
+
     const formattedDateTime = moment(
       `${bookingDate} ${bookingTime}`,
       'YYYY-MM-DD HH:mm'
@@ -155,7 +200,7 @@ const BookingFormPage = () => {
 
     const bookingData = {
       date: formattedDateTime,
-      services: selectedServices.map((service) => (service.serviceId)),
+      services: selectedServices.map((service) => service.serviceId),
       products: selectedProducts.map((product) => ({
         productId: product.productId,
         variantId: product.variantId || null,
@@ -163,21 +208,30 @@ const BookingFormPage = () => {
       })),
     };
 
-    console.log(bookingData)
+    console.log(bookingData);
 
     try {
       const result = await createBookingAPI(bookingData, accessToken);
       if (result) {
-        setDialogMessage('Đặt lịch thành công!'); 
+        openSnackbar({
+          text: 'Success',
+          type: 'success',
+          duration: 5000,
+        });
+        navigate('/booking');
       } else {
-        setDialogMessage('Đặt lịch không thành công. Vui lòng thử lại.'); 
+        openSnackbar({
+          text: 'Error: ' + result?.message,
+          type: 'error',
+        });
       }
     } catch (error) {
       console.error('Error creating booking:', error);
-      setDialogMessage('Có lỗi xảy ra. Vui lòng thử lại sau.'); 
+      openSnackbar({
+        text: 'Error',
+        type: 'error',
+      });
     }
-
-    setDialogVisible(true); 
   };
 
   return (
@@ -185,7 +239,9 @@ const BookingFormPage = () => {
       <Header />
       <div className="p-4 mt-14 mb-14">
         <div className="bg-white p-4 rounded-lg border border-gray-500 shadow-md">
-          <h1 className="text-2xl mb-4 text-center custom-font">THÔNG TIN ĐẶT HẸN</h1>
+          <h1 className="text-2xl mb-4 text-center custom-font">
+            THÔNG TIN ĐẶT HẸN
+          </h1>
 
           <Text className="mt-4">Khách hàng</Text>
           <Input id="name" type="text" value={user.name} readOnly />
@@ -205,12 +261,14 @@ const BookingFormPage = () => {
           />
 
           <Text className="mt-4">Dịch vụ</Text>
-          <Button onClick={openServiceSheet} fullWidth className='mb-3'>Chọn Dịch Vụ</Button>
-          <div className='mt-3'>
+          <Button onClick={openServiceSheet} fullWidth className="my-3">
+            Chọn Dịch Vụ
+          </Button>
+          <div className="mt-3">
             {selectedServices.map((service) => (
               <Box key={service.serviceId} className="flex items-center">
                 <Grid columnCount={2} className="border-2 p-3 rounded mb-2">
-                  <Stack space='1rem' style={{ width: "15rem" }}>
+                  <Stack space="1rem" style={{ width: '15rem' }}>
                     <div>{service.name}</div>
                     <div>{service.price.toLocaleString()} VND</div>
                   </Stack>
@@ -223,46 +281,52 @@ const BookingFormPage = () => {
                 </Grid>
               </Box>
             ))}
-
           </div>
 
           <Text className="mt-4">Sản phẩm</Text>
-          <Button onClick={openProductSheet} fullWidth>Chọn Sản Phẩm</Button>
-          <div className='mt-3'>
-            {selectedProducts.map(({ productId, volume, quantity, name, price }) => (
-              <Box key={productId} className="flex items-center">
-                <Grid columnCount={3} className="border-2 p-3 rounded mb-2">
-                  <Stack space='1rem' style={{ width: "11rem" }}>
-                    <div>{name}</div>
-                    <div>{volume} - {price.toLocaleString()} VND</div>
-                  </Stack>
+          <Button onClick={openProductSheet} fullWidth>
+            Chọn Sản Phẩm
+          </Button>
+          <div className="mt-3">
+            {selectedProducts.map(
+              ({ productId, volume, quantity, name, price }) => (
+                <Box key={productId} className="flex items-center">
+                  <Grid columnCount={3} className="border-2 p-3 rounded mb-2">
+                    <Stack space="1rem" style={{ width: '11rem' }}>
+                      <div>{name}</div>
+                      <div>
+                        {volume} - {price.toLocaleString()} VND
+                      </div>
+                    </Stack>
 
-                  {/* Hiển thị số lượng */}
-                  <Input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => {
-                      const updatedQuantity = parseInt(e.target.value);
+                    {/* Hiển thị số lượng */}
+                    <Input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => {
+                        const updatedQuantity = parseInt(e.target.value);
 
-                      // Cập nhật số lượng trong selectedProducts
-                      setSelectedProducts(selectedProducts.map((product) =>
-                        product.productId === productId
-                          ? { ...product, quantity: updatedQuantity }
-                          : product
-                      ));
-                    }}
-                  />
-                  <button
-                    className="ml-2 text-blue-500"
-                    onClick={() => removeSelectedProduct(productId)}
-                  >
-                    <Icon icon="zi-close" className="text-orange-500" />
-                  </button>
-                </Grid>
-              </Box>
-            ))}
-
+                        // Cập nhật số lượng trong selectedProducts
+                        setSelectedProducts(
+                          selectedProducts.map((product) =>
+                            product.productId === productId
+                              ? { ...product, quantity: updatedQuantity }
+                              : product
+                          )
+                        );
+                      }}
+                    />
+                    <button
+                      className="ml-2 text-blue-500"
+                      onClick={() => removeSelectedProduct(productId)}
+                    >
+                      <Icon icon="zi-close" className="text-orange-500" />
+                    </button>
+                  </Grid>
+                </Box>
+              )
+            )}
           </div>
         </div>
 
@@ -279,23 +343,42 @@ const BookingFormPage = () => {
         visible={showServiceSheet}
         onClose={closeServiceSheet}
         autoHeight
-        title='Dịch Vụ'
+        title="Dịch Vụ"
         mask
         handler
         swipeToClose
       >
-        <Page className='section-container'>
-          <Box p={4} className='custom-bottom-sheet' flex flexDirection='column'>
-            <Input placeholder='Tìm kiếm...' value={serviceKeyword} onChange={(e) => setServiceKeyword(e.target.value)} />
+        <Page className="section-container">
+          <Box
+            p={4}
+            className="custom-bottom-sheet"
+            flex
+            flexDirection="column"
+          >
+            <Input
+              placeholder="Tìm kiếm..."
+              value={serviceKeyword}
+              onChange={(e) => setServiceKeyword(e.target.value)}
+            />
 
-            <Grid columnSpace='1rem' rowSpace='1rem' columnCount={2} className='mt-3'>
+            <Grid
+              columnSpace="1rem"
+              rowSpace="1rem"
+              columnCount={2}
+              className="mt-3"
+            >
               {services.map((service) => (
-                <div key={service._id} onClick={() => handleServiceSelect(service)}>
+                <div
+                  key={service._id}
+                  onClick={() => handleServiceSelect(service)}
+                >
                   <Box className="relative">
                     <input
                       type="checkbox"
                       className="absolute top-2 right-2 z-10"
-                      checked={selectedServices.some((selected) => selected.serviceId === service._id)}
+                      checked={selectedServices.some(
+                        (selected) => selected.serviceId === service._id
+                      )}
                     />
                     <img
                       src={service.images[0]}
@@ -303,7 +386,9 @@ const BookingFormPage = () => {
                       alt={service.name}
                     />
                     <div className="py-2">
-                      <div className="text-sm h-9 line-clamp-2 mb-2">{service.name}</div>
+                      <div className="text-sm h-9 line-clamp-2 mb-2">
+                        {service.name}
+                      </div>
                       <div className="mt-0.5 text-sm font-medium">
                         {service.price.toLocaleString() + ' VND'}
                       </div>
@@ -313,12 +398,16 @@ const BookingFormPage = () => {
               ))}
             </Grid>
             {currentServicePage < serviceTotalPages && (
-              <h2 className='mb-5 mt-2 w-100' style={{ textAlign: 'center' }} onClick={loadMoreServices}>
+              <h2
+                className="mb-5 mt-2 w-100"
+                style={{ textAlign: 'center' }}
+                onClick={loadMoreServices}
+              >
                 Xem thêm
               </h2>
             )}
           </Box>
-          <div className='mb-7 mt-5 w-100'></div>
+          <div className="mb-7 mt-5 w-100"></div>
         </Page>
       </Sheet>
 
@@ -327,23 +416,42 @@ const BookingFormPage = () => {
         visible={showProductSheet}
         onClose={closeProductSheet}
         autoHeight
-        title='Sản phẩm chọn thêm'
+        title="Sản phẩm chọn thêm"
         mask
         handler
         swipeToClose
       >
-        <Page className='section-container'>
-          <Box p={4} className='custom-bottom-sheet' flex flexDirection='column'>
-            <Input placeholder='Tìm kiếm...' value={productKeyword} onChange={(e) => setProductKeyword(e.target.value)} />
+        <Page className="section-container">
+          <Box
+            p={4}
+            className="custom-bottom-sheet"
+            flex
+            flexDirection="column"
+          >
+            <Input
+              placeholder="Tìm kiếm..."
+              value={productKeyword}
+              onChange={(e) => setProductKeyword(e.target.value)}
+            />
 
-            <Grid columnSpace='1rem' rowSpace='1rem' columnCount={2} className='mt-3'>
+            <Grid
+              columnSpace="1rem"
+              rowSpace="1rem"
+              columnCount={2}
+              className="mt-3"
+            >
               {products.map((product) => (
-                <div key={product._id} onClick={() => handleProductSelect(product._id)}>
+                <div
+                  key={product._id}
+                  onClick={() => handleProductSelect(product._id)}
+                >
                   <Box className="relative">
                     <input
                       type="checkbox"
                       className="absolute top-2 right-2 z-10"
-                      checked={selectedProducts.some((selected) => selected.productId === product._id)}
+                      checked={selectedProducts.some(
+                        (selected) => selected.productId === product._id
+                      )}
                     />
                     <img
                       src={product.images[0]}
@@ -351,7 +459,9 @@ const BookingFormPage = () => {
                       alt={product.name}
                     />
                     <div className="py-2">
-                      <div className="text-sm h-9 line-clamp-2 mb-2">{product.name}</div>
+                      <div className="text-sm h-9 line-clamp-2 mb-2">
+                        {product.name}
+                      </div>
                       <div className="mt-0.5 text-sm font-medium">
                         {product.price.toLocaleString() + ' VND'}
                       </div>
@@ -361,12 +471,16 @@ const BookingFormPage = () => {
               ))}
             </Grid>
             {currentProductPage < productTotalPages && (
-              <h2 className='mb-5 mt-2 w-100' style={{ textAlign: 'center' }} onClick={loadMoreProducts}>
+              <h2
+                className="mb-5 mt-2 w-100"
+                style={{ textAlign: 'center' }}
+                onClick={loadMoreProducts}
+              >
                 Xem thêm
               </h2>
             )}
           </Box>
-          <div className='mb-7 mt-5 w-100'></div>
+          <div className="mb-7 mt-5 w-100"></div>
         </Page>
       </Sheet>
 
@@ -407,7 +521,7 @@ const BookingFormPage = () => {
       </Modal>
 
       {/* Hiển thị thông báo */}
-      <Modal
+      {/* <Modal
         visible={dialogVisible}
         title={dialogMessage}
         onClose={() => setDialogVisible(false)}
@@ -422,7 +536,7 @@ const BookingFormPage = () => {
             },
           },
         ]}
-      />
+      /> */}
     </Page>
   );
 };

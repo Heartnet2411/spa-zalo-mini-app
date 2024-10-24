@@ -53,15 +53,15 @@ const BookingPage = () => {
           (booking) => booking.status === statusMapping[filterStatus]
         );
 
-  const handleViewDetail = (booking) => {
-    navigate('/bookingdetail', { state: { booking } });
+  const handleViewDetail = (id) => {
+    navigate(`/bookingdetail/${id}`);
   };
 
   return (
     <Page className="page">
       <Header />
       <div className="mt-16 mb-16">
-        <div className='mt-16'>
+        <div className="mt-16">
           <BookingTags
             selectedCategory={filterStatus}
             onSelectCategory={setFilterStatus}
@@ -89,48 +89,92 @@ const BookingPage = () => {
             {filteredBookings.map((booking) => (
               <div
                 key={booking._id}
-                className="border border-gray-500 rounded-lg px-8 mt-3 mb-3 m-7"
+                className="border border-gray-500 rounded-lg px-4 mt-4 mb-3 m-5"
               >
-                <div className="mt-2 mb-2">
-                  <Text>Mã đặt lịch:</Text>
+                <Text className="mt-2">
+                  <span>
+                    {new Date(booking.date) > new Date() ? (
+                      <span>
+                        {/* <Icon icon="zi-clock-1" size={18} /> */}
+                        Chỉ còn{' '}
+                        <span className="font-bold text-red-500">
+                          {(() => {
+                            const now = new Date();
+                            const bookingDate = new Date(booking.date);
+                            const diff = bookingDate - now; // Chênh lệch tính bằng milliseconds
+
+                            // Chuyển đổi milliseconds thành ngày, giờ, phút
+                            const days = Math.floor(
+                              diff / (1000 * 60 * 60 * 24)
+                            );
+                            const hours = Math.floor(
+                              (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+                            );
+                            const minutes = Math.floor(
+                              (diff % (1000 * 60 * 60)) / (1000 * 60)
+                            );
+
+                            return `${days} ngày, ${hours} tiếng ${minutes} phút`;
+                          })()}
+                        </span>{' '}
+                        nữa là đến lịch hẹn
+                      </span>
+                    ) : (
+                      <span className="font-bold text-red-500">
+                        Đã quá hạn!
+                      </span>
+                    )}
+                  </span>
+                </Text>
+
+                {/* <div className="items-center mt-4 mb-2 gap-1">
+                  <span className="font-bold">Mã đặt lịch:</span>
                   <Text>{booking._id}</Text>
-                </div>
-                <div className="flex justify-start mt-2 mb-2">
-                  <Text>Tên khách hàng:</Text>
+                </div> */}
+                <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
+                  <Icon icon="zi-user-circle-solid" size={20} /> :
+                  {/* <span className="font-bold">Khách hàng:</span> */}
                   <Text className="ml-2">{user.name}</Text>
                 </div>
-                <div className="flex justify-start mt-2 mb-2">
-                  <Text>Thời gian đặt lịch:</Text>
+                <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
+                  <Icon icon="zi-calendar-solid" size={20} /> :
+                  {/* <span className="font-bold">Thời gian:</span> */}
                   <Text className="ml-2">
-                    {new Date(booking.date).toLocaleString()}
+                    {`${['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][new Date(booking.date).getDay()]}, 
+  ${new Date(booking.date).getDate().toString().padStart(2, '0')}/${(new Date(booking.date).getMonth() + 1).toString().padStart(2, '0')}/${new Date(booking.date).getFullYear()} - `}
+
+                    <span style={{ fontWeight: 'bold' }}>
+                      {`${new Date(booking.date).getHours()}h${new Date(booking.date).getMinutes().toString().padStart(2, '0')}`}
+                    </span>
                   </Text>
                 </div>
-                <div className="flex justify-start mt-2 mb-2">
-                  <Text>Trạng thái đặt lịch:</Text>
-                  <Text
-                    className={`text-base ml-2 ${
-                      booking.status === 'cancelled'
-                        ? 'text-red-500'
-                        : booking.status === 'completed'
-                          ? 'text-green-500'
-                          : booking.status === 'pending'
-                            ? 'text-yellow-500'
-                            : 'text-blue-500'
+                <div className="flex justify-start items-center mt-4 mb-2 gap-1 -mr-2">
+                  <Icon icon="zi-info-circle-solid" size={20} /> :
+                  {/* <span className="font-bold">Trạng thái:</span> */}
+                  <div
+                    className={`px-4 py-0.5 ml-2 rounded-md ${
+                      booking?.status === 'cancelled'
+                        ? 'bg-red-400'
+                        : booking?.status === 'completed'
+                          ? 'bg-green-400'
+                          : booking?.status === 'pending'
+                            ? 'bg-yellow-400'
+                            : 'bg-blue-400'
                     }`}
                   >
-                    {statusDisplayMapping[booking.status] ||
-                      booking.status.charAt(0).toUpperCase() +
-                        booking.status.slice(1)}
-                  </Text>
+                    <Text>
+                      {statusDisplayMapping[booking?.status] ||
+                        booking?.status.charAt(0).toUpperCase() +
+                          booking?.status.slice(1)}
+                    </Text>
+                  </div>
                 </div>
-                <div className="flex justify-center mb-2">
+                <div className="flex justify-center mb-2 mt-3">
                   <button
-                    className="w-40 h-7 rounded-full bg-red-500"
-                    onClick={() => handleViewDetail(booking)}
+                    className="px-3 py-2 border border-blue-500 rounded-md text-blue-500"
+                    onClick={() => handleViewDetail(booking._id)}
                   >
-                    <span className="text-base text-white">
-                      Xem chi tiết đặt lịch
-                    </span>
+                    Xem chi tiết
                   </button>
                 </div>
               </div>

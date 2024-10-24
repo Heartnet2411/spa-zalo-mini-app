@@ -162,7 +162,9 @@ const ProfilePage = () => {
             <div className="flex flex-col items-start mr-20">
               <span className="text-xl font-bold mb-1">
                 Điểm:{' '}
-                <span className="text-orange-400 mb-1 font-normal">{user.points}</span>
+                <span className="text-orange-400 mb-1 font-normal">
+                  {user.points}
+                </span>
               </span>
 
               <Icon icon="zi-star" className="text-orange-500" />

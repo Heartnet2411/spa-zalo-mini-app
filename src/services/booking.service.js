@@ -40,7 +40,7 @@ export const getBookingHistoriesByUserId = async (status, accessToken) => {
     });
 
     if (!response.ok) {
-      throw new Error(errorData.message || 'Error fetching booking histories');
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const bookingHistories = await response.json();
@@ -75,3 +75,27 @@ export const cancelBooking = async (bookingId, accessToken) => {
   }
 };
 
+export const getBookingDetailById = async (id, accessToken) => {
+  try {
+    let url = `${import.meta.env.VITE_SERVER_URL}/api/bookings/user/${id}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const booking = await response.json();
+    return booking;
+  } catch (error) {
+    console.error('Error in getBookingHistoriesByUserId:', error);
+    throw error;
+  }
+};
