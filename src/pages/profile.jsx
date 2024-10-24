@@ -169,7 +169,10 @@ const ProfilePage = () => {
 
               <Icon icon="zi-star" className="text-orange-500" />
             </div>
-            <button className="w-20 h-10 rounded-xl bg-green-500">
+            <button
+              className="w-20 h-10 rounded-xl bg-green-500"
+              onClick={() => navigate('/list-voucher')}
+            >
               <span className="text-white">Đổi ưu đãi</span>
             </button>
           </div>

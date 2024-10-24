@@ -29,6 +29,8 @@ const Header = () => {
         return 'Trạng thái đơn hàng';
       case '/voucher':
         return 'Danh sách Voucher';
+      case '/list-voucher':
+        return 'Danh sách Voucher';
       case '/rating':
         return 'Đánh giá của tôi';
       case '/ratingdetail':

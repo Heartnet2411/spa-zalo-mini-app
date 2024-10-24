@@ -15,6 +15,7 @@ import Rating from '../pages/rating';
 import RatingDetail from '../pages/ratingdetail';
 import OrderStatusPage from '../pages/order-status';
 import VoucherPage from '../pages/voucher';
+import ListVoucherPage from '../pages/list-voucher';
 import PaymentPage from '../pages/payment';
 import BookingDetailPage from '../pages/bookingdetail';
 import PaymentResult from '../pages/payment-result';
@@ -51,6 +52,7 @@ const MyApp = () => {
               <Route path="/form" element={<Form></Form>}></Route>
               <Route path="/order-status" element={<OrderStatusPage />}></Route>
               <Route path="/voucher" element={<VoucherPage />}></Route>
+              <Route path="/list-voucher" element={<ListVoucherPage></ListVoucherPage>}></Route>
               <Route
                 path="/payment"
                 element={<PaymentPage></PaymentPage>}

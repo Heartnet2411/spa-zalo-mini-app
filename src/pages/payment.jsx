@@ -3,6 +3,7 @@ import { Page, Button, Input, List } from 'zmp-ui';
 import Header from '../components/header';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paymentResultState, userState } from '../state';
+import { getUserVouchers } from '../services/voucher.service';
 import { useRecoilState } from 'recoil';
 
 import {
@@ -118,6 +119,7 @@ const PaymentPage = () => {
   // const [price, setPrice] = useState(0);
   const [voucherId, setVoucherId] = useState('');
   const [addedVoucher, setAddedVoucher] = useState('');
+  const [vouchers, setVouchers] = useState([]);
 
   const handleAddProduct = (cartItem) => {
     if (cartItem && cartItem.quantity > 0) {
@@ -144,11 +146,44 @@ const PaymentPage = () => {
     }
   }, [cart]);
 
+   // Fetch user's vouchers when the page loads
+   useEffect(() => {
+    const fetchVouchers = async () => {
+      try {
+        const userVouchers = await getUserVouchers(user.accessToken);
+        setVouchers(userVouchers); // Set the fetched vouchers
+      } catch (error) {
+        console.error("Error fetching vouchers:", error);
+      }
+    };
+
+    fetchVouchers();
+  }, [user.accessToken]);
+
   const handleAddVoucher = () => {
     if (voucherId) {
       setAddedVoucher(voucherId);
       setVoucherId('');
     }
+  };
+
+  const renderVoucherOptions = () => {
+    return vouchers.length > 0 ? (
+      <select
+        className="px-4 py-4 border rounded-md w-full"
+        value={voucherId}
+        onChange={(e) => setVoucherId(e.target.value)}
+      >
+        <option value="">Select a voucher</option>
+        {vouchers.map((voucher) => (
+          <option key={voucher.id} value={voucher.id}>
+            {voucher.code}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <p>No vouchers available</p>
+    );
   };
 
   // DỮ LIỆU MẪU
@@ -312,13 +347,14 @@ const PaymentPage = () => {
           )}
         </div>
         <div className="relative mb-2 mx-4">
-          <input
+          {renderVoucherOptions()}
+          {/* <input
             type="text"
             placeholder="Thêm mã giảm giá"
             className="px-4 py-4 border rounded-md w-full  focus:outline-blue-500"
             value={voucherId}
             onChange={(e) => setVoucherId(e.target.value)}
-          />
+          /> */}
 
           <button
             size={18}

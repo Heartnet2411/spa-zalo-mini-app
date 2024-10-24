@@ -131,3 +131,27 @@ export const updateOrderWithZaloOrderId = async (id, payment, accessToken) => {
     console.error('Error fetching data:', error);
   }
 };
+
+export const getUserOrderHistories = async (accessToken) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/payments/user-histories?status=complete`, {
+      method: 'GET',
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`, 
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch order history');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching user order histories:', error);
+    throw error;
+  }
+};
+
