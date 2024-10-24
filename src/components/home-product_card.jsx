@@ -19,9 +19,9 @@ const HomeProductCard = ({ products }) => {
                     : product.image
                 }
                 alt={product.name}
-                className="w-40 h-32 object-contain mb-2 rounded"
+                className="w-40 h-32 object-cover mb-2 rounded"
               />
-              <h2 className="text-xl font-semibold mb-2 text-center">
+              <h2 className="text-xl font-semibold mb-2 text-center w-44 whitespace-normal overflow-wrap line-clamp-2">
                 {product.name}
               </h2>
               <p className="text-center px-2 py-2 rounded-lg bg-gradient-to-r from-blue-300 to-blue-500 text-white font-semibold">

@@ -148,7 +148,7 @@ const ProductDetail = () => {
                 <Swiper.Slide key={index}>
                   <div className="flex justify-center h-[40vh] w-full">
                     <img
-                      className="h-max w-max object-contain mb-4 md:mr-4 border-b border-gray-300"
+                      className="h-full w-full object-cover mb-4 md:mr-4 border-b border-gray-300"
                       src={image}
                       alt={`slide-${index + 1}`}
                     />
@@ -238,7 +238,7 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          <div className="fixed bottom-0 flex justify-between w-full px-4 bg-white py-4">
+          <div className="fixed bottom-0 border border-t flex justify-between w-full px-4 bg-white py-4">
             <button
               onClick={handleAddProductToCart}
               className="w-1/4 rounded-xl border-2 border-gray-500 flex justify-center items-center bg-white active:bg-slate-300"

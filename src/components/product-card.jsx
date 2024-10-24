@@ -17,7 +17,7 @@ const ProductCard = ({ products }) => {
               <img
                 src={product.images[0]}
                 alt={product.name}
-                className="w-40 h-32 object-contain mb-2 rounded"
+                className="w-40 h-32 object-cover mb-2 rounded-xl"
               />
             ) : null}
 
@@ -25,7 +25,7 @@ const ProductCard = ({ products }) => {
               {product.name ? product.name : product.itemName}
             </h2>
             <div className="w-full flex justify-center items-center bg-gradient-to-r rounded-lg  from-blue-300 to-blue-500">
-              <p className="text-xl py-1 text-white  font-semibold">
+              <p className="text-lg py-1 text-white  font-semibold">
                 {product.price
                   ? product.price.toLocaleString() + ' đ'
                   : 'Mua hàng ngay'}{' '}

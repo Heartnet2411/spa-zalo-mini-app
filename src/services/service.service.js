@@ -25,12 +25,15 @@ export const getAllCategory = async () => {
 
 export const getAllServices = async (pageNumber, keyword = '') => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/services?page=${pageNumber}&limit=10&keyword=${keyword}`, {
-      method: 'GET',
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/services?page=${pageNumber}&limit=10&keyword=${keyword}`,
+      {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -43,7 +46,6 @@ export const getAllServices = async (pageNumber, keyword = '') => {
     return null;
   }
 };
-
 
 export const getFiveServices = async () => {
   try {
@@ -66,5 +68,55 @@ export const getFiveServices = async () => {
   } catch (error) {
     console.error('Error fetching services:', error);
     return null;
+  }
+};
+
+export const getServiceById = async (id) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/services/${id}`, // Thay đổi URL để bao gồm ID sản phẩm
+      {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const service = await response.json(); // Lấy dữ liệu sản phẩm
+
+    return service; // Trả về sản phẩm
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    return null; // Trả về null nếu có lỗi
+  }
+};
+
+export const fetchServiceRecommendations = async (mainItemId) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/recommendations/get-service-recommendations/${mainItemId}`, // URL với mainItemId
+      {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': 'true', // Thêm tiêu đề nếu cần
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`); // Ném lỗi nếu phản hồi không thành công
+    }
+
+    const recommendations = await response.json(); // Lấy dữ liệu khuyến nghị sản phẩm
+
+    return recommendations; // Trả về dữ liệu khuyến nghị
+  } catch (error) {
+    console.error('Error fetching product recommendations:', error);
+    return null; // Trả về null nếu có lỗi
   }
 };
