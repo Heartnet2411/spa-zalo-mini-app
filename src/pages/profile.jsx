@@ -96,71 +96,86 @@ const ProfilePage = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Box>
-            <Avatar
-              size={96}
-              src={
-                user.avatar && user.avatar.startsWith('http')
-                  ? user.avatar
-                  : undefined
-              }
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+              {/* Display the first letter of the name if no avatar */}
+              {user.avatar && user.avatar.startsWith('http') ? (
+                <img
+                  src={user.avatar}
+                  alt="Avatar"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-4xl font-bold">
+                  {user.name ? user.name.charAt(0) : ''}
+                </span>
+              )}
+            </div>
+
+            <button
+              className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1"
+              onClick={() => {
+                navigate('/form');
+              }}
             >
-              {/* Hiển thị chữ cái đầu nếu không có avatar */}
-              {!user.avatar && user.name ? user.name.charAt(0) : ''}
-            </Avatar>
-          </Box>
-          <Box flex flexDirection="row" alignItems="center" ml={8}>
-            <Box>
-              <Text.Title>{user.name || 'Tên người dùng'}</Text.Title>
-            </Box>
-            <Box ml={4}>
-              <Button
-                onClick={() => {
-                  navigate('/form');
-                }}
-                size="small"
-                icon={<Icon icon="zi-edit" />}
-              />
-            </Box>
+              <Icon icon="zi-edit" className="text-white" size={20} />
+            </button>
+          </div>
+
+          <Box mt={3}>
+            <Text.Title>{user.name || 'Tên người dùng'}</Text.Title>
           </Box>
         </Box>
 
         {/* Hiển thị hạng người dùng */}
-        <div className="flex items-end justify-center rounded-md p-4 gap-2">
-          <span className="text-xl -mb-0.5">
-            {user.membershipTier || 'Chưa có hạng'}
-          </span>
-
-          <button
-            className="w-14 h-6 rounded-xl bg-purple-500"
-            onClick={() => {
-              navigate('/voucher');
-            }}
+        <div className="flex justify-center rounded-md p-4 gap-2">
+          <span
+            className={`text-xl -mb-0.5 px-2 py-1 rounded-full relative ${
+              user.membershipTier === 'Member'
+                ? 'text-black'
+                : user.membershipTier === 'Silver'
+                  ? 'text-gray-400'
+                  : user.membershipTier === 'Gold'
+                    ? 'text-yellow-500'
+                    : user.membershipTier === 'Platinum'
+                      ? 'text-purple-500'
+                      : ''
+            }`}
           >
-            <span className="text-white">Ưu đãi</span>
-          </button>
+            {user.membershipTier || 'Chưa có hạng'}
+            <sub className="absolute right-[-40px] top-[-10px]">
+              <button
+                className="px-2 py-1 rounded-xl bg-purple-500"
+                onClick={() => {
+                  navigate('/voucher');
+                }}
+              >
+                <span className="text-white text-xs">Ưu đãi</span>
+              </button>
+            </sub>
+          </span>
         </div>
 
         {/* Các phần khác của Profile */}
         <div className="flex justify-between items-center">
-          <div className="flex items-center justify-center mt-5">
+          <div className="flex items-center justify-center">
             <button
-              className="px-2 py-2 rounded-full flex items-center justify-center bg-red-500"
+              className="px-4 py-2 rounded-full flex items-center justify-center bg-red-500"
               onClick={() => {
                 navigate('/order-status');
               }}
             >
-              <span className="ml-2 text-base text-white">Đơn hàng đã mua</span>
+              <span className="text-white">Đơn hàng đã mua</span>
             </button>
           </div>
-          <div className="flex items-center justify-center mt-5">
+          <div className="flex items-center justify-center">
             <button
-              className="px-2 py-2 rounded-full flex items-center justify-center border"
+              className="px-4 py-2 rounded-full flex items-center justify-center border border-red-500"
               onClick={() => {
                 navigate('/rating');
               }}
             >
-              <span className="ml-2 text-base">Đánh giá sản phẩm</span>
+              <span className="text-red-500">Đánh giá sản phẩm</span>
             </button>
           </div>
         </div>
