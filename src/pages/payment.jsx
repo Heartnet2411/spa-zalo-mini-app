@@ -288,6 +288,54 @@ const PaymentPage = () => {
             showToast({ message: 'Lỗi giao dịch!' });
           },
         });
+      } else {
+        Payment.checkTransaction({
+          data: { zmpOrderId: data?.zmpOrderId },
+          success: async (rs) => {
+            const { orderId, transId, resultCode, extradata } = rs;
+
+            let parsedExtradata;
+            try {
+              parsedExtradata = typeof extradata === 'string' ? JSON.parse(extradata) : extradata;
+            } catch (error) {
+              console.error('Error parsing extradata:', error);
+            }
+
+
+            console.log(parsedExtradata?.orderId);
+
+            if (resultCode === 1) {
+              try {
+                const updateOrder = await updateOrderWithZaloOrderId(
+                  parsedExtradata.orderId,
+                  {
+                    transactionId: orderId,
+                    paymentStatus: 'completed',
+                  },
+                  user.accessToken
+                );
+
+                if (updateOrder.paymentStatus === 'completed') {
+                  console.log('Payment successfully updated', updateOrder.data);
+                  setPaymentResult({ orderId, status: 'success' });
+                  navigate('/payment-result');
+                } else {
+                  console.log('Payment update failed');
+                  setPaymentResult({ orderId, status: 'fail' });
+                  navigate('/payment-result');
+                  showToast({ message: "Lỗi cập nhật đơn hàng" })
+                }
+              } catch (err) {
+                console.error('Error updating order:', err);
+                showToast({ message: "Lỗi cập nhật đơn hàng" })
+              }
+            }
+          },
+          fail: (err) => {
+            console.error('Payment check failed:', err);
+            showToast({ message: "Lỗi giao dịch" })
+          },
+        });
       }
     };
 
