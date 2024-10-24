@@ -89,7 +89,7 @@ const BookingPage = () => {
             {filteredBookings.map((booking) => (
               <div
                 key={booking._id}
-                className="border border-gray-500 rounded-lg px-4 mt-4 mb-3 m-5"
+                className="border shadow-lg rounded-lg px-4 m-5"
               >
                 <Text className="mt-2">
                   <span>
