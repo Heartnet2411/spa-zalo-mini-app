@@ -132,9 +132,9 @@ export const updateOrderWithZaloOrderId = async (id, payment, accessToken) => {
   }
 };
 
-export const getUserOrderHistories = async (accessToken) => {
+export const getUserOrderHistories = async (accessToken, page = 1, limit = 10) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/payments/user-histories?status=completed`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/payments/user-histories?status=completed&page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: {
         'ngrok-skip-browser-warning': 'true',

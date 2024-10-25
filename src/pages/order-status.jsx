@@ -11,6 +11,9 @@ const OrderStatusPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { accessToken } = useRecoilValue(userState);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const limit = 10;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -18,10 +21,10 @@ const OrderStatusPage = () => {
       setError(null);
 
       try {
-        const data = await getUserOrderHistories(accessToken);
-
+        const data = await getUserOrderHistories(accessToken, currentPage, limit);
         const filteredOrders = data.orders.filter(order => order.products.length > 0);
         setOrders(filteredOrders);
+        setTotalPages(data.totalPages);
       } catch (error) {
         setError('Failed to load order history');
       } finally {
@@ -30,7 +33,19 @@ const OrderStatusPage = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [currentPage]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
 
   return (
     <Page className="page">
@@ -83,6 +98,15 @@ const OrderStatusPage = () => {
           ) : (
             <Text className="text-center">Hiện tại chưa có đơn hàng</Text>
           )}
+          <div className="flex justify-between mt-4 w-full">
+            <button onClick={handlePrevPage} disabled={currentPage === 1} className="border px-4 py-2 rounded">
+              Trước
+            </button>
+            <Text>{`Trang ${currentPage} / ${totalPages}`}</Text>
+            <button onClick={handleNextPage} disabled={currentPage === totalPages} className="border px-4 py-2 rounded">
+              Sau
+            </button>
+          </div>
         </div>
       </div>
     </Page>
