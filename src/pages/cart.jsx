@@ -112,7 +112,7 @@ const CartPage = () => {
               cart.map((item) => (
                 <div
                   key={item.productId}
-                  className="border rounded-lg p-4 bg-gray-100 mb-2 flex items-center justify-between"
+                  className="border rounded-lg py-4 px-2 bg-gray-100 mb-2 flex items-center justify-between"
                 >
                   <div className="flex items-center">
                     <img
@@ -120,7 +120,10 @@ const CartPage = () => {
                       alt={item.name}
                       className="w-28 h-28 object-contain mr-4 bg-white rounded-lg"
                     />
-                    <div style={{ width: 'calc(100vw - 13rem)' }} className="">
+                    <div
+                      style={{ width: 'calc(100vw - 13rem)' }}
+                      className="relative"
+                    >
                       <h2 className="text-lg font-semibold">
                         {item.productName}
                       </h2>
@@ -133,7 +136,7 @@ const CartPage = () => {
                       </div>
 
                       <div className="flex justify-between w-full">
-                        <div className="flex items-center border border-gray-500 p-1 px-3 rounded-lg mt-2">
+                        <div className="flex items-center border border-gray-500 p-1 px-5 rounded-lg mt-2">
                           <button
                             disabled={item.quantity <= 1}
                             onClick={() =>
@@ -161,12 +164,13 @@ const CartPage = () => {
                             <FiPlus size={24} />
                           </button>
                         </div>
-                        <button
-                          onClick={() => handleRemoveCartItem(item.productId)}
-                        >
-                          <LiaTimesSolid size={24} />
-                        </button>
                       </div>
+                      <button
+                        className="absolute -top-2 -right-4"
+                        onClick={() => handleRemoveCartItem(item.productId)}
+                      >
+                        <LiaTimesSolid size={24} />
+                      </button>
                     </div>
                   </div>
                 </div>

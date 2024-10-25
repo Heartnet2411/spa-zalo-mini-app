@@ -118,11 +118,11 @@ const ServiceDetail = () => {
               </div>
 
               <p className="text-xl font-bold mt-4 bold-text">
-                Thông tin sản phẩm
+                Thông tin dịch vụ
               </p>
               <p className="text-base">{service.description}</p>
 
-              <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
+              <h2 className="text-xl font-bold mt-4">Dịch vụ tương tự</h2>
               <div className="mt-4 ">
                 <ServiceCard services={serviceRecommendation} />
               </div>
