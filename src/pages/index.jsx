@@ -67,7 +67,11 @@ export default function HomePage() {
       );
       console.log(productResponse);
       if (productResponse) {
-        setProductRecommendations(productResponse.recommendations);
+        setProductRecommendations(
+          productResponse.suggestions.flatMap(
+            (suggestion) => suggestion.products
+          )
+        );
       }
 
       // Gọi API để lấy gợi ý dịch vụ
@@ -77,7 +81,11 @@ export default function HomePage() {
       );
       console.log(serviceResponse);
       if (serviceResponse) {
-        setServiceRecommendations(serviceResponse.recommendations);
+        setServiceRecommendations(
+          serviceResponse.suggestions.flatMap(
+            (suggestion) => suggestion.services
+          )
+        );
       }
     } catch (err) {
       console.error(err);

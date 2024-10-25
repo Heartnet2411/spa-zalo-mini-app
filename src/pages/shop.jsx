@@ -127,7 +127,7 @@ const ShopPage = () => {
                 {/* Search button */}
                 <button
                   onClick={handleSearchClick}
-                  className={`px-4 py-3 rounded-md  ${
+                  className={`px-4 py-3 rounded-md ${
                     showInput
                       ? 'bg-blue-500 text-white'
                       : 'bg-white text-blue-500 border border-blue-500'
@@ -178,7 +178,7 @@ const ShopPage = () => {
                   {searchQuery && (
                     <LiaTimesSolid
                       size={18}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                      className="absolute right-6 top-[88px] transform -translate-y-1/2 text-gray-400 cursor-pointer"
                       onClick={() => {
                         setSearchQuery('');
                         fetchProducts(1);
@@ -198,7 +198,7 @@ const ShopPage = () => {
                 </div>
               )}
             </div>
-            <div className="pt-12 pb-3 bg-gray-100 w-full h-screen px-1">
+            <div className="pt-14 pb-8 min-h-screen bg-gray-100 w-full px-1">
               <ProductCard products={products} />
 
               {selectedCategory === 'Tất cả' && !searchQuery && (
