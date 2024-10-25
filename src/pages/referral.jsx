@@ -43,7 +43,7 @@ const ReferralPage = () => {
             </h1>
             <div className="flex items-center text-orange-500">
               <span className="text-3xl">
-                {referralData.user.amounts || 0} VND
+                {user?.amounts?.toLocaleString('vi-VN') || 0} VND
               </span>{' '}
               {/* Hiển thị số tiền hoa hồng */}
             </div>
