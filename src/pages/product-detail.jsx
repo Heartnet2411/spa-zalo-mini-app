@@ -184,7 +184,7 @@ const ProductDetail = () => {
                 </Swiper.Slide>
               ))}
             </Swiper>
-            <div className="px-8 mt-2">
+            <div className="px-4 mt-2">
               <h1 className="text-3xl font-bold ">{product.name}</h1>
 
               <div className="my-4 flex space-x-2">
@@ -236,7 +236,7 @@ const ProductDetail = () => {
               <ul className="list-none ">
                 {product.ingredients && product.ingredients.length > 0 ? (
                   product.ingredients.map((ingredient) => (
-                    <li key={ingredient._id}>
+                    <li key={ingredient._id} className="my-2 ml-2">
                       {ingredient.name} - {ingredient.percentage}%
                     </li>
                   ))
@@ -251,7 +251,9 @@ const ProductDetail = () => {
               <ul className="list-none ">
                 {product.benefits && product.benefits.length > 0 ? (
                   product.benefits.map((benefit, index) => (
-                    <li key={index}>{benefit}</li>
+                    <li key={index} className="my-2 ml-2">
+                      - {benefit}
+                    </li>
                   ))
                 ) : (
                   <p className="text-gray-500">Chưa có thông tin về lợi ích.</p>
