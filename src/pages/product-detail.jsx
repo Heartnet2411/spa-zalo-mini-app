@@ -156,7 +156,7 @@ const ProductDetail = () => {
                 </Swiper.Slide>
               ))}
             </Swiper>
-            <div className="px-8 mt-2">
+            <div className="px-4 mt-2">
               <h1 className="text-3xl font-bold ">{product.name}</h1>
 
               <div className="my-4 flex space-x-2">

@@ -19,16 +19,29 @@ const ProductCard = ({ products }) => {
                 alt={product.name}
                 className="w-40 h-32 object-cover mb-2 rounded-xl"
               />
-            ) : null}
+            ) : (
+              <div className="h-28 w-32 bg-gray-200"></div>
+            )}
 
-            <h2 className="font-medium">
+            <h2
+              className="font-medium overflow-hidden text-ellipsis"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+                minHeight: '3em',
+              }}
+            >
               {product.name ? product.name : product.itemName}
             </h2>
+
             <div className="w-full flex justify-center items-center bg-gradient-to-r rounded-lg  from-blue-300 to-blue-500">
-              <p className="text-lg py-1 text-white  font-semibold">
-                {product.price
-                  ? product.price.toLocaleString() + ' đ'
-                  : 'Mua hàng ngay'}{' '}
+              <p className="text-lg py-1 text-white font-semibold">
+                {product.price ? (
+                  product.price.toLocaleString() + ' đ'
+                ) : (
+                  <span className="text-base">Mua hàng ngay</span>
+                )}
               </p>
             </div>
             <div className="w-full flex items-center justify-between text-sm">
