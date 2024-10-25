@@ -149,14 +149,14 @@ const ProfilePage = () => {
                 navigate('/order-status');
               }}
             >
-              <span className="text-white">Đơn hàng đã mua</span>
+              <span className="text-white">Sản phẩm đã mua</span>
             </button>
           </div>
           <div className="flex items-center justify-center">
             <button
               className="px-4 py-2 rounded-full flex items-center justify-center border border-red-500"
               onClick={() => {
-                navigate('/rating');
+                navigate('/order-status');
               }}
             >
               <span className="text-red-500">Đánh giá sản phẩm</span>

@@ -19,7 +19,9 @@ const OrderStatusPage = () => {
 
       try {
         const data = await getUserOrderHistories(accessToken);
-        setOrders(data.orders);
+
+        const filteredOrders = data.orders.filter(order => order.products.length > 0);
+        setOrders(filteredOrders);
       } catch (error) {
         setError('Failed to load order history');
       } finally {
@@ -41,42 +43,43 @@ const OrderStatusPage = () => {
             <Text className="text-center text-red-500">{error}</Text>
           ) : orders.length > 0 ? (
             orders.map((order) => (
-              <div
-                key={order._id}
-                className="bg-white p-2 rounded-lg shadow-md border w-full mb-4"
-              >
-                <text className="text-orange-600 flex justify-end ">
-                  {order.paymentStatus}
-                </text>
-                <div className="h-24 w-24 bg-gray-300 rounded-md mb-2 flex items-center justify-center">
-                  {/* Add actual image here when available, e.g., <img src={product.image} alt="Product" /> */}
-                  <text className="text-gray-500">Image</text>
-                </div>
-                <div className="flex items-center">
-                  <div className="mt-2 flex items-center ">
-                    {order.products.map((product) => (
-                      <div key={product._id} className="mb-2">
-                        <text className="text-lg">{product.productName}</text>
-                        <text className="text-sm text-gray-600">
-                          x{product.quantity}
-                        </text>
-                        <text className="text-sm text-gray-600">
-                          Tổng số tiền: đ{product.price}
-                        </text>
-                      </div>
-                    ))}
+              order.products.map((product) => (
+                <div
+                  className="bg-white p-2 rounded-lg shadow-md border w-full mb-4"
+                >
+                  <text className="text-orange-600 flex justify-end ">
+                    {order.paymentStatus}
+                  </text>
+                  <div className="h-24 w-24 bg-gray-300 rounded-md mb-2 flex items-center justify-center">
+                    <img src={product.images[0]} alt="Product" />
+                  </div>
+                  <div className="flex items-center">
+                    <div className="mt-2 flex items-center ">
+                      <Text className="text-lg">{product.productName} - {product.volume} x {product.quantity}</Text>
+                      <Text className="text-sm text-gray-600">
+                        Tổng số tiền: đ{product.price * product.quantity}
+                      </Text>
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-5">
+                    {product.rated ? (
+                      <button
+                        className="w-20 h-10 border border-gray-500 rounded-lg" disabled
+                      >
+                        <span className="text-gray-500">Đã đánh giá</span>
+                      </button>
+                    ) : (
+                      <button
+                        className="w-20 h-10 border border-orange-500 rounded-lg"
+                        onClick={() => navigate(`/ratingdetail`, { state: { order, product } })}
+                      >
+                        <span className="text-orange-500">Đánh giá</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="flex justify-end mt-5">
-                  <button
-                    className="w-20 h-10 border border-orange-500 rounded-lg"
-                    onClick={() => navigate(`/rating`, { state: { order } })}
-                  >
-                    <span className="text-orange-500">Đánh giá</span>
-                  </button>
-                </div>
-              </div>
-            ))
+              )
+              )))
           ) : (
             <Text className="text-center">Hiện tại chưa có đơn hàng</Text>
           )}

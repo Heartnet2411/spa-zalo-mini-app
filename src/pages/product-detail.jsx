@@ -14,6 +14,7 @@ import { fetchProductRecommendations } from '../services/product.service';
 import ProductCard from '../components/product-card';
 import { useRecoilState } from 'recoil';
 import { userState } from '../state';
+import { getProductReviews } from '../services/rating.service';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -23,6 +24,12 @@ const ProductDetail = () => {
   const [count, setCount] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
+
+  const [reviews, setReviews] = useState([])
+  const [currentReviewPage, setCurrentReviewPage] = useState(1)
+  const [totalReviewPages, setTotalReviewPages] = useState(1)
+  const [totalReviews, setTotalReviews] = useState(1)
+
   console.log(selectedVariant);
   console.log(count);
 
@@ -97,6 +104,27 @@ const ProductDetail = () => {
     // Gọi hàm fetchProduct
   }, [id]);
 
+  useEffect(() => {
+    const fetchProductReview = async () => {
+      try {
+        const response = await getProductReviews(id, currentReviewPage);
+
+        if (response) {
+          setReviews(response.reviews)
+          setCurrentReviewPage(response.currentPage)
+          setTotalReviewPages(response.totalPages)
+          setTotalReviews(response.totalReviews)
+        } else {
+          throw new Error('Không tìm thấy đánh giá.'); // Ném lỗi nếu không tìm thấy sản phẩm
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProductReview();
+  }, [id, currentReviewPage])
+
   const handleAddProductToCart = async () => {
     const result = await addToCart(
       id,
@@ -165,11 +193,10 @@ const ProductDetail = () => {
                     <button
                       key={variant._id}
                       onClick={() => setSelectedVariant(variant)}
-                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${
-                        selectedVariant && selectedVariant._id === variant._id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${selectedVariant && selectedVariant._id === variant._id
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                        }`}
                     >
                       {variant.volume}
                     </button>
@@ -230,6 +257,57 @@ const ProductDetail = () => {
                   <p className="text-gray-500">Chưa có thông tin về lợi ích.</p>
                 )}
               </ul>
+
+              <h2 className="text-xl font-bold mt-4">Đánh giá: {product.averageRating} sao</h2>
+              <div className="mt-4 ">
+                {/* Hiển thị review ở đây */}
+                {reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <div key={review._id} className="border-b border-gray-300 pb-4 mb-4">
+                      <p className="font-bold">{review.productName}</p>
+                      <p>{review.comment}</p>
+                      <p className="text-sm text-gray-500">Đánh giá: {review.rating} sao</p>
+                      {review.images && review.images.length > 0 && (
+                        <div className="mt-2">
+                          {review.images.map((image, index) => (
+                            <img key={index} src={image} alt={`Review image ${index}`} className="h-20 w-20 object-cover mr-2" />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500">Chưa có đánh giá cho sản phẩm này.</p>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center mt-4">
+                <button
+                  onClick={() => {
+                    if (currentReviewPage > 1) {
+                      setCurrentReviewPage(currentReviewPage - 1);
+                    }
+                  }}
+                  disabled={currentReviewPage === 1}
+                  className={`px-4 py-2 border rounded ${currentReviewPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
+                >
+                  Trước
+                </button>
+                <span>
+                  Trang {currentReviewPage} / {totalReviewPages}
+                </span>
+                <button
+                  onClick={() => {
+                    if (currentReviewPage < totalReviewPages) {
+                      setCurrentReviewPage(currentReviewPage + 1);
+                    }
+                  }}
+                  disabled={currentReviewPage === totalReviewPages}
+                  className={`px-4 py-2 border rounded ${currentReviewPage === totalReviewPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
+                >
+                  Sau
+                </button>
+              </div>
 
               <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
               <div className="mt-4 ">
