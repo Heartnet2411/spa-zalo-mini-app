@@ -134,7 +134,7 @@ export const updateOrderWithZaloOrderId = async (id, payment, accessToken) => {
 
 export const getUserOrderHistories = async (accessToken) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/payments/user-histories?status=complete`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/payments/user-histories?status=completed`, {
       method: 'GET',
       headers: {
         'ngrok-skip-browser-warning': 'true',
