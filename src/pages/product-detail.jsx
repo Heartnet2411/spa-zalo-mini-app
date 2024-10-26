@@ -15,6 +15,7 @@ import ProductCard from '../components/product-card';
 import { useRecoilState } from 'recoil';
 import { userState } from '../state';
 import { getProductReviews } from '../services/rating.service';
+import StarRating from '../components/star-rating';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -25,10 +26,10 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const [reviews, setReviews] = useState([])
-  const [currentReviewPage, setCurrentReviewPage] = useState(1)
-  const [totalReviewPages, setTotalReviewPages] = useState(1)
-  const [totalReviews, setTotalReviews] = useState(1)
+  const [reviews, setReviews] = useState([]);
+  const [currentReviewPage, setCurrentReviewPage] = useState(1);
+  const [totalReviewPages, setTotalReviewPages] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(1);
 
   console.log(selectedVariant);
   console.log(count);
@@ -110,10 +111,10 @@ const ProductDetail = () => {
         const response = await getProductReviews(id, currentReviewPage);
 
         if (response) {
-          setReviews(response.reviews)
-          setCurrentReviewPage(response.currentPage)
-          setTotalReviewPages(response.totalPages)
-          setTotalReviews(response.totalReviews)
+          setReviews(response.reviews);
+          setCurrentReviewPage(response.currentPage);
+          setTotalReviewPages(response.totalPages);
+          setTotalReviews(response.totalReviews);
         } else {
           throw new Error('Không tìm thấy đánh giá.'); // Ném lỗi nếu không tìm thấy sản phẩm
         }
@@ -123,7 +124,7 @@ const ProductDetail = () => {
     };
 
     fetchProductReview();
-  }, [id, currentReviewPage])
+  }, [id, currentReviewPage]);
 
   const handleAddProductToCart = async () => {
     const result = await addToCart(
@@ -193,10 +194,11 @@ const ProductDetail = () => {
                     <button
                       key={variant._id}
                       onClick={() => setSelectedVariant(variant)}
-                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${selectedVariant && selectedVariant._id === variant._id
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-700'
-                        }`}
+                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${
+                        selectedVariant && selectedVariant._id === variant._id
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
                     >
                       {variant.volume}
                     </button>
@@ -260,26 +262,54 @@ const ProductDetail = () => {
                 )}
               </ul>
 
-              <h2 className="text-xl font-bold mt-4">Đánh giá: {product.averageRating} sao</h2>
-              <div className="mt-4 ">
+              {/* <h2 className="text-xl font-bold mt-4">
+                Đánh giá: {product.averageRating} sao
+              </h2> */}
+              <h2 className="text-xl font-bold mt-4 mb-2">Đánh Giá Sản Phẩm</h2>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center">
+                  <StarRating rating={product.averageRating} />
+                  <p className="text-red-500 ml-2">{product.averageRating}/5</p>
+                </div>
+                <span className="text-gray-500">
+                  ({reviews.length} đánh giá)
+                </span>
+              </div>
+              <div className="mt-4 border px-4 py-2 rounded-md">
                 {/* Hiển thị review ở đây */}
                 {reviews.length > 0 ? (
                   reviews.map((review) => (
-                    <div key={review._id} className="border-b border-gray-300 pb-4 mb-4">
-                      <p className="font-bold">{review.productName}</p>
-                      <p>{review.comment}</p>
-                      <p className="text-sm text-gray-500">Đánh giá: {review.rating} sao</p>
+                    <div
+                      key={review._id}
+                      className="border-b border-gray-300 pb-4 mb-4 flex flex-col gap-2"
+                    >
+                      <p className="font-semibold">{review.userId}</p>
+                      <p className="flex gap-2">
+                        Đánh giá: <StarRating rating={review.rating} />
+                      </p>
+                      <p className="flex gap-2">
+                        Nội dung:
+                        <span>{review.comment}</span>
+                      </p>
                       {review.images && review.images.length > 0 && (
-                        <div className="mt-2">
+                        <div className="flex flex-col gap-2">
+                          <span>Hình ảnh:</span>
                           {review.images.map((image, index) => (
-                            <img key={index} src={image} alt={`Review image ${index}`} className="h-20 w-20 object-cover mr-2" />
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Review image ${index}`}
+                              className="h-20 w-20 object-cover mr-2"
+                            />
                           ))}
                         </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500">Chưa có đánh giá cho sản phẩm này.</p>
+                  <p className="text-gray-500">
+                    Chưa có đánh giá cho sản phẩm này.
+                  </p>
                 )}
               </div>
 
