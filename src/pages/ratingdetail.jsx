@@ -23,7 +23,7 @@ const RatingDetailPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("Submit button clicked");
+    console.log('Submit button clicked');
     e.preventDefault();
     try {
       const result = await rateProduct({
@@ -50,7 +50,7 @@ const RatingDetailPage = () => {
 
   const handleConfirm = () => {
     setModalVisible(false); // Đóng modal
-    navigate("/order-status"); // Chuyển hướng về trang order-status
+    navigate('/order-status'); // Chuyển hướng về trang order-status
   };
 
   return (
@@ -61,7 +61,7 @@ const RatingDetailPage = () => {
         <div className="bg-white p-4 w-full mb-4">
           <div className="flex items-center flex-row border-b-2 pb-2">
             <img
-              src={product.images[0] || "placeholder.jpg"}
+              src={product.images[0] || 'placeholder.jpg'}
               alt={product.productName}
               className="h-12 object-cover rounded-md mb-2"
             />
@@ -85,29 +85,36 @@ const RatingDetailPage = () => {
             <div className="mb-4">
               <Input
                 type="text"
-                placeholder="Your comment"
+                placeholder="Đánh giá của bạn"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
             </div>
-            <div className="mb-4">
+            <div className="mb-6">
               <input type="file" multiple onChange={handleImageChange} />
             </div>
-            <button type="submit">Submit Rating</button>
+            <div className="flex items-center justify-center w-full">
+              <button
+                type="submit"
+                className="px-4 py-2 border bg-orange-500 rounded-lg text-white"
+              >
+                Gửi đánh giá
+              </button>
+            </div>
             {errorMessage && <Text color="red">{errorMessage}</Text>}
           </form>
         </div>
 
         {/* Modal thông báo thành công */}
-      <Modal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)} // Đóng modal khi nhấn bên ngoài
-      >
-        <div className="p-4">
-          <Text>Đánh giá của bạn đã được gửi thành công!</Text>
-          <Button onClick={handleConfirm}>Xác nhận</Button>
-        </div>
-      </Modal>
+        <Modal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)} // Đóng modal khi nhấn bên ngoài
+        >
+          <div className="p-4">
+            <Text>Đánh giá của bạn đã được gửi thành công!</Text>
+            <Button onClick={handleConfirm}>Xác nhận</Button>
+          </div>
+        </Modal>
       </div>
     </Page>
   );
