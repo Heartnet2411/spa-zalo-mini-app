@@ -9,8 +9,8 @@ const ProductCard = ({ products }) => {
       {products && products.length > 0 ? (
         products.map((product) => (
           <Link
-            to={`/product/${product._id}`}
-            key={product._id}
+            to={`/product/${product._id ? product._id : product.itemId}`}
+            key={product._id ? product._id : product.itemId}
             className="border p-4 bg-white flex flex-col gap-4 rounded-xl"
           >
             {product.images && product.images.length > 0 ? (
@@ -48,7 +48,7 @@ const ProductCard = ({ products }) => {
               Đã bán {product?.salesQuantity}
               <div className="flex items-center justify-center gap-1 text-yellow-300 ">
                 <FaStar size={16} className="" />
-                <span className="text-black">5</span>
+                <span className="text-black">{product.averageRating}</span>
               </div>
             </div>
           </Link>

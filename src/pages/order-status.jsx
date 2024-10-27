@@ -4,6 +4,8 @@ import Header from '../components/header';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
 import { getUserOrderHistories } from '../services/payment.service';
+import { Link } from 'react-router-dom';
+import Pagination from '../components/pagination';
 
 const OrderStatusPage = () => {
   const navigate = useNavigate();
@@ -53,6 +55,10 @@ const OrderStatusPage = () => {
     }
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <Page className="page">
       <Header />
@@ -71,9 +77,14 @@ const OrderStatusPage = () => {
                   </text> */}
                   <div className="flex gap-4">
                     <div className="h-24 w-36 bg-gray-300 rounded-md mb-2 flex items-center justify-center">
-                      <img src={product.images[0]} alt="Product" />
+                      <Link
+                        to={`/product/${product.productId}`}
+                        key={product.productId}
+                      >
+                        <img src={product.images[0]} alt="Product" />
+                      </Link>
                     </div>
-                    <div className="flex flex-col justify-start w-full gap-4">
+                    <div className="flex flex-col justify-start w-full gap-2">
                       <div className="flex flex-col justify-start w-full gap-2">
                         <span className="font-bold">{product.productName}</span>
                         <div className="flex justify-between">
@@ -91,19 +102,25 @@ const OrderStatusPage = () => {
                           currency: 'VND',
                         }).format(product.price * product.quantity)}
                       </Text>
+                      <Text className="">
+                        <span className="text-gray-600">Ngày mua: </span>
+                        <span>
+                          {new Date(order.orderDate).getDate().toString().padStart(2, '0')}/{(new Date(order.orderDate).getMonth() + 1).toString().padStart(2, '0')}/{new Date(order.orderDate).getFullYear()} - {`${new Date(order.orderDate).getHours()}h${new Date(order.orderDate).getMinutes().toString().padStart(2, '0')}`}
+                        </span>
+                      </Text>
                     </div>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end mt-2">
                     {product.rated ? (
                       <button
-                        className="w-20 h-10 border border-gray-500 rounded-lg"
+                        className="p-2 h-10 border border-gray-500 rounded-lg"
                         disabled
                       >
                         <span className="text-gray-500">Đã đánh giá</span>
                       </button>
                     ) : (
                       <button
-                        className="w-20 h-10 border border-orange-500 rounded-lg"
+                        className="p-2 h-10 border border-orange-500 rounded-lg"
                         onClick={() =>
                           navigate(`/ratingdetail`, {
                             state: { order, product },
@@ -120,23 +137,11 @@ const OrderStatusPage = () => {
           ) : (
             <Text className="text-center">Hiện tại chưa có đơn hàng</Text>
           )}
-          <div className="flex justify-between mt-4 w-full">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="border px-4 py-2 rounded"
-            >
-              Trước
-            </button>
-            <Text>{`Trang ${currentPage} / ${totalPages}`}</Text>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className="border px-4 py-2 rounded"
-            >
-              Sau
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </Page>

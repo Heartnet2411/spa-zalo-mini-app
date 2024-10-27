@@ -1,6 +1,6 @@
 // src/pages/ProductDetail.js
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Page, Swiper, Box, Text, Button } from 'zmp-ui';
+import { Page, Swiper, Box, Text, Button, Icon } from 'zmp-ui';
 import { Link, useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../utils/productdemo';
@@ -16,6 +16,7 @@ import { useRecoilState } from 'recoil';
 import { userState } from '../state';
 import { getProductReviews } from '../services/rating.service';
 import StarRating from '../components/star-rating';
+import Pagination from '../components/pagination';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -161,15 +162,19 @@ const ProductDetail = () => {
     },
   };
 
+  const handlePageChange = (page) => {
+    setCurrentReviewPage(page);
+  };
+
   return (
     <Page className="page flex flex-col h-screen">
       <Suspense>
         <div className="relative mb-24">
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-0 left-0 bg-white z-50 px-4 py-1 radius-custom overflow-hidden active:bg-slate-300"
+            className="absolute top-0 left-0 z-50 px-3 py-3 radius-custom overflow-hidden active:bg-slate-300"
           >
-            <IoReturnDownBack size={30} />
+            <Icon icon='zi-arrow-left' size={30} />
           </button>
           <div className="flex  flex-col  md:flex-row md:items-start relative ">
             <Swiper>
@@ -194,11 +199,10 @@ const ProductDetail = () => {
                     <button
                       key={variant._id}
                       onClick={() => setSelectedVariant(variant)}
-                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${
-                        selectedVariant && selectedVariant._id === variant._id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${selectedVariant && selectedVariant._id === variant._id
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                        }`}
                     >
                       {variant.volume}
                     </button>
@@ -283,17 +287,25 @@ const ProductDetail = () => {
                       key={review._id}
                       className="border-b border-gray-300 pb-4 mb-4 flex flex-col gap-2"
                     >
-                      <p className="font-semibold">{review.userId}</p>
+                      <div className='flex'>
+                        <img
+                          key={review.userId}
+                          src={review.userAvatar}
+                          alt={review.userName}
+                          className="h-8 w-8 object-cover mr-2 rounded-full"
+                        />
+                        <div className='flex flex-col'>
+                          <p className="font-semibold">{review.userName}</p>
+                          <p className="flex gap-2">
+                            <StarRating rating={review.rating} />
+                          </p>
+                        </div>
+                      </div>
                       <p className="flex gap-2">
-                        Đánh giá: <StarRating rating={review.rating} />
-                      </p>
-                      <p className="flex gap-2">
-                        Nội dung:
                         <span>{review.comment}</span>
                       </p>
                       {review.images && review.images.length > 0 && (
                         <div className="flex flex-col gap-2">
-                          <span>Hình ảnh:</span>
                           {review.images.map((image, index) => (
                             <img
                               key={index}
@@ -313,33 +325,11 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              <div className="flex justify-between items-center mt-4">
-                <button
-                  onClick={() => {
-                    if (currentReviewPage > 1) {
-                      setCurrentReviewPage(currentReviewPage - 1);
-                    }
-                  }}
-                  disabled={currentReviewPage === 1}
-                  className={`px-4 py-2 border rounded ${currentReviewPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
-                >
-                  Trước
-                </button>
-                <span>
-                  Trang {currentReviewPage} / {totalReviewPages}
-                </span>
-                <button
-                  onClick={() => {
-                    if (currentReviewPage < totalReviewPages) {
-                      setCurrentReviewPage(currentReviewPage + 1);
-                    }
-                  }}
-                  disabled={currentReviewPage === totalReviewPages}
-                  className={`px-4 py-2 border rounded ${currentReviewPage === totalReviewPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
-                >
-                  Sau
-                </button>
-              </div>
+              <Pagination
+                currentPage={currentReviewPage}
+                totalPages={totalReviewPages}
+                onPageChange={handlePageChange}
+              />
 
               <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
               <div className="mt-4 ">

@@ -71,7 +71,7 @@ const RatingDetailPage = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-4">
+          <form onSubmit={handleSubmit} className="mt-4" enctype="multipart/form-data">
             <div className="mb-4">
               <Input
                 type="number"
@@ -91,7 +91,7 @@ const RatingDetailPage = () => {
               />
             </div>
             <div className="mb-6">
-              <input type="file" multiple onChange={handleImageChange} />
+              <input type="file" accept="image/*" multiple onChange={handleImageChange} />
             </div>
             <div className="flex items-center justify-center w-full">
               <button

@@ -69,7 +69,7 @@ const VoucherPage = () => {
                 vouchers.map((voucher) => (
                   <li
                     key={voucher._id}
-                    className="border border-gray-300 p-4 rounded-md flex items-start"
+                    className="border border-gray-300 p-4 rounded-md flex items-start m-3"
                   >
                     {/* Hình biểu tượng FaTicket */}
                     <div className="mr-4">
