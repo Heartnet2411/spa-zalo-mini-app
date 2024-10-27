@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import vietnamAddressData from '../utils/tree.json';
 import { FaTimes } from 'react-icons/fa';
+import { showToast } from 'zmp-sdk/apis';
+import { addNewAddress } from '../services/user.service';
 
-const AddAddressModal = ({ isOpen, onClose }) => {
+const AddAddressModal = ({ isOpen, onClose, accessToken }) => {
   const [address, setAddress] = useState({
     city: '',
     district: '',
@@ -64,12 +66,30 @@ const AddAddressModal = ({ isOpen, onClose }) => {
   const handleAddressNumberChange = (e) => {
     setAddress({ ...address, number: e.target.value });
   };
+
+  const handleAddNewAddress = async (e) => {
+    try {
+      console.log(address)
+
+      const response = await addNewAddress(address, accessToken);
+
+      if (response) {
+        showToast({ message: `Thêm địa chỉ mới thành công`});
+        onClose()
+      } else {
+        showToast({ message: `Error: ${response.message}`});
+      }
+    } catch(e) {
+      console.log("Error: ", e.message);
+      showToast({ message: `Error: ${e.message}`});
+    }
+  }
+
   console.log('address', address);
   if (!isOpen) return null;
 
   return (
     <div
-      onClick={onClose}
       className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
     >
       <div className="bg-white rounded-lg p-6 max-w-md w-4/5">
@@ -133,7 +153,7 @@ const AddAddressModal = ({ isOpen, onClose }) => {
           />
 
           <div className="flex justify-center mt-4">
-            <button className="bg-blue-500 px-4 py-2 rounded-xl  text-white">
+            <button className="bg-blue-500 px-4 py-2 rounded-xl  text-white" onClick={handleAddNewAddress}>
               Thêm địa chỉ giao hàng
             </button>
           </div>

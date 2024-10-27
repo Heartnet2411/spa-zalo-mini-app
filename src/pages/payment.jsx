@@ -4,7 +4,7 @@ import Header from '../components/header';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paymentResultState, userState } from '../state';
 import { getUserVouchers } from '../services/voucher.service';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { getAllAddress } from '../services/user.service';
 import AddAddressModal from '../components/add-address-modal';
 
@@ -23,6 +23,7 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const [user, setUserState] = useRecoilState(userState);
   const [paymentResult, setPaymentResult] = useRecoilState(paymentResultState);
+  const { accessToken } = useRecoilValue(userState);
 
   console.log(user);
   // DEMO TRƯỚC HÀM TẠO HÓA ĐƠN
@@ -380,7 +381,7 @@ const PaymentPage = () => {
       }
     };
     fetchAddress();
-  }, []);
+  }, [isModalOpen]);
 
   const handleSelectAddress = (address) => {
     setSelectedAddress(address); // Cập nhật địa chỉ đã chọn
@@ -440,7 +441,7 @@ const PaymentPage = () => {
           </button>
         </div>
 
-        <AddAddressModal isOpen={isModalOpen} onClose={handleCloseModal} />
+        <AddAddressModal isOpen={isModalOpen} onClose={handleCloseModal} accessToken={accessToken}/>
 
         <div>
           {cart.length > 0 ? (
