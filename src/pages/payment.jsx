@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Button, Input, List } from 'zmp-ui';
+import { Page, Button, Input, List, Grid, Box, Stack } from 'zmp-ui';
 import Header from '../components/header';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paymentResultState, userState } from '../state';
@@ -17,6 +17,7 @@ import {
 } from '../services/payment.service';
 import { Payment } from 'zmp-sdk';
 import { EventName, events, showToast } from 'zmp-sdk/apis';
+import { FaTicket } from 'react-icons/fa6';
 const { Item } = List;
 
 const PaymentPage = () => {
@@ -154,23 +155,23 @@ const PaymentPage = () => {
     }
   }, [cart]);
 
-   // Fetch user's vouchers when the page loads
-   useEffect(() => {
+  // Fetch user's vouchers when the page loads
+  useEffect(() => {
     const fetchVouchers = async () => {
       try {
         const userVouchers = await getUserVouchers(user.accessToken);
         setVouchers(userVouchers); // Set the fetched vouchers
       } catch (error) {
-        console.error("Error fetching vouchers:", error);
+        console.error('Error fetching vouchers:', error);
       }
     };
 
     fetchVouchers();
   }, [user.accessToken]);
 
-  const handleAddVoucher = () => {
-    if (voucherId) {
-      setAddedVoucher(voucherId);
+  const handleAddVoucher = (selectedId) => {
+    if (selectedId) {
+      setAddedVoucher(selectedId);
       setVoucherId('');
     }
   };
@@ -180,12 +181,12 @@ const PaymentPage = () => {
       <select
         className="px-4 py-4 border rounded-md w-full"
         value={voucherId}
-        onChange={(e) => setVoucherId(e.target.value)}
+        onChange={(e) => handleAddVoucher(e.target.value)}
       >
-        <option value="">Select a voucher</option>
+        <option value="">Chọn voucher</option>
         {vouchers.map((voucher) => (
           <option key={voucher.id} value={voucher.id}>
-            {voucher.code}
+            {voucher.code} - {voucher.discountValue}%
           </option>
         ))}
       </select>
@@ -297,11 +298,13 @@ const PaymentPage = () => {
 
             let parsedExtradata;
             try {
-              parsedExtradata = typeof extradata === 'string' ? JSON.parse(extradata) : extradata;
+              parsedExtradata =
+                typeof extradata === 'string'
+                  ? JSON.parse(extradata)
+                  : extradata;
             } catch (error) {
               console.error('Error parsing extradata:', error);
             }
-
 
             console.log(parsedExtradata?.orderId);
 
@@ -324,17 +327,17 @@ const PaymentPage = () => {
                   console.log('Payment update failed');
                   setPaymentResult({ orderId, status: 'fail' });
                   navigate('/payment-result');
-                  showToast({ message: "Lỗi cập nhật đơn hàng" })
+                  showToast({ message: 'Lỗi cập nhật đơn hàng' });
                 }
               } catch (err) {
                 console.error('Error updating order:', err);
-                showToast({ message: "Lỗi cập nhật đơn hàng" })
+                showToast({ message: 'Lỗi cập nhật đơn hàng' });
               }
             }
           },
           fail: (err) => {
             console.error('Payment check failed:', err);
-            showToast({ message: "Lỗi giao dịch" })
+            showToast({ message: 'Lỗi giao dịch' });
           },
         });
       }
@@ -441,7 +444,11 @@ const PaymentPage = () => {
           </button>
         </div>
 
-        <AddAddressModal isOpen={isModalOpen} onClose={handleCloseModal} accessToken={accessToken}/>
+        <AddAddressModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          accessToken={accessToken}
+        />
 
         <div>
           {cart.length > 0 ? (
@@ -483,35 +490,18 @@ const PaymentPage = () => {
             <p>Giỏ hàng của bạn đang trống.</p>
           )}
         </div>
-        <div className="relative mb-2 mx-4">
-          {renderVoucherOptions()}
-          {/* <input
-            type="text"
-            placeholder="Thêm mã giảm giá"
-            className="px-4 py-4 border rounded-md w-full  focus:outline-blue-500"
-            value={voucherId}
-            onChange={(e) => setVoucherId(e.target.value)}
-          /> */}
-
-          <button
-            size={18}
-            onClick={handleAddVoucher}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white cursor-pointer bg-blue-500 px-6 py-2 rounded-md"
-          >
-            {' '}
-            Thêm
-          </button>
-        </div>
-        <div>
+        <div className="border-t mt-6 py-4">
+          <div className="flex items-center justify-center">
+            <span className="font-bold text-lg">Voucher</span>
+          </div>
+          <div className="mt-2">{renderVoucherOptions()}</div>
           {addedVoucher ? (
-            <div className="font-medium text-lg mb-4 flex flex-col items-center">
-              <h4>Voucher</h4>
-              <span>Voucher ID: {addedVoucher}</span>
+            <div className="border-red-500 text-red-500 border px-3 py-4 rounded my-2 flex items-center gap-4">
+              <FaTicket size={24} className="text-red-500" />
+              <span>{addedVoucher}</span>
             </div>
           ) : (
-            <p className="font-medium text-lg text-center mb-4">
-              No voucher added
-            </p>
+            <p className="text-center my-4 text-red-500">Không có Voucher</p>
           )}
         </div>
       </div>

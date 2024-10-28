@@ -5,6 +5,7 @@ import Header from '../components/header';
 import { rateProduct } from '../services/rating.service'; // Import service đã tạo
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
+import StarRating from '../components/star-rating';
 
 const RatingDetailPage = () => {
   const { state } = useLocation();
@@ -71,27 +72,45 @@ const RatingDetailPage = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-4" enctype="multipart/form-data">
-            <div className="mb-4">
-              <Input
-                type="number"
-                placeholder="Rating (1-5)"
-                value={rating}
-                onChange={(e) => setRating(Number(e.target.value))}
-                min="1"
-                max="5"
-              />
-            </div>
-            <div className="mb-4">
-              <Input
-                type="text"
-                placeholder="Đánh giá của bạn"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-              />
+          <form
+            onSubmit={handleSubmit}
+            className="mt-4"
+            enctype="multipart/form-data"
+          >
+            <div className="mb-6">
+              <div>
+                <div className="flex gap-2">
+                  <span className="font-semibold">Nhập số sao</span>
+                  <StarRating rating={rating} />
+                </div>
+                <Input
+                  type="number"
+                  // placeholder="Rating (1-5)"
+                  value={rating}
+                  onChange={(e) => setRating(Number(e.target.value))}
+                  min="1"
+                  max="5"
+                />
+              </div>
             </div>
             <div className="mb-6">
-              <input type="file" accept="image/*" multiple onChange={handleImageChange} />
+              <div>
+                <span className="font-semibold">Viết đánh giá</span>
+                <Input
+                  type="text"
+                  placeholder="Hãy chia sẻ cảm nhận của bạn!"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="mb-6">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+              />
             </div>
             <div className="flex items-center justify-center w-full">
               <button
