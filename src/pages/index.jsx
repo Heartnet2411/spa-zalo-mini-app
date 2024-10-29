@@ -11,6 +11,8 @@ import ServiceChoose from '../components/service-choose';
 import {
   getCombinedProductRecommendations,
   getCombinedServiceRecommendations,
+  getSuggestedProductsForUser,
+  getSuggestedServicesForUser,
 } from '../services/recommendersystem.service';
 import { getFiveProducts } from '../services/product.service';
 import { getFiveServices } from '../services/service.service';
@@ -21,6 +23,9 @@ import { useRecoilState } from 'recoil';
 export default function HomePage() {
   const [user, setUserState] = useRecoilState(userState);
   console.log(user);
+
+  const [productSuggestions, setProductSuggestions] = useState([]);
+  const [serviceSuggestions, setServiceSuggestions] = useState([]);
 
   const [productRecommendations, setProductRecommendations] = useState([]);
   const [serviceRecommendations, setServiceRecommendations] = useState([]);
@@ -92,6 +97,33 @@ export default function HomePage() {
     }
   };
 
+  const getSuggestions = async () => {
+    try {
+      const productResponse = await getSuggestedProductsForUser(
+        user.userInfo.id
+      );
+
+      if (productResponse) {
+        setProductSuggestions(
+          productResponse.data
+        );
+      }
+
+      // Gọi API để lấy gợi ý dịch vụ
+      const serviceResponse = await getSuggestedServicesForUser(
+        user.userInfo.id
+      );
+
+      if (serviceResponse) {
+        setServiceSuggestions(
+          serviceResponse.data
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     // Kiểm tra xem user có thông tin gì hay không
     if (
@@ -102,6 +134,7 @@ export default function HomePage() {
       getProductAndService();
     } else {
       fetchRecommendations();
+      getSuggestions();
     }
   }, [user]);
 
@@ -113,16 +146,16 @@ export default function HomePage() {
           <Swiper autoplay duration={5000} loop>
             {sliderConfigs.length > 0
               ? sliderConfigs.map((image) => (
-                  <Swiper.Slide key={image._id}>
-                    {' '}
-                    {/* Sử dụng _id làm key */}
-                    <img
-                      className="slide-img rounded-xl w-full h-full object-cover"
-                      src={image.url} // Lấy URL từ trường url
-                      alt={`slide-${image.index}`} // Tạo alt cho ảnh dựa trên index
-                    />
-                  </Swiper.Slide>
-                ))
+                <Swiper.Slide key={image._id}>
+                  {' '}
+                  {/* Sử dụng _id làm key */}
+                  <img
+                    className="slide-img rounded-xl w-full h-full object-cover"
+                    src={image.url} // Lấy URL từ trường url
+                    alt={`slide-${image.index}`} // Tạo alt cho ảnh dựa trên index
+                  />
+                </Swiper.Slide>
+              ))
               : null}
           </Swiper>
         </div>
@@ -131,13 +164,29 @@ export default function HomePage() {
           <span className="text-xl font-semibold ">Khám phá sản phẩm</span>
         </div>
         <Category />
-        <div className="my-4">
-          <span className="text-xl font-semibold ">Sản phẩm dành cho bạn</span>
-        </div>
+        {productSuggestions.length > 0 ? (
+          <div className="my-4">
+            <span className="text-xl font-semibold ">Sản phẩm khuyến nghị</span>
+          </div>
+        ) : (<div></div>)}
+        <HomeProductCard products={productSuggestions} />
+        {productRecommendations.length > 0 ? (
+          <div className="my-4">
+            <span className="text-xl font-semibold ">Sản phẩm dành cho bạn</span>
+          </div>
+        ) : (<div></div>)}
         <HomeProductCard products={productRecommendations} />
-        <div className="my-4">
-          <span className="text-xl font-semibold ">Dịch vụ dành cho bạn</span>
-        </div>
+        {serviceSuggestions.length > 0 ? (
+          <div className="my-4">
+            <span className="text-xl font-semibold ">Dịch vụ khuyến nghị</span>
+          </div>
+        ) : (<div></div>)}
+        <HomeServiceCard services={serviceSuggestions} />
+        {serviceRecommendations.length > 0 ? (
+          <div className="my-4">
+            <span className="text-xl font-semibold ">Dịch vụ dành cho bạn</span>
+          </div>
+        ) : (<div></div>)}
         <HomeServiceCard services={serviceRecommendations} />
       </div>
     </Page>

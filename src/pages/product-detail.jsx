@@ -68,7 +68,7 @@ const ProductDetail = () => {
         }
       } catch (err) {
         console.error(err);
-        setError(err.message); // Cập nhật state với thông điệp lỗi
+        // setError(err.message); // Cập nhật state với thông điệp lỗi
       } finally {
         setLoading(false); // Cập nhật trạng thái loading
       }

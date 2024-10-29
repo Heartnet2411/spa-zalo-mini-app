@@ -62,10 +62,10 @@ export const configureProductRecommendations = async (
   }
 };
 
-export async function findProductToUpdateSuggestScore(productName, userId) {
+export async function findProductToUpdateSuggestScore(productName, userId, page = 1, limit = 10) {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/recommendations/find-product-to-update-suggest-score-of-user/${productName}`,
+      `${import.meta.env.VITE_SERVER_URL}/api/recommendations/find-product-to-update-suggest-score-of-user/${productName}?page=${page}&limit=${limit}`,
       {
         method: 'PUT',
         headers: {
@@ -163,3 +163,57 @@ export const getCombinedServiceRecommendations = async (
     return null;
   }
 };
+
+export const getSuggestedProductsForUser = async (userId) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/recommendations/get-product-configuration`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'ngrok-skip-browser-warning': 'true', 
+        },
+        body: JSON.stringify({userId})
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`); // Ném lỗi nếu phản hồi không thành công
+    }
+
+    const suggestions = await response.json(); // Lấy dữ liệu khuyến nghị sản phẩm
+
+    return suggestions; // Trả về dữ liệu khuyến nghị
+  } catch (error) {
+    console.error('Error fetching product suggestions:', error);
+    return null; // Trả về null nếu có lỗi
+  }
+}
+
+export const getSuggestedServicesForUser = async (userId) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/recommendations/get-service-configuration`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'ngrok-skip-browser-warning': 'true', 
+        },
+        body: JSON.stringify({userId})
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`); // Ném lỗi nếu phản hồi không thành công
+    }
+
+    const suggestions = await response.json(); // Lấy dữ liệu khuyến nghị sản phẩm
+
+    return suggestions; // Trả về dữ liệu khuyến nghị
+  } catch (error) {
+    console.error('Error fetching product suggestions:', error);
+    return null; // Trả về null nếu có lỗi
+  }
+}

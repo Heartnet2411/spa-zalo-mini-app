@@ -120,6 +120,9 @@ const PaymentPage = () => {
     0
   );
 
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(totalAmount);
+
   const [products, setProducts] = useState([]);
   console.log('nihao', products);
   // const [productId, setProductId] = useState('');
@@ -129,6 +132,7 @@ const PaymentPage = () => {
   const [voucherId, setVoucherId] = useState('');
   const [addedVoucher, setAddedVoucher] = useState('');
   const [vouchers, setVouchers] = useState([]);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
 
   const handleAddProduct = (cartItem) => {
     if (cartItem && cartItem.quantity > 0) {
@@ -169,9 +173,14 @@ const PaymentPage = () => {
     fetchVouchers();
   }, [user.accessToken]);
 
-  const handleAddVoucher = (selectedId) => {
-    if (selectedId) {
-      setAddedVoucher(selectedId);
+  const handleAddVoucher = (voucherId) => {
+    const voucher = vouchers.find((v) => v._id === voucherId);
+    if (voucher) {
+      console.log("YOH: ", voucher)
+      setAddedVoucher(voucher._id);
+      setSelectedVoucher(voucher)
+      setDiscountAmount((totalAmount * voucher.discountValue) / 100);
+      setFinalAmount(totalAmount - (totalAmount * voucher.discountValue) / 100);
       setVoucherId('');
     }
   };
@@ -185,7 +194,7 @@ const PaymentPage = () => {
       >
         <option value="">Chọn voucher</option>
         {vouchers.map((voucher) => (
-          <option key={voucher.id} value={voucher.id}>
+          <option key={voucher._id} value={voucher._id}>
             {voucher.code} - {voucher.discountValue}%
           </option>
         ))}
@@ -194,26 +203,6 @@ const PaymentPage = () => {
       <p>No vouchers available</p>
     );
   };
-
-  // DỮ LIỆU MẪU
-  // const handleGetDemoData = () => {
-  //   const demoProducts = [
-  //     {
-  //       productId: '66ffc86b8e0ecf5d894bebd7',
-  //       variantId: '66ffc86b8e0ecf5d894bebd9',
-  //       price: 6000,
-  //       quantity: 1,
-  //     },
-  //     {
-  //       productId: '66ffc86b8e0ecf5d894bebb4',
-  //       variantId: '66ffc86b8e0ecf5d894bebb5',
-  //       price: 24000,
-  //       quantity: 2,
-  //     },
-  //   ];
-  //   setProducts(demoProducts);
-  //   setAddedVoucher('670c96962b6d99a13c41e749');
-  // };
 
   // Payment event handling inside useEffect
   useEffect(() => {
@@ -410,9 +399,8 @@ const PaymentPage = () => {
                   <li
                     key={index}
                     onClick={() => handleSelectAddress(address)}
-                    className={`cursor-pointer p-4 border rounded-lg ${
-                      selectedAddress === address ? 'bg-gray-300' : 'bg-white'
-                    }`}
+                    className={`cursor-pointer p-4 border rounded-lg ${selectedAddress === address ? 'bg-gray-300' : 'bg-white'
+                      }`}
                   >
                     {address.city}, {address.district}, {address.ward},{' '}
                     {address.number}
@@ -495,10 +483,11 @@ const PaymentPage = () => {
             <span className="font-bold text-lg">Voucher</span>
           </div>
           <div className="mt-2">{renderVoucherOptions()}</div>
-          {addedVoucher ? (
+          {selectedVoucher ? (
             <div className="border-red-500 text-red-500 border px-3 py-4 rounded my-2 flex items-center gap-4">
               <FaTicket size={24} className="text-red-500" />
-              <span>{addedVoucher}</span>
+              <span>{selectedVoucher.code}</span>
+              <span className="ml-auto">{selectedVoucher.discountValue} %</span>
             </div>
           ) : (
             <p className="text-center my-4 text-red-500">Không có Voucher</p>
@@ -512,12 +501,12 @@ const PaymentPage = () => {
         </div>
         <div className="text-basel font-extrabold flex justify-between w-4/5">
           <span className="text-base font-medium">Giảm giá:</span>{' '}
-          <span>0 VNĐ</span>
+          <span>{discountAmount.toLocaleString()} VNĐ</span>
         </div>
         <div className="border-t-2 border-dashed border-gray-500 my-2 w-4/5"></div>
         <div className="text-base font-extrabold flex justify-between w-4/5">
-          <span className="text-base font-medium">Tổng thanh toáns</span>{' '}
-          <span>{totalAmount.toLocaleString()} VNĐ</span>
+          <span className="text-base font-medium">Tổng thanh toán</span>{' '}
+          <span>{finalAmount.toLocaleString()} VNĐ</span>
         </div>
         <button
           className="bg-blue-500 mt-2 w-4/5 py-2 rounded-xl text-white"
