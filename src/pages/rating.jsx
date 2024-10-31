@@ -20,7 +20,7 @@ const RatingPage = () => {
             >
               <div className="flex items-center flex-row">
                 <img
-                  src={product.image || "placeholder.jpg"}
+                  src={product.image || 'placeholder.jpg'}
                   alt={product.productName}
                   className="h-24 object-cover rounded-md mb-2"
                 />
@@ -29,7 +29,9 @@ const RatingPage = () => {
               <div className="flex justify-end">
                 <button
                   className="w-20 h-10 bg-orange-400"
-                  onClick={() => navigate(`/ratingdetail`, { state: { product } })}
+                  onClick={() =>
+                    navigate(`/ratingdetail`, { state: { product } })
+                  }
                 >
                   <span className="text-white">Đánh giá</span>
                 </button>
@@ -42,6 +44,5 @@ const RatingPage = () => {
     </Page>
   );
 };
-
 
 export default RatingPage;

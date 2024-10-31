@@ -97,6 +97,8 @@ export default function HomePage() {
     }
   };
 
+  console.log('prodyc', productRecommendations);
+
   const getSuggestions = async () => {
     try {
       const productResponse = await getSuggestedProductsForUser(
@@ -104,9 +106,7 @@ export default function HomePage() {
       );
 
       if (productResponse) {
-        setProductSuggestions(
-          productResponse.data
-        );
+        setProductSuggestions(productResponse.data);
       }
 
       // Gọi API để lấy gợi ý dịch vụ
@@ -115,14 +115,12 @@ export default function HomePage() {
       );
 
       if (serviceResponse) {
-        setServiceSuggestions(
-          serviceResponse.data
-        );
+        setServiceSuggestions(serviceResponse.data);
       }
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 
   useEffect(() => {
     // Kiểm tra xem user có thông tin gì hay không
@@ -146,16 +144,16 @@ export default function HomePage() {
           <Swiper autoplay duration={5000} loop>
             {sliderConfigs.length > 0
               ? sliderConfigs.map((image) => (
-                <Swiper.Slide key={image._id}>
-                  {' '}
-                  {/* Sử dụng _id làm key */}
-                  <img
-                    className="slide-img rounded-xl w-full h-full object-cover"
-                    src={image.url} // Lấy URL từ trường url
-                    alt={`slide-${image.index}`} // Tạo alt cho ảnh dựa trên index
-                  />
-                </Swiper.Slide>
-              ))
+                  <Swiper.Slide key={image._id}>
+                    {' '}
+                    {/* Sử dụng _id làm key */}
+                    <img
+                      className="slide-img rounded-xl w-full h-full object-cover"
+                      src={image.url} // Lấy URL từ trường url
+                      alt={`slide-${image.index}`} // Tạo alt cho ảnh dựa trên index
+                    />
+                  </Swiper.Slide>
+                ))
               : null}
           </Swiper>
         </div>
@@ -167,27 +165,40 @@ export default function HomePage() {
         {productSuggestions.length > 0 ? (
           <div className="my-4">
             <span className="text-xl font-semibold ">Sản phẩm khuyến nghị</span>
+            <HomeProductCard products={productSuggestions} />
           </div>
-        ) : (<div></div>)}
-        <HomeProductCard products={productSuggestions} />
+        ) : (
+          <div></div>
+        )}
+
         {productRecommendations.length > 0 ? (
           <div className="my-4">
-            <span className="text-xl font-semibold ">Sản phẩm dành cho bạn</span>
+            <span className="text-xl font-semibold ">
+              Sản phẩm dành cho bạn
+            </span>
+            <HomeProductCard products={productRecommendations} />
           </div>
-        ) : (<div></div>)}
-        <HomeProductCard products={productRecommendations} />
+        ) : (
+          <div></div>
+        )}
+
         {serviceSuggestions.length > 0 ? (
           <div className="my-4">
             <span className="text-xl font-semibold ">Dịch vụ khuyến nghị</span>
+            <HomeServiceCard services={serviceSuggestions} />
           </div>
-        ) : (<div></div>)}
-        <HomeServiceCard services={serviceSuggestions} />
+        ) : (
+          <div></div>
+        )}
+
         {serviceRecommendations.length > 0 ? (
           <div className="my-4">
             <span className="text-xl font-semibold ">Dịch vụ dành cho bạn</span>
+            <HomeServiceCard services={serviceRecommendations} />
           </div>
-        ) : (<div></div>)}
-        <HomeServiceCard services={serviceRecommendations} />
+        ) : (
+          <div></div>
+        )}
       </div>
     </Page>
   );

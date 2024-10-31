@@ -118,7 +118,7 @@ const CartPage = () => {
                     <img
                       src={item.images[0]}
                       alt={item.name}
-                      className="w-28 h-28 object-contain mr-4 bg-white rounded-lg"
+                      className="w-28 h-28 object-cover mr-4 bg-white rounded-lg"
                     />
                     <div
                       style={{ width: 'calc(100vw - 13rem)' }}

@@ -5,7 +5,7 @@ const HomeProductCard = ({ products }) => {
   return (
     <div className="scroll-container overflow-x-auto whitespace-nowrap">
       <div className="flex gap-4">
-        {products ? (
+        {products.length > 0 ? (
           products.map((product) => (
             <Link
               to={`/product/${product._id}`}
@@ -30,7 +30,7 @@ const HomeProductCard = ({ products }) => {
             </Link>
           ))
         ) : (
-          <div>Đang tải sản phẩm</div>
+          <div>Không có sản phẩm</div>
         )}
       </div>
     </div>

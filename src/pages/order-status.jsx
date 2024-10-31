@@ -16,6 +16,7 @@ const OrderStatusPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const limit = 10;
+  console.log('user order', orders);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -81,7 +82,7 @@ const OrderStatusPage = () => {
                         to={`/product/${product.productId}`}
                         key={product.productId}
                       >
-                        <img src={product.images[0]} alt="Product" />
+                        <img src={product.images[0] || null} alt="Product" />
                       </Link>
                     </div>
                     <div className="flex flex-col justify-start w-full gap-2">
@@ -105,7 +106,16 @@ const OrderStatusPage = () => {
                       <Text className="">
                         <span className="text-gray-600">Ngày mua: </span>
                         <span>
-                          {new Date(order.orderDate).getDate().toString().padStart(2, '0')}/{(new Date(order.orderDate).getMonth() + 1).toString().padStart(2, '0')}/{new Date(order.orderDate).getFullYear()} - {`${new Date(order.orderDate).getHours()}h${new Date(order.orderDate).getMinutes().toString().padStart(2, '0')}`}
+                          {new Date(order.orderDate)
+                            .getDate()
+                            .toString()
+                            .padStart(2, '0')}
+                          /
+                          {(new Date(order.orderDate).getMonth() + 1)
+                            .toString()
+                            .padStart(2, '0')}
+                          /{new Date(order.orderDate).getFullYear()} -{' '}
+                          {`${new Date(order.orderDate).getHours()}h${new Date(order.orderDate).getMinutes().toString().padStart(2, '0')}`}
                         </span>
                       </Text>
                     </div>

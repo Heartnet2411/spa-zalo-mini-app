@@ -26,6 +26,12 @@ const PaymentPage = () => {
   const [paymentResult, setPaymentResult] = useRecoilState(paymentResultState);
   const { accessToken } = useRecoilValue(userState);
 
+  const [userAddress, setUserAddress] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [stringAddress, setStringAddress] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAllAddresses, setShowAllAddresses] = useState(false);
+
   console.log(user);
   // DEMO TRƯỚC HÀM TẠO HÓA ĐƠN
   async function createOrderPayment(products, addedVoucher) {
@@ -42,6 +48,7 @@ const PaymentPage = () => {
       remarks: 'nun',
       products: products,
       voucherId: addedVoucher, // Mã voucher
+      address: stringAddress,
     };
 
     console.log('Order Details:', orderDetails);
@@ -176,9 +183,9 @@ const PaymentPage = () => {
   const handleAddVoucher = (voucherId) => {
     const voucher = vouchers.find((v) => v._id === voucherId);
     if (voucher) {
-      console.log("YOH: ", voucher)
+      console.log('YOH: ', voucher);
       setAddedVoucher(voucher._id);
-      setSelectedVoucher(voucher)
+      setSelectedVoucher(voucher);
       setDiscountAmount((totalAmount * voucher.discountValue) / 100);
       setFinalAmount(totalAmount - (totalAmount * voucher.discountValue) / 100);
       setVoucherId('');
@@ -352,10 +359,6 @@ const PaymentPage = () => {
     }
   };
 
-  const [userAddress, setUserAddress] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showAllAddresses, setShowAllAddresses] = useState(false);
   const handleAddAddressClick = () => {
     setIsModalOpen(true);
   };
@@ -370,13 +373,32 @@ const PaymentPage = () => {
       if (data) setUserAddress(data);
       if (data.length > 0) {
         setSelectedAddress(data[0]);
+        let addressString = JSON.stringify(data[0]);
+
+        // Xóa dấu ngoặc kép và cặp dấu ngoặc nhọn
+        addressString = addressString
+          .replace(/"([^"]+)":/g, '$1:')
+          .replace(/"/g, '')
+          .replace(/^\{|\}$/g, '');
+        setStringAddress(addressString);
       }
     };
     fetchAddress();
   }, [isModalOpen]);
 
+  console.log('add', selectedAddress);
+  console.log('String', stringAddress);
+
   const handleSelectAddress = (address) => {
     setSelectedAddress(address); // Cập nhật địa chỉ đã chọn
+    let addressString = JSON.stringify(address);
+
+    // Xóa dấu ngoặc kép và cặp dấu ngoặc nhọn
+    addressString = addressString
+      .replace(/"([^"]+)":/g, '$1:')
+      .replace(/"/g, '')
+      .replace(/^\{|\}$/g, '');
+    setStringAddress(addressString);
   };
 
   const toggleShowAllAddresses = () => {
@@ -386,7 +408,7 @@ const PaymentPage = () => {
   return (
     <Page className="page absolute">
       <Header />
-      <div className="px-4 relative min-h-screen mb-40">
+      <div className="px-4 relative  mb-40">
         <h2 className=" text-center font-semibold text-xl mb-2 mt-16 ">
           Địa chỉ của bạn
         </h2>
@@ -399,8 +421,9 @@ const PaymentPage = () => {
                   <li
                     key={index}
                     onClick={() => handleSelectAddress(address)}
-                    className={`cursor-pointer p-4 border rounded-lg ${selectedAddress === address ? 'bg-gray-300' : 'bg-white'
-                      }`}
+                    className={`cursor-pointer p-4 border rounded-lg ${
+                      selectedAddress === address ? 'bg-gray-300' : 'bg-white'
+                    }`}
                   >
                     {address.city}, {address.district}, {address.ward},{' '}
                     {address.number}
@@ -439,6 +462,7 @@ const PaymentPage = () => {
         />
 
         <div>
+          <h2 className=" text-center font-semibold text-xl mb-2">Sản phẩm</h2>
           {cart.length > 0 ? (
             cart.map((item, index) => (
               <div
