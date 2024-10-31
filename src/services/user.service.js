@@ -94,3 +94,30 @@ export const getAllAddress = async (accessToken) => {
     return null;
   }
 };
+
+export const addNewAddress = async (address, accessToken) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/api/users/address`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(address)
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
+  }
+};

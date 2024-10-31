@@ -36,6 +36,10 @@ const ShopPage = () => {
   const topRef = useRef(null);
   const location = useLocation();
 
+  const [isSuggestAPIActive, setIsSuggestAPIActive] = useState(false);
+  const [currentSuggestPage, setCurrentSuggestPage] = useState(1);
+  const [totalSuggestPages, setTotalSuggestPages] = useState(5);
+
   const [user, setUserState] = useRecoilState(userState);
   console.log(user);
 
@@ -71,7 +75,14 @@ const ShopPage = () => {
     } else {
       fetchProducts(currentPage); // Fetch tất cả sản phẩm nếu không có category
     }
+    setIsSuggestAPIActive(false)
   }, [currentPage, location]);
+
+  useEffect(() => {
+    if (isSuggestAPIActive) {
+      handleSearch(currentSuggestPage)
+    }
+  }, [currentSuggestPage]);
 
   useEffect(() => {
     //Cart được gọi
@@ -79,24 +90,41 @@ const ShopPage = () => {
   }, []);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    if (isSuggestAPIActive) {
+      setCurrentSuggestPage(page);
+      handleSearch(page);
+    } else {
+      setCurrentPage(page);
+      fetchProducts(page);
+    }
     if (topRef.current) {
       topRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (page) => {
     if (searchQuery) {
       try {
         const response = await findProductToUpdateSuggestScore(
           searchQuery,
-          user.userInfo.id
+          user.userInfo.id,
+          page
         );
 
-        setProducts(response.products);
+        if (response.products) {
+          
+          setProducts(response.products);
+          setTotalSuggestPages(response.totalPages);
+          setIsSuggestAPIActive(true)
+        } else {
+          setIsSuggestAPIActive(false)
+        }
+        
       } catch (error) {
         console.error('Error fetching product suggestions:', error);
       }
+    } else {
+      setIsSuggestAPIActive(false)
     }
   };
 
@@ -127,22 +155,20 @@ const ShopPage = () => {
                 {/* Search button */}
                 <button
                   onClick={handleSearchClick}
-                  className={`px-4 py-3 rounded-md ${
-                    showInput
+                  className={`px-4 py-3 rounded-md ${showInput
                       ? 'bg-blue-500 text-white'
                       : 'bg-white text-blue-500 border border-blue-500'
-                  }`}
+                    }`}
                 >
                   <IoSearch size={24} />
                 </button>
 
                 {/*  FilterTags button */}
                 <button
-                  className={`px-4 py-3 rounded-md ${
-                    showFilter
+                  className={`px-4 py-3 rounded-md ${showFilter
                       ? 'bg-blue-500 text-white'
                       : 'bg-white text-blue-500 border border-blue-500'
-                  }`}
+                    }`}
                   onClick={() => setShowFilter(!showFilter)}
                 >
                   <IoFilter size={24} />
@@ -201,7 +227,13 @@ const ShopPage = () => {
             <div className="pt-14 pb-8 min-h-screen bg-gray-100 w-full px-1">
               <ProductCard products={products} />
 
-              {selectedCategory === 'Tất cả' && !searchQuery && (
+              {isSuggestAPIActive ? (
+                <Pagination
+                  currentPage={currentSuggestPage}
+                  totalPages={totalSuggestPages}
+                  onPageChange={handlePageChange}
+                />
+              ) : (
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}

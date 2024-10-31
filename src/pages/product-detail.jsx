@@ -1,6 +1,6 @@
 // src/pages/ProductDetail.js
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Page, Swiper, Box, Text, Button } from 'zmp-ui';
+import { Page, Swiper, Box, Text, Button, Icon } from 'zmp-ui';
 import { Link, useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../utils/productdemo';
@@ -14,6 +14,9 @@ import { fetchProductRecommendations } from '../services/product.service';
 import ProductCard from '../components/product-card';
 import { useRecoilState } from 'recoil';
 import { userState } from '../state';
+import { getProductReviews } from '../services/rating.service';
+import StarRating from '../components/star-rating';
+import Pagination from '../components/pagination';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -23,6 +26,12 @@ const ProductDetail = () => {
   const [count, setCount] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
+
+  const [reviews, setReviews] = useState([]);
+  const [currentReviewPage, setCurrentReviewPage] = useState(1);
+  const [totalReviewPages, setTotalReviewPages] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(1);
+
   console.log(selectedVariant);
   console.log(count);
 
@@ -59,7 +68,7 @@ const ProductDetail = () => {
         }
       } catch (err) {
         console.error(err);
-        setError(err.message); // Cập nhật state với thông điệp lỗi
+        // setError(err.message); // Cập nhật state với thông điệp lỗi
       } finally {
         setLoading(false); // Cập nhật trạng thái loading
       }
@@ -97,6 +106,27 @@ const ProductDetail = () => {
     // Gọi hàm fetchProduct
   }, [id]);
 
+  useEffect(() => {
+    const fetchProductReview = async () => {
+      try {
+        const response = await getProductReviews(id, currentReviewPage);
+
+        if (response) {
+          setReviews(response.reviews);
+          setCurrentReviewPage(response.currentPage);
+          setTotalReviewPages(response.totalPages);
+          setTotalReviews(response.totalReviews);
+        } else {
+          throw new Error('Không tìm thấy đánh giá.'); // Ném lỗi nếu không tìm thấy sản phẩm
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProductReview();
+  }, [id, currentReviewPage]);
+
   const handleAddProductToCart = async () => {
     const result = await addToCart(
       id,
@@ -132,15 +162,19 @@ const ProductDetail = () => {
     },
   };
 
+  const handlePageChange = (page) => {
+    setCurrentReviewPage(page);
+  };
+
   return (
     <Page className="page flex flex-col h-screen">
       <Suspense>
         <div className="relative mb-24">
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-0 left-0 bg-white z-50 px-4 py-1 radius-custom overflow-hidden active:bg-slate-300"
+            className="absolute top-0 left-0 z-50 px-3 py-3 radius-custom overflow-hidden active:bg-slate-300"
           >
-            <IoReturnDownBack size={30} />
+            <Icon icon='zi-arrow-left' size={30} />
           </button>
           <div className="flex  flex-col  md:flex-row md:items-start relative ">
             <Swiper>
@@ -156,7 +190,7 @@ const ProductDetail = () => {
                 </Swiper.Slide>
               ))}
             </Swiper>
-            <div className="px-8 mt-2">
+            <div className="px-4 mt-2">
               <h1 className="text-3xl font-bold ">{product.name}</h1>
 
               <div className="my-4 flex space-x-2">
@@ -165,11 +199,10 @@ const ProductDetail = () => {
                     <button
                       key={variant._id}
                       onClick={() => setSelectedVariant(variant)}
-                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${
-                        selectedVariant && selectedVariant._id === variant._id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                      className={`border-2 rounded-lg px-4 py-1 transition duration-300 ease-in-out ${selectedVariant && selectedVariant._id === variant._id
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                        }`}
                     >
                       {variant.volume}
                     </button>
@@ -209,7 +242,7 @@ const ProductDetail = () => {
               <ul className="list-none ">
                 {product.ingredients && product.ingredients.length > 0 ? (
                   product.ingredients.map((ingredient) => (
-                    <li key={ingredient._id}>
+                    <li key={ingredient._id} className="my-2 ml-2">
                       {ingredient.name} - {ingredient.percentage}%
                     </li>
                   ))
@@ -224,12 +257,79 @@ const ProductDetail = () => {
               <ul className="list-none ">
                 {product.benefits && product.benefits.length > 0 ? (
                   product.benefits.map((benefit, index) => (
-                    <li key={index}>{benefit}</li>
+                    <li key={index} className="my-2 ml-2">
+                      - {benefit}
+                    </li>
                   ))
                 ) : (
                   <p className="text-gray-500">Chưa có thông tin về lợi ích.</p>
                 )}
               </ul>
+
+              {/* <h2 className="text-xl font-bold mt-4">
+                Đánh giá: {product.averageRating} sao
+              </h2> */}
+              <h2 className="text-xl font-bold mt-4 mb-2">Đánh Giá Sản Phẩm</h2>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center">
+                  <StarRating rating={product.averageRating} />
+                  <p className="text-red-500 ml-2">{product.averageRating}/5</p>
+                </div>
+                <span className="text-gray-500">
+                  ({reviews.length} đánh giá)
+                </span>
+              </div>
+              <div className="mt-4 border px-4 py-2 rounded-md">
+                {/* Hiển thị review ở đây */}
+                {reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="border-b border-gray-300 pb-4 mb-4 flex flex-col gap-2"
+                    >
+                      <div className='flex'>
+                        <img
+                          key={review.userId}
+                          src={review.userAvatar}
+                          alt={review.userName}
+                          className="h-8 w-8 object-cover mr-2 rounded-full"
+                        />
+                        <div className='flex flex-col'>
+                          <p className="font-semibold">{review.userName}</p>
+                          <p className="flex gap-2">
+                            <StarRating rating={review.rating} />
+                          </p>
+                        </div>
+                      </div>
+                      <p className="flex gap-2">
+                        <span>{review.comment}</span>
+                      </p>
+                      {review.images && review.images.length > 0 && (
+                        <div className="flex flex-col gap-2">
+                          {review.images.map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Review image ${index}`}
+                              className="h-20 w-20 object-cover mr-2"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500">
+                    Chưa có đánh giá cho sản phẩm này.
+                  </p>
+                )}
+              </div>
+
+              <Pagination
+                currentPage={currentReviewPage}
+                totalPages={totalReviewPages}
+                onPageChange={handlePageChange}
+              />
 
               <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
               <div className="mt-4 ">

@@ -1,6 +1,6 @@
 // src/pages/serviceDetail.js
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Page, Swiper, Box, Text, Button } from 'zmp-ui';
+import { Page, Swiper, Box, Text, Button, Icon } from 'zmp-ui';
 import { Link, useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../utils/productdemo';
@@ -90,9 +90,9 @@ const ServiceDetail = () => {
         <div className="relative mb-24">
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-0 left-0 bg-white z-50 px-4 py-1 radius-custom overflow-hidden active:bg-slate-300"
+            className="absolute top-0 left-0 z-50 px-3 py-3 radius-custom overflow-hidden active:bg-slate-300"
           >
-            <IoReturnDownBack size={30} />
+            <Icon icon='zi-arrow-left' size={30} />
           </button>
           <div className="flex  flex-col  md:flex-row md:items-start relative ">
             <Swiper>

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Button, Input, List } from 'zmp-ui';
+import { Page, Button, Input, List, Grid, Box, Stack } from 'zmp-ui';
 import Header from '../components/header';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paymentResultState, userState } from '../state';
 import { getUserVouchers } from '../services/voucher.service';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { getAllAddress } from '../services/user.service';
 import AddAddressModal from '../components/add-address-modal';
 
@@ -17,12 +17,14 @@ import {
 } from '../services/payment.service';
 import { Payment } from 'zmp-sdk';
 import { EventName, events, showToast } from 'zmp-sdk/apis';
+import { FaTicket } from 'react-icons/fa6';
 const { Item } = List;
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const [user, setUserState] = useRecoilState(userState);
   const [paymentResult, setPaymentResult] = useRecoilState(paymentResultState);
+  const { accessToken } = useRecoilValue(userState);
 
   console.log(user);
   // DEMO TRƯỚC HÀM TẠO HÓA ĐƠN
@@ -118,6 +120,9 @@ const PaymentPage = () => {
     0
   );
 
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(totalAmount);
+
   const [products, setProducts] = useState([]);
   console.log('nihao', products);
   // const [productId, setProductId] = useState('');
@@ -127,6 +132,7 @@ const PaymentPage = () => {
   const [voucherId, setVoucherId] = useState('');
   const [addedVoucher, setAddedVoucher] = useState('');
   const [vouchers, setVouchers] = useState([]);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
 
   const handleAddProduct = (cartItem) => {
     if (cartItem && cartItem.quantity > 0) {
@@ -153,23 +159,28 @@ const PaymentPage = () => {
     }
   }, [cart]);
 
-   // Fetch user's vouchers when the page loads
-   useEffect(() => {
+  // Fetch user's vouchers when the page loads
+  useEffect(() => {
     const fetchVouchers = async () => {
       try {
         const userVouchers = await getUserVouchers(user.accessToken);
         setVouchers(userVouchers); // Set the fetched vouchers
       } catch (error) {
-        console.error("Error fetching vouchers:", error);
+        console.error('Error fetching vouchers:', error);
       }
     };
 
     fetchVouchers();
   }, [user.accessToken]);
 
-  const handleAddVoucher = () => {
-    if (voucherId) {
-      setAddedVoucher(voucherId);
+  const handleAddVoucher = (voucherId) => {
+    const voucher = vouchers.find((v) => v._id === voucherId);
+    if (voucher) {
+      console.log("YOH: ", voucher)
+      setAddedVoucher(voucher._id);
+      setSelectedVoucher(voucher)
+      setDiscountAmount((totalAmount * voucher.discountValue) / 100);
+      setFinalAmount(totalAmount - (totalAmount * voucher.discountValue) / 100);
       setVoucherId('');
     }
   };
@@ -179,12 +190,12 @@ const PaymentPage = () => {
       <select
         className="px-4 py-4 border rounded-md w-full"
         value={voucherId}
-        onChange={(e) => setVoucherId(e.target.value)}
+        onChange={(e) => handleAddVoucher(e.target.value)}
       >
-        <option value="">Select a voucher</option>
+        <option value="">Chọn voucher</option>
         {vouchers.map((voucher) => (
-          <option key={voucher.id} value={voucher.id}>
-            {voucher.code}
+          <option key={voucher._id} value={voucher._id}>
+            {voucher.code} - {voucher.discountValue}%
           </option>
         ))}
       </select>
@@ -192,26 +203,6 @@ const PaymentPage = () => {
       <p>No vouchers available</p>
     );
   };
-
-  // DỮ LIỆU MẪU
-  // const handleGetDemoData = () => {
-  //   const demoProducts = [
-  //     {
-  //       productId: '66ffc86b8e0ecf5d894bebd7',
-  //       variantId: '66ffc86b8e0ecf5d894bebd9',
-  //       price: 6000,
-  //       quantity: 1,
-  //     },
-  //     {
-  //       productId: '66ffc86b8e0ecf5d894bebb4',
-  //       variantId: '66ffc86b8e0ecf5d894bebb5',
-  //       price: 24000,
-  //       quantity: 2,
-  //     },
-  //   ];
-  //   setProducts(demoProducts);
-  //   setAddedVoucher('670c96962b6d99a13c41e749');
-  // };
 
   // Payment event handling inside useEffect
   useEffect(() => {
@@ -296,11 +287,13 @@ const PaymentPage = () => {
 
             let parsedExtradata;
             try {
-              parsedExtradata = typeof extradata === 'string' ? JSON.parse(extradata) : extradata;
+              parsedExtradata =
+                typeof extradata === 'string'
+                  ? JSON.parse(extradata)
+                  : extradata;
             } catch (error) {
               console.error('Error parsing extradata:', error);
             }
-
 
             console.log(parsedExtradata?.orderId);
 
@@ -323,17 +316,17 @@ const PaymentPage = () => {
                   console.log('Payment update failed');
                   setPaymentResult({ orderId, status: 'fail' });
                   navigate('/payment-result');
-                  showToast({ message: "Lỗi cập nhật đơn hàng" })
+                  showToast({ message: 'Lỗi cập nhật đơn hàng' });
                 }
               } catch (err) {
                 console.error('Error updating order:', err);
-                showToast({ message: "Lỗi cập nhật đơn hàng" })
+                showToast({ message: 'Lỗi cập nhật đơn hàng' });
               }
             }
           },
           fail: (err) => {
             console.error('Payment check failed:', err);
-            showToast({ message: "Lỗi giao dịch" })
+            showToast({ message: 'Lỗi giao dịch' });
           },
         });
       }
@@ -380,7 +373,7 @@ const PaymentPage = () => {
       }
     };
     fetchAddress();
-  }, []);
+  }, [isModalOpen]);
 
   const handleSelectAddress = (address) => {
     setSelectedAddress(address); // Cập nhật địa chỉ đã chọn
@@ -406,9 +399,8 @@ const PaymentPage = () => {
                   <li
                     key={index}
                     onClick={() => handleSelectAddress(address)}
-                    className={`cursor-pointer p-4 border rounded-lg ${
-                      selectedAddress === address ? 'bg-gray-300' : 'bg-white'
-                    }`}
+                    className={`cursor-pointer p-4 border rounded-lg ${selectedAddress === address ? 'bg-gray-300' : 'bg-white'
+                      }`}
                   >
                     {address.city}, {address.district}, {address.ward},{' '}
                     {address.number}
@@ -440,7 +432,11 @@ const PaymentPage = () => {
           </button>
         </div>
 
-        <AddAddressModal isOpen={isModalOpen} onClose={handleCloseModal} />
+        <AddAddressModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          accessToken={accessToken}
+        />
 
         <div>
           {cart.length > 0 ? (
@@ -482,35 +478,19 @@ const PaymentPage = () => {
             <p>Giỏ hàng của bạn đang trống.</p>
           )}
         </div>
-        <div className="relative mb-2 mx-4">
-          {renderVoucherOptions()}
-          {/* <input
-            type="text"
-            placeholder="Thêm mã giảm giá"
-            className="px-4 py-4 border rounded-md w-full  focus:outline-blue-500"
-            value={voucherId}
-            onChange={(e) => setVoucherId(e.target.value)}
-          /> */}
-
-          <button
-            size={18}
-            onClick={handleAddVoucher}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white cursor-pointer bg-blue-500 px-6 py-2 rounded-md"
-          >
-            {' '}
-            Thêm
-          </button>
-        </div>
-        <div>
-          {addedVoucher ? (
-            <div className="font-medium text-lg mb-4 flex flex-col items-center">
-              <h4>Voucher</h4>
-              <span>Voucher ID: {addedVoucher}</span>
+        <div className="border-t mt-6 py-4">
+          <div className="flex items-center justify-center">
+            <span className="font-bold text-lg">Voucher</span>
+          </div>
+          <div className="mt-2">{renderVoucherOptions()}</div>
+          {selectedVoucher ? (
+            <div className="border-red-500 text-red-500 border px-3 py-4 rounded my-2 flex items-center gap-4">
+              <FaTicket size={24} className="text-red-500" />
+              <span>{selectedVoucher.code}</span>
+              <span className="ml-auto">{selectedVoucher.discountValue} %</span>
             </div>
           ) : (
-            <p className="font-medium text-lg text-center mb-4">
-              No voucher added
-            </p>
+            <p className="text-center my-4 text-red-500">Không có Voucher</p>
           )}
         </div>
       </div>
@@ -521,12 +501,12 @@ const PaymentPage = () => {
         </div>
         <div className="text-basel font-extrabold flex justify-between w-4/5">
           <span className="text-base font-medium">Giảm giá:</span>{' '}
-          <span>0 VNĐ</span>
+          <span>{discountAmount.toLocaleString()} VNĐ</span>
         </div>
         <div className="border-t-2 border-dashed border-gray-500 my-2 w-4/5"></div>
         <div className="text-base font-extrabold flex justify-between w-4/5">
-          <span className="text-base font-medium">Tổng thanh toáns</span>{' '}
-          <span>{totalAmount.toLocaleString()} VNĐ</span>
+          <span className="text-base font-medium">Tổng thanh toán</span>{' '}
+          <span>{finalAmount.toLocaleString()} VNĐ</span>
         </div>
         <button
           className="bg-blue-500 mt-2 w-4/5 py-2 rounded-xl text-white"

@@ -1,19 +1,23 @@
 import { useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
-import { Button, Page, Text, Icon, Input } from 'zmp-ui';
+import { Button, Page, Text, Icon, Input, Modal, useNavigate } from 'zmp-ui';
 import Header from '../components/header';
 import { rateProduct } from '../services/rating.service';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
+import StarRating from '../components/star-rating';
 
 const RatingDetailPage = () => {
   const { state } = useLocation();
-  const { product, order } = state || {}; // Lấy product và orderID từ state
-  const { userInfo: user, accessToken } = useRecoilValue(userState);
+  const { order, product } = state || {};
+  const { accessToken } = useRecoilValue(userState);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [images, setImages] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const { userInfo: user } = useRecoilValue(userState);
+  const [modalVisible, setModalVisible] = useState(false);
+  const navigate = useNavigate();
 
   const handleImageChange = (event) => {
     setImages([...event.target.files]); // Lưu trữ hình ảnh từ input
@@ -22,96 +26,116 @@ const RatingDetailPage = () => {
   console.log("product", product._id)
 
   const handleSubmit = async (e) => {
+    console.log('Submit button clicked');
     e.preventDefault();
     try {
       const result = await rateProduct({
         userId: user.id,
-        productID: product._id,
+        productID: product.productId,
         orderID: order._id,
+        variantID: product.variantId,
+        volume: product.volume,
         rating,
         comment,
         images,
         accessToken,
       });
 
-      console.log('Rating submitted successfully:', result);
-      // Xử lý sau khi gửi đánh giá thành công (ví dụ: thông báo cho người dùng)
+      if (result) {
+        setModalVisible(true);
+      }
+      // Xử lý sau khi gửi đánh giá thành công (như thông báo cho người dùng)
     } catch (error) {
       console.error('Error submitting rating:', error);
       setErrorMessage('Failed to submit rating. Please try again.');
     }
   };
 
-  // Function to render stars based on the rating
-  const renderStars = () => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Icon
-        key={index}
-        icon="zi-star"
-        className={`text-lg ${index < rating ? 'text-orange-500' : 'text-gray-300'} cursor-pointer`}
-        onClick={() => setRating(index + 1)}
-      />
-    ));
+  const handleConfirm = () => {
+    setModalVisible(false); // Đóng modal
+    navigate('/order-status'); // Chuyển hướng về trang order-status
   };
 
   return (
     <Page className="page">
       <Header />
       <div className="p-4 mt-14 mb-14">
-        <div className="flex flex-col items-center justify-center w-full">
-          <div className="bg-white p-4 w-full mb-4">
-            <div className="flex items-center flex-row border-b-2 pb-2">
-              <img
-                src={product.image}
-                alt={product.productName}
-                className="h-12 object-cover rounded-md mb-2"
-              />
-              <div className="flex flex-col ml-2">
-                <span className="text-base mb-1">{product.productName}</span>
+        {/* Hiển thị chi tiết sản phẩm và form đánh giá */}
+        <div className="bg-white p-4 w-full mb-4">
+          <div className="flex items-center flex-row border-b-2 pb-2">
+            <img
+              src={product.images[0] || 'placeholder.jpg'}
+              alt={product.productName}
+              className="h-12 object-cover rounded-md mb-2"
+            />
+            <div className="flex flex-col ml-2">
+              <span className="text-base mb-1">{product.productName}</span>
+              <span className="text-sm mb-1">Phân loại: {product.volume}</span>
+            </div>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="mt-4"
+            enctype="multipart/form-data"
+          >
+            <div className="mb-6">
+              <div>
+                <div className="flex gap-2">
+                  <span className="font-semibold">Nhập số sao</span>
+                  <StarRating rating={rating} />
+                </div>
+                <Input
+                  type="number"
+                  // placeholder="Rating (1-5)"
+                  value={rating}
+                  onChange={(e) => setRating(Number(e.target.value))}
+                  min="1"
+                  max="5"
+                />
               </div>
             </div>
-          </div>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex-1">
-              <span className="text-base">Chất lượng sản phẩm</span>
+            <div className="mb-6">
+              <div>
+                <span className="font-semibold">Viết đánh giá</span>
+                <Input
+                  type="text"
+                  placeholder="Hãy chia sẻ cảm nhận của bạn!"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="flex justify-center flex-1">{renderStars()}</div>
-            <div className="flex-1 text-right">
-              <span className="text-base">
-                {rating === 1
-                  ? 'Tệ'
-                  : rating === 2
-                    ? 'Không hài lòng'
-                    : rating === 3
-                      ? 'Bình thường'
-                      : rating === 4
-                        ? 'Hài lòng'
-                        : rating === 5
-                          ? 'Tuyệt vời'
-                          : ''}
-              </span>
+            <div className="mb-6">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+              />
             </div>
-          </div>
-          <input type="file" multiple onChange={handleImageChange} className="hidden" />
-          <div className="bg-gray-50 rounded-lg border w-full mb-5">
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="mt-2 bg-gray-50 resize-none w-full"
-              placeholder="Hãy chia sẻ nhận xét cho sản phẩm này bạn nhé!"
-              rows={5}
-            />
-          </div>
-          <div className="flex justify-end">
-            <button
-              className="w-20 h-10 bg-orange-400"
-              onClick={handleSubmit}
-            >
-              <span className="text-white">Gửi</span>
-            </button>
-          </div>
-          {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
+            <div className="flex items-center justify-center w-full">
+              <button
+                type="submit"
+                className="px-4 py-2 border bg-orange-500 rounded-lg text-white"
+              >
+                Gửi đánh giá
+              </button>
+            </div>
+            {errorMessage && <Text color="red">{errorMessage}</Text>}
+          </form>
         </div>
+
+        {/* Modal thông báo thành công */}
+        <Modal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)} // Đóng modal khi nhấn bên ngoài
+        >
+          <div className="p-4">
+            <Text>Đánh giá của bạn đã được gửi thành công!</Text>
+            <Button onClick={handleConfirm}>Xác nhận</Button>
+          </div>
+        </Modal>
       </div>
     </Page>
   );

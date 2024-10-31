@@ -1,16 +1,14 @@
-
-export const rateProduct = async ({ userId, productID, orderID, rating, comment, images, accessToken }) => {
-
-  // Tạo FormData để gửi ảnh và dữ liệu đánh giá
+export const rateProduct = async ({ userId, productID, orderID, variantID, volume, rating, comment, images, accessToken }) => {
   const formData = new FormData();
   formData.append("productID", productID);
   formData.append("orderID", orderID);
+  formData.append("variantID", variantID);
+  formData.append("volume", volume);
   formData.append("rating", rating);
   formData.append("comment", comment);
 
-  // Thêm từng file ảnh vào FormData
   if (images) {
-    images.forEach((image, index) => formData.append("images", image));
+    images.forEach((image) => formData.append("images", image));
   }
 
   try {
@@ -18,17 +16,38 @@ export const rateProduct = async ({ userId, productID, orderID, rating, comment,
       method: "PUT",
       headers: {
         'ngrok-skip-browser-warning': 'true',
-        Authorization: `Bearer ${accessToken}`, 
+        Authorization: `Bearer ${accessToken}`,
       },
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error("Failed to rate product");
+      const errorData = await response.json();
+      throw new Error(`Failed to rate product: ${errorData.message || 'Unknown error'}`);
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
+  } catch (error) {
+    console.error("Error in rateProduct service:", error.message);
+    throw error;
+  }
+};
+
+export const getProductReviews = async (productId, page) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/recommendations/get-reviews-by-product-id/${productId}?page=${page}&limit=10`, {
+      method: "GET",
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to rate product: ${errorData.message || 'Unknown error'}`);
+    }
+
+    return await response.json();
   } catch (error) {
     console.error("Error in rateProduct service:", error.message);
     throw error;

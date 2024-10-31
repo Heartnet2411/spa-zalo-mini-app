@@ -4,6 +4,8 @@ import Header from '../components/header';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
 import { getUserOrderHistories } from '../services/payment.service';
+import { Link } from 'react-router-dom';
+import Pagination from '../components/pagination';
 
 const OrderStatusPage = () => {
   const navigate = useNavigate();
@@ -11,6 +13,9 @@ const OrderStatusPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { accessToken } = useRecoilValue(userState);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const limit = 10;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -18,8 +23,16 @@ const OrderStatusPage = () => {
       setError(null);
 
       try {
-        const data = await getUserOrderHistories(accessToken);
-        setOrders(data.orders);
+        const data = await getUserOrderHistories(
+          accessToken,
+          currentPage,
+          limit
+        );
+        const filteredOrders = data.orders.filter(
+          (order) => order.products.length > 0
+        );
+        setOrders(filteredOrders);
+        setTotalPages(data.totalPages);
       } catch (error) {
         setError('Failed to load order history');
       } finally {
@@ -28,7 +41,23 @@ const OrderStatusPage = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [currentPage]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <Page className="page">
@@ -40,46 +69,79 @@ const OrderStatusPage = () => {
           ) : error ? (
             <Text className="text-center text-red-500">{error}</Text>
           ) : orders.length > 0 ? (
-            orders.map((order) => (
-              <div
-                key={order._id}
-                className="bg-white p-2 rounded-lg shadow-md border w-full mb-4"
-              >
-                <text className="text-orange-600 flex justify-end ">
-                  {order.paymentStatus}
-                </text>
-                <div className="h-24 w-24 bg-gray-300 rounded-md mb-2 flex items-center justify-center">
-                  {/* Add actual image here when available, e.g., <img src={product.image} alt="Product" /> */}
-                  <text className="text-gray-500">Image</text>
-                </div>
-                <div className="flex items-center">
-                  <div className="mt-2 flex items-center ">
-                    {order.products.map((product) => (
-                      <div key={product._id} className="mb-2">
-                        <text className="text-lg">{product.productName}</text>
-                        <text className="text-sm text-gray-600">
-                          x{product.quantity}
-                        </text>
-                        <text className="text-sm text-gray-600">
-                          Tổng số tiền: đ{product.price}
-                        </text>
+            orders.map((order) =>
+              order.products.map((product) => (
+                <div className="bg-white px-2 py-4 rounded-lg shadow-md border w-full mb-4">
+                  {/* <text className="text-orange-600 flex justify-end ">
+                    {order.paymentStatus}
+                  </text> */}
+                  <div className="flex gap-4">
+                    <div className="h-24 w-36 bg-gray-300 rounded-md mb-2 flex items-center justify-center">
+                      <Link
+                        to={`/product/${product.productId}`}
+                        key={product.productId}
+                      >
+                        <img src={product.images[0]} alt="Product" />
+                      </Link>
+                    </div>
+                    <div className="flex flex-col justify-start w-full gap-2">
+                      <div className="flex flex-col justify-start w-full gap-2">
+                        <span className="font-bold">{product.productName}</span>
+                        <div className="flex justify-between">
+                          <span>
+                            <span className="text-gray-600">Loại: </span>
+                            {product.volume}
+                          </span>
+                          <span>x {product.quantity}</span>
+                        </div>
                       </div>
-                    ))}
+                      <Text className="">
+                        <span className="text-gray-600">Tổng số tiền: </span>
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        }).format(product.price * product.quantity)}
+                      </Text>
+                      <Text className="">
+                        <span className="text-gray-600">Ngày mua: </span>
+                        <span>
+                          {new Date(order.orderDate).getDate().toString().padStart(2, '0')}/{(new Date(order.orderDate).getMonth() + 1).toString().padStart(2, '0')}/{new Date(order.orderDate).getFullYear()} - {`${new Date(order.orderDate).getHours()}h${new Date(order.orderDate).getMinutes().toString().padStart(2, '0')}`}
+                        </span>
+                      </Text>
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    {product.rated ? (
+                      <button
+                        className="p-2 h-10 border border-gray-500 rounded-lg"
+                        disabled
+                      >
+                        <span className="text-gray-500">Đã đánh giá</span>
+                      </button>
+                    ) : (
+                      <button
+                        className="p-2 h-10 border border-orange-500 rounded-lg"
+                        onClick={() =>
+                          navigate(`/ratingdetail`, {
+                            state: { order, product },
+                          })
+                        }
+                      >
+                        <span className="text-orange-500">Đánh giá</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="flex justify-end mt-5">
-                  <button
-                    className="w-20 h-10 border border-orange-500 rounded-lg"
-                    onClick={() => navigate(`/rating`, { state: { order } })}
-                  >
-                    <span className="text-orange-500">Đánh giá</span>
-                  </button>
-                </div>
-              </div>
-            ))
+              ))
+            )
           ) : (
             <Text className="text-center">Hiện tại chưa có đơn hàng</Text>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </Page>

@@ -114,17 +114,8 @@ const ProfilePage = () => {
         {/* Hiển thị hạng người dùng */}
         <div className="flex justify-center rounded-md p-4 gap-2">
           <span
-            className={`text-xl -mb-0.5 px-2 py-1 rounded-full relative ${
-              user.membershipTier === 'Member'
-                ? 'text-black'
-                : user.membershipTier === 'Silver'
-                  ? 'text-gray-400'
-                  : user.membershipTier === 'Gold'
-                    ? 'text-yellow-500'
-                    : user.membershipTier === 'Platinum'
-                      ? 'text-purple-500'
-                      : ''
-            }`}
+            className="text-xl -mb-0.5 px-2 py-1 rounded-full relative"
+            style={{ color: user.rankColor || 'inherit' }}
           >
             {user.membershipTier || 'Chưa có hạng'}
             <sub className="absolute right-[-40px] top-[-10px]">
@@ -149,14 +140,14 @@ const ProfilePage = () => {
                 navigate('/order-status');
               }}
             >
-              <span className="text-white">Đơn hàng đã mua</span>
+              <span className="text-white">Sản phẩm đã mua</span>
             </button>
           </div>
           <div className="flex items-center justify-center">
             <button
               className="px-4 py-2 rounded-full flex items-center justify-center border border-red-500"
               onClick={() => {
-                navigate('/rating');
+                navigate('/order-status');
               }}
             >
               <span className="text-red-500">Đánh giá sản phẩm</span>
