@@ -29,7 +29,7 @@ const RatingPage = () => {
               <div className="flex justify-end">
                 <button
                   className="w-20 h-10 bg-orange-400"
-                  onClick={() => navigate(`/ratingdetail`, { state: { product } })}
+                  onClick={() => navigate(`/ratingdetail`, { state: { product, order } })}
                 >
                   <span className="text-white">Đánh giá</span>
                 </button>
