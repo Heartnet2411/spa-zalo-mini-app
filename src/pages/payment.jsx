@@ -230,7 +230,12 @@ const PaymentPage = () => {
 
   // Payment event handling inside useEffect
   useEffect(() => {
+    let isPaymentProcessed = false;
+
     const handleOpenAppEvent = (data) => {
+      if (isPaymentProcessed) return;
+      isPaymentProcessed = true;
+
       const params = data?.path;
 
       if (params.includes('/payment-result')) {
