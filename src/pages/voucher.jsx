@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Page, Text, Spinner } from 'zmp-ui';
 import Header from '../components/header';
 import VoucherTags from '../components/voucher-tag';
-import { getUserVouchers } from '../services/voucher.service';
+import { getUserInvalidVouchers, getUserVouchers } from '../services/voucher.service';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
 import { FaTicket } from 'react-icons/fa6';
@@ -10,6 +10,7 @@ import { FaTicket } from 'react-icons/fa6';
 const VoucherPage = () => {
   const [filterStatus, setFilterStatus] = useState('Ưu đãi');
   const [vouchers, setVouchers] = useState([]);
+  const [invalidVouchers, setInvalidVouchers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -33,8 +34,20 @@ const VoucherPage = () => {
           setError(err.message);
           setLoading(false);
         });
+    } else if (filterStatus === 'Lịch sử ưu đãi') {
+      setLoading(true);
+      getUserInvalidVouchers(accessToken)
+        .then((data) => {
+          setInvalidVouchers(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
     } else {
       setVouchers([]); // Reset vouchers when switching to 'Lịch sử ưu đãi'
+      setInvalidVouchers([]);
     }
   }, [filterStatus, accessToken]);
 
@@ -42,7 +55,9 @@ const VoucherPage = () => {
     ? vouchers.length === 0
       ? 'Hiện tại chưa có voucher'
       : 'Danh sách voucher của bạn'
-    : 'Hiện tại chưa có lịch sử voucher';
+    : invalidVouchers.length === 0
+      ? 'Hiện tại chưa có lịch sử voucher'
+      : 'Danh sách voucher đã sử dụng';
 
   return (
     <Page className="page">
@@ -65,35 +80,43 @@ const VoucherPage = () => {
             <Text className="text-center mt-3 mb-3">{displayText}</Text>
             {/* Display vouchers if available */}
             <div className="list-none space-y-4">
-              {vouchers.length > 0 &&
-                vouchers.map((voucher) => (
-                  <li
-                    key={voucher._id}
-                    className="border border-gray-300 p-4 rounded-md flex items-start m-3"
-                  >
-                    {/* Hình biểu tượng FaTicket */}
-                    <div className="mr-4">
-                      <FaTicket size={40} className="text-red-500" />
-                    </div>
+              {(filterStatus === 'Ưu đãi' ? vouchers : invalidVouchers).map((voucher) => (
+                <li
+                  key={voucher._id}
+                  className="border border-gray-300 p-4 rounded-md flex items-start m-3"
+                >
+                  {/* Hình biểu tượng FaTicket */}
+                  <div className="mr-4">
+                    <FaTicket size={40} className="text-red-500" />
+                  </div>
 
-                    {/* Nội dung voucher */}
-                    <div>
+                  {/* Nội dung voucher */}
+                  <div className="w-100">
+                    <div class="flex">
                       {/* Mã voucher */}
-                      <Text className="font-bold text-lg">{voucher.code}</Text>
-
-                      {/* Mô tả voucher */}
-                      <Text className="text-gray-600">
-                        {voucher.description}
-                      </Text>
-
-                      {/* Hiệu lực voucher */}
-                      <Text className="text-sm text-gray-500 mt-2">
-                        Hiệu lực: {formatDate(voucher.validFrom)} -{' '}
-                        {formatDate(voucher.validTo)}
-                      </Text>
+                      <div class="flex-1 w-100">
+                        <Text className="font-bold text-lg">{voucher.code}</Text>
+                      </div>
+                      {filterStatus === 'Ưu đãi' && (
+                        <div className="flex-none">
+                          <Text className="font-bold">Số lượng: {voucher.usageLimit}</Text>
+                        </div>
+                      )}
                     </div>
-                  </li>
-                ))}
+
+                    {/* Mô tả voucher */}
+                    <Text className="text-gray-600">
+                      {voucher.description}
+                    </Text>
+
+                    {/* Hiệu lực voucher */}
+                    <Text className="text-sm text-gray-500 mt-2">
+                      Hiệu lực: {formatDate(voucher.validFrom)} -{' '}
+                      {formatDate(voucher.validTo)}
+                    </Text>
+                  </div>
+                </li>
+              ))}
             </div>
           </>
         )}

@@ -43,7 +43,7 @@ const PaymentPage = () => {
         (total, product) => total + product.price * product.quantity,
         0
       ), // Tổng hóa đơn
-      paymentMethod: 'ZALOPAY_SANDBOX', // Phương thức thanh toán
+      paymentMethod: 'VNPAY_SANDBOX', // Phương thức thanh toán
       paymentStatus: 'pending', // Lúc này cần tạo hóa đơn dưới BE để tạo mac cho Zalo trước
       remarks: 'nun',
       products: products,
@@ -67,7 +67,7 @@ const PaymentPage = () => {
       }));
 
       const paymentMethod = {
-        id: 'ZALOPAY_SANDBOX',
+        id: 'VNPAY_SANDBOX',
         isCustom: false,
       };
 
@@ -195,19 +195,21 @@ const PaymentPage = () => {
   const renderVoucherOptions = () => {
     return vouchers.length > 0 ? (
       <select
-        className="px-4 py-4 border rounded-md w-full"
+        className="px-4 py-2 border border-gray-300 rounded-md w-full text-gray-700 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-gray-50 transition-colors"
         value={voucherId}
         onChange={(e) => handleAddVoucher(e.target.value)}
       >
-        <option value="">Chọn voucher</option>
+        <option value="" className="text-gray-400">
+          Chọn voucher
+        </option>
         {vouchers.map((voucher) => (
-          <option key={voucher._id} value={voucher._id}>
-            {voucher.code} - {voucher.discountValue}%
+          <option key={voucher._id} value={voucher._id} className="text-sm text-gray-600">
+            {voucher.code} - {voucher.discountValue}% - Số lượng: {voucher.usageLimit}
           </option>
         ))}
       </select>
     ) : (
-      <p>No vouchers available</p>
+      <p className="text-gray-500">Bạn không có voucher nào</p>
     );
   };
 
@@ -237,6 +239,7 @@ const PaymentPage = () => {
 
             if (resultCode === 1) {
               try {
+                console.log("OPEN 1")
                 const updateOrder = await updateOrderWithZaloOrderId(
                   parsedExtradata.orderId,
                   {
@@ -306,6 +309,7 @@ const PaymentPage = () => {
 
             if (resultCode === 1) {
               try {
+                console.log("OPEN 2")
                 const updateOrder = await updateOrderWithZaloOrderId(
                   parsedExtradata.orderId,
                   {

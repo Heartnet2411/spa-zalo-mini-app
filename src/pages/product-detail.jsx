@@ -233,6 +233,12 @@ const ProductDetail = () => {
                 </p>
               </div>
 
+              <div className="flex align-middle items-center justify-end my-4">
+                <p className="text-lg">
+                  Số lượng còn: {selectedVariant.stock}
+                </p>
+              </div>
+
               <p className="text-xl font-bold mt-4 bold-text">
                 Thông tin sản phẩm
               </p>

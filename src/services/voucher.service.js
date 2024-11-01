@@ -92,3 +92,26 @@ export const getVouchersUserCanExchange = async (accessToken) => {
         throw error; // Ném lại lỗi để có thể xử lý ở component
     }
 };
+
+export const getUserInvalidVouchers = async (accessToken) => {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/vouchers/user/invalid-vouchers`, {
+            method: 'GET',
+            headers: {
+                'ngrok-skip-browser-warning': 'true',
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        const vouchers = await response.json();
+        return vouchers;
+    } catch (error) {
+        console.error("Error fetching user vouchers:", error);
+        throw error;
+    }
+};
