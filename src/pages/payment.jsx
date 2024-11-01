@@ -35,87 +35,102 @@ const PaymentPage = () => {
   console.log(user);
   // DEMO TRƯỚC HÀM TẠO HÓA ĐƠN
   async function createOrderPayment(products, addedVoucher) {
-    // THÔNG TIN HÓA ĐƠN (products phải truyền đủ productId, variantId, productName, price, quantity)
-    // ***DEMO NÀY CHƯA CÓ productName
-    const orderDetails = {
-      orderDate: new Date().toJSON(), // Ngày tạo hóa đơn
-      totalAmount: products.reduce(
-        (total, product) => total + product.price * product.quantity,
-        0
-      ), // Tổng hóa đơn
-      paymentMethod: 'VNPAY_SANDBOX', // Phương thức thanh toán
-      paymentStatus: 'pending', // Lúc này cần tạo hóa đơn dưới BE để tạo mac cho Zalo trước
-      remarks: 'nun',
-      products: products,
-      voucherId: addedVoucher, // Mã voucher
-      address: stringAddress,
-    };
+    Payment.selectPaymentMethod({
+      channels: [
+        { method: "ZALOPAY_SANDBOX" },
+        { method: "VNPAY_SANDBOX" },
+      ],
+      success: async (data) => {
+        // Lựa chọn phương thức thành công
+        const { method, isCustom, logo, displayName, subMethod } = data;
 
-    console.log('Order Details:', orderDetails);
+        // THÔNG TIN HÓA ĐƠN (products phải truyền đủ productId, variantId, productName, price, quantity)
+        // ***DEMO NÀY CHƯA CÓ productName
+        const orderDetails = {
+          orderDate: new Date().toJSON(), // Ngày tạo hóa đơn
+          totalAmount: products.reduce(
+            (total, product) => total + product.price * product.quantity,
+            0
+          ), // Tổng hóa đơn
+          paymentMethod: method, // Phương thức thanh toán
+          paymentStatus: 'pending', // Lúc này cần tạo hóa đơn dưới BE để tạo mac cho Zalo trước
+          remarks: 'nun',
+          products: products,
+          voucherId: addedVoucher, // Mã voucher
+          address: stringAddress,
+        };
 
-    // Tạo hóa đơn phía server
-    const order = await createOrder(orderDetails, user.accessToken);
+        console.log('Order Details:', orderDetails);
 
-    console.log(order);
+        // Tạo hóa đơn phía server
+        const order = await createOrder(orderDetails, user.accessToken);
 
-    if (order) {
-      // TẠO HÓA ĐƠN THEO FORMAT ZALO ĐỂ TẠO MAC
-      const item = order.products.map((item) => ({
-        id: String(item.productId),
-        // variantId: String(item.variantId),
-        amount: item.quantity * item.price,
-      }));
+        console.log(order);
 
-      const paymentMethod = {
-        id: 'VNPAY_SANDBOX',
-        isCustom: false,
-      };
+        if (order) {
+          // TẠO HÓA ĐƠN THEO FORMAT ZALO ĐỂ TẠO MAC
+          const item = order.products.map((item) => ({
+            id: String(item.productId),
+            // variantId: String(item.variantId),
+            amount: item.quantity * item.price,
+          }));
 
-      // THÔNG TIN THÊM
-      const extraData = {
-        orderId: order._id, // id mà chúng ta đã tạo ở server của mình
-      };
+          const paymentMethod = {
+            id: method,
+            isCustom: false,
+          };
 
-      const orderData = {
-        desc: `Thanh toan ${order.finalAmount}`,
-        item,
-        amount: order.finalAmount,
-        extradata: JSON.stringify(extraData),
-        method: JSON.stringify(paymentMethod),
-      };
+          // THÔNG TIN THÊM
+          const extraData = {
+            orderId: order._id, // id mà chúng ta đã tạo ở server của mình
+          };
 
-      // TẠO MÃ MAC
-      const getmac = await createMac(orderData, user.accessToken);
+          const orderData = {
+            desc: `Thanh toan ${order.finalAmount}`,
+            item,
+            amount: order.finalAmount,
+            extradata: JSON.stringify(extraData),
+            method: JSON.stringify(paymentMethod),
+          };
 
-      if (getmac) {
-        // CẬP NHẬT MÃ MAC CHO HÓA ĐƠN VÀ DÙNG Payment.createOrder ĐỂ THANH TOÁN
-        orderData.mac = getmac.mac;
+          // TẠO MÃ MAC
+          const getmac = await createMac(orderData, user.accessToken);
 
-        return new Promise((resolve, reject) => {
-          Payment.createOrder({
-            ...orderData,
-            success: async (data) => {
-              // Tạo đơn hàng thành công
-              const { orderId } = data;
-              console.log('Good: ', data);
+          if (getmac) {
+            // CẬP NHẬT MÃ MAC CHO HÓA ĐƠN VÀ DÙNG Payment.createOrder ĐỂ THANH TOÁN
+            orderData.mac = getmac.mac;
 
-              resolve(orderId);
-            },
-            fail: (err) => {
-              // Tạo đơn hàng lỗi
-              console.log(err);
-              reject(err);
-            },
-          });
-        });
-      } else {
-        console.log('Cannot create mac');
-        return Promise.reject('MAC creation failed');
-      }
-    } else {
-      console.log('Cannot create order');
-      return Promise.reject('Order creation failed');
-    }
+            return new Promise((resolve, reject) => {
+              Payment.createOrder({
+                ...orderData,
+                success: async (data) => {
+                  // Tạo đơn hàng thành công
+                  const { orderId } = data;
+                  console.log('Good: ', data);
+
+                  resolve(orderId);
+                },
+                fail: (err) => {
+                  // Tạo đơn hàng lỗi
+                  console.log(err);
+                  reject(err);
+                },
+              });
+            });
+          } else {
+            console.log('Cannot create mac');
+            return Promise.reject('MAC creation failed');
+          }
+        } else {
+          console.log('Cannot create order');
+          return Promise.reject('Order creation failed');
+        }
+      },
+      fail: (err) => {
+        // Tắt trang lựa chọn phương thức hoặc xảy ra lỗi
+        console.log(err);
+      },
+    });
   }
 
   const location = useLocation();
@@ -425,9 +440,8 @@ const PaymentPage = () => {
                   <li
                     key={index}
                     onClick={() => handleSelectAddress(address)}
-                    className={`cursor-pointer p-4 border rounded-lg ${
-                      selectedAddress === address ? 'bg-gray-300' : 'bg-white'
-                    }`}
+                    className={`cursor-pointer p-4 border rounded-lg ${selectedAddress === address ? 'bg-gray-300' : 'bg-white'
+                      }`}
                   >
                     {address.city}, {address.district}, {address.ward},{' '}
                     {address.number}
