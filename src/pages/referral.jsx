@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Page, Text, Icon } from 'zmp-ui';
+import { Button, Page, Text, Icon, Sheet, Box, Grid } from 'zmp-ui';
 import Header from '../components/header';
-import { getReferralInfo } from '../services/referral.service';
+import { getChildReferralHistoryByParent, getReferralInfo } from '../services/referral.service';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../state';
+import Pagination from '../components/pagination';
 
 const ReferralPage = () => {
   const [referralData, setReferralData] = useState(null);
@@ -11,8 +12,20 @@ const ReferralPage = () => {
   const [error, setError] = useState(null);
   const { userInfo: user, accessToken } = useRecoilValue(userState);
 
+  const [selectedChildId, setSelectedChildId] = useState('');
+  const [history, setHistory] = useState([]);
+  const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(1);
+  const [totalHistoryPages, setTotalHistoryPages] = useState(1);
+
+  const [showHistorySheet, setShowHistorySheet] = useState(false);
+
+  const openHistorySheet = () => setShowHistorySheet(true);
+  const closeHistorySheet = () => setShowHistorySheet(false);
+
   // Lấy referralCode từ user
   const referralCode = user.referralCode;
+  const userId = user.id;
 
   useEffect(() => {
     const fetchReferralData = async () => {
@@ -29,8 +42,44 @@ const ReferralPage = () => {
     fetchReferralData();
   }, [referralCode, accessToken]);
 
+  useEffect(() => {
+    if (!selectedChildId) {
+      return;
+    }
+    const fetchHistory = async () => {
+      try {
+        const data = await getChildReferralHistoryByParent(
+          userId,
+          selectedChildId,
+          currentHistoryPage,
+          accessToken
+        );
+
+        setHistory(data.history || []);
+        setTotalRecords(data.totalRecords || 0);
+        setTotalHistoryPages(data.totalPages || 1);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [userId, selectedChildId, currentHistoryPage, accessToken]);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
+
+  const handleOpenHistory = (childId) => {
+    setSelectedChildId(childId);
+    openHistorySheet();
+  };
+
+
+  const handlePageChange = (page) => {
+    setCurrentHistoryPage(page);
+  };
 
   return (
     <Page className="page">
@@ -101,11 +150,35 @@ const ReferralPage = () => {
             referralData.descendants.map((descendant) => (
               <div
                 key={descendant.referralCode}
-                className="rounded-lg border p-2 mb-2"
+                className="rounded-lg border p-2 mb-2 shadow-lg"
               >
-                <Text>
-                  {descendant.name} ({descendant.zaloId})
+                <Text className="text-center ml-2 pt-2 text-xl">
+                  <span className="text-blue-500">
+                    {descendant.name}
+                  </span>
                 </Text>
+                <Text className="text-center ml-2 pt-2">
+                  <span className="text-gray-500 italic">
+                    ({descendant.zaloId})
+                  </span>
+                </Text>
+                <Text className="ml-2 pt-2">
+                  Tổng hoa hồng kiếm về:{' '}
+                </Text>
+                <Text className="text-center ml-2 pt-2">
+                  <span className="text-gray-500 italic text-lg">
+                    {descendant.totalEarned?.toLocaleString('vi-VN') || 0} VND
+                  </span>
+                </Text>
+
+                <div className="flex justify-end mt-2">
+                  <button
+                    className="p-2 h-10 border border-orange-500 rounded-lg"
+                    onClick={() => handleOpenHistory(descendant?.userId)}
+                  >
+                    <span className="text-orange-500">Xem lịch sử</span>
+                  </button>
+                </div>
               </div>
             ))
           ) : (
@@ -113,6 +186,78 @@ const ReferralPage = () => {
           )}
         </div>
       </div>
+
+      {/* SẢN PHẨM */}
+      <Sheet
+        visible={showHistorySheet}
+        onClose={closeHistorySheet}
+        autoHeight
+        title="Lịch sử hoa hồng"
+        mask
+        handler
+        swipeToClose
+      >
+        <Page className="section-container">
+          <Box
+            p={4}
+            className="custom-bottom-sheet"
+            flex
+            flexDirection="column"
+          >
+            <Grid
+              columnSpace="1rem"
+              rowSpace="1rem"
+              columnCount={1}
+              className="mt-3"
+            >
+              {history?.map((item) => (
+                <div
+                  key={item._id}
+                  className="rounded-lg border p-2 mb-2 shadow-lg"
+                >
+                  <Text className="text-center ml-2 pt-2 text-xl">
+                    <span className="text-blue-500">
+                      {item.childName}
+                    </span>
+                  </Text>
+                  <Text className="ml-2 pt-2">
+                    Mã giới thiệu:{' '}
+                    <span className="text-gray-500 italic text-lg">
+                      {item.childReferralCode}
+                    </span>
+                  </Text>
+                  <Text className="ml-2 pt-2">
+                    Hoa hồng:{' '}{item.earnedAmount?.toLocaleString('vi-VN') || 0} VND
+                  </Text>
+                  <Text className="text-center ml-2 pt-2">
+                    <span className="text-gray-600">Ngày mua: </span>
+                    <span>
+                      {new Date(item.createdAt)
+                        .getDate()
+                        .toString()
+                        .padStart(2, '0')}
+                      /
+                      {(new Date(item.createdAt).getMonth() + 1)
+                        .toString()
+                        .padStart(2, '0')}
+                      /{new Date(item.createdAt).getFullYear()} -{' '}
+                      {`${new Date(item.createdAt).getHours()}h${new Date(item.createdAt).getMinutes().toString().padStart(2, '0')}`}
+                    </span>
+                  </Text>
+                </div>
+              ))}
+            </Grid>
+            {totalHistoryPages > 1 && (
+              <Pagination
+                currentPage={currentHistoryPage}
+                totalPages={totalHistoryPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </Box>
+          <div className="mb-7 mt-5 w-100"></div>
+        </Page>
+      </Sheet>
     </Page>
   );
 };
