@@ -19,8 +19,9 @@ const RatingDetailPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
 
-  const handleImageChange = (event) => {
-    setImages([...event.target.files]); // Lưu trữ hình ảnh từ input
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
   };
 
   const handleSubmit = async (e) => {

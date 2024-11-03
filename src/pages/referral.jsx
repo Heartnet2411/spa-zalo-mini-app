@@ -13,6 +13,8 @@ const ReferralPage = () => {
   const { userInfo: user, accessToken } = useRecoilValue(userState);
 
   const [selectedChildId, setSelectedChildId] = useState('');
+  const [selectedChildName, setSelectedChildName] = useState('');
+  const [selectedChildCode, setSelectedChildCode] = useState('');
   const [history, setHistory] = useState([]);
   const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(1);
@@ -26,6 +28,10 @@ const ReferralPage = () => {
   // Lấy referralCode từ user
   const referralCode = user.referralCode;
   const userId = user.id;
+
+  // TEST
+  // const referralCode = '6B8784B1B263CF2C';
+  // const userId = '670f92748dd7872eee897191';
 
   useEffect(() => {
     const fetchReferralData = async () => {
@@ -71,8 +77,10 @@ const ReferralPage = () => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  const handleOpenHistory = (childId) => {
+  const handleOpenHistory = (childId, name, referralCode) => {
     setSelectedChildId(childId);
+    setSelectedChildName(name);
+    setSelectedChildCode(referralCode);
     openHistorySheet();
   };
 
@@ -174,7 +182,7 @@ const ReferralPage = () => {
                 <div className="flex justify-end mt-2">
                   <button
                     className="p-2 h-10 border border-orange-500 rounded-lg"
-                    onClick={() => handleOpenHistory(descendant?.userId)}
+                    onClick={() => handleOpenHistory(descendant?.userId, descendant?.name, descendant?.referralCode)}
                   >
                     <span className="text-orange-500">Xem lịch sử</span>
                   </button>
@@ -198,6 +206,17 @@ const ReferralPage = () => {
         swipeToClose
       >
         <Page className="section-container">
+          <Text className="text-center ml-2 pt-2">
+            <span className="text-blue-500 text-lg">
+              {selectedChildName}
+            </span>
+          </Text>
+          <Text className="text-center ml-2 pt-2">
+            Mã giới thiệu:{' '}
+            <span className="text-gray-500 italic">
+              {selectedChildCode}
+            </span>
+          </Text>
           <Box
             p={4}
             className="custom-bottom-sheet"
@@ -208,30 +227,18 @@ const ReferralPage = () => {
               columnSpace="1rem"
               rowSpace="1rem"
               columnCount={1}
-              className="mt-3"
+            // className="mt-3"
             >
               {history?.map((item) => (
                 <div
                   key={item._id}
-                  className="rounded-lg border p-2 mb-2 shadow-lg"
+                  className="rounded-lg border p-4 mb-4 shadow-lg transition-transform duration-200 hover:scale-105 bg-white"
                 >
-                  <Text className="text-center ml-2 pt-2 text-xl">
-                    <span className="text-blue-500">
-                      {item.childName}
-                    </span>
-                  </Text>
-                  <Text className="ml-2 pt-2">
-                    Mã giới thiệu:{' '}
-                    <span className="text-gray-500 italic text-lg">
-                      {item.childReferralCode}
-                    </span>
-                  </Text>
-                  <Text className="ml-2 pt-2">
-                    Hoa hồng:{' '}{item.earnedAmount?.toLocaleString('vi-VN') || 0} VND
-                  </Text>
-                  <Text className="text-center ml-2 pt-2">
-                    <span className="text-gray-600">Ngày mua: </span>
-                    <span>
+                  <div className="flex justify-between items-center">
+                    <Text className="text-gray-600 font-semibold">
+                      Ngày mua:
+                    </Text>
+                    <Text className="text-gray-800">
                       {new Date(item.createdAt)
                         .getDate()
                         .toString()
@@ -242,8 +249,16 @@ const ReferralPage = () => {
                         .padStart(2, '0')}
                       /{new Date(item.createdAt).getFullYear()} -{' '}
                       {`${new Date(item.createdAt).getHours()}h${new Date(item.createdAt).getMinutes().toString().padStart(2, '0')}`}
-                    </span>
-                  </Text>
+                    </Text>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <Text className="text-gray-600 font-semibold">
+                      Hoa hồng cho bạn:
+                    </Text>
+                    <Text className="text-gray-800">
+                      {item.earnedAmount?.toLocaleString('vi-VN') || 0} VND
+                    </Text>
+                  </div>
                 </div>
               ))}
             </Grid>

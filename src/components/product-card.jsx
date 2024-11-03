@@ -48,7 +48,7 @@ const ProductCard = ({ products }) => {
               Đã bán {product?.salesQuantity}
               <div className="flex items-center justify-center gap-1 text-yellow-300 ">
                 <FaStar size={16} className="" />
-                <span className="text-black">{product.averageRating}</span>
+                <span className="text-black">{product?.averageRating?.toFixed(1)}</span>
               </div>
             </div>
           </Link>

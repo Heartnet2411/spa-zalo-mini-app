@@ -35,7 +35,7 @@ export const rateProduct = async ({ userId, productID, orderID, variantID, volum
 
 export const getProductReviews = async (productId, page) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/recommendations/get-reviews-by-product-id/${productId}?page=${page}&limit=10`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/recommendations/get-reviews-by-product-id/${productId}?page=${page}&limit=5`, {
       method: "GET",
       headers: {
         'ngrok-skip-browser-warning': 'true',

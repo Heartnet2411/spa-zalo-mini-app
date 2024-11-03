@@ -164,7 +164,7 @@ export default function HomePage() {
         <Category />
         {productSuggestions.length > 0 ? (
           <div className="my-4">
-            <span className="text-xl font-semibold ">Sản phẩm khuyến nghị</span>
+            <span className="text-xl font-semibold ">Sản phẩm dành cho bạn</span>
             <HomeProductCard products={productSuggestions} />
           </div>
         ) : (
@@ -174,7 +174,7 @@ export default function HomePage() {
         {productRecommendations.length > 0 ? (
           <div className="my-4">
             <span className="text-xl font-semibold ">
-              Sản phẩm dành cho bạn
+              Sản phẩm khuyến nghị
             </span>
             <HomeProductCard products={productRecommendations} />
           </div>
@@ -184,7 +184,7 @@ export default function HomePage() {
 
         {serviceSuggestions.length > 0 ? (
           <div className="my-4">
-            <span className="text-xl font-semibold ">Dịch vụ khuyến nghị</span>
+            <span className="text-xl font-semibold ">Dịch vụ dành cho bạn</span>
             <HomeServiceCard services={serviceSuggestions} />
           </div>
         ) : (
@@ -193,7 +193,7 @@ export default function HomePage() {
 
         {serviceRecommendations.length > 0 ? (
           <div className="my-4">
-            <span className="text-xl font-semibold ">Dịch vụ dành cho bạn</span>
+            <span className="text-xl font-semibold ">Dịch vụ khuyến nghị</span>
             <HomeServiceCard services={serviceRecommendations} />
           </div>
         ) : (

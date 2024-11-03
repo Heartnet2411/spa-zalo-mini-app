@@ -32,8 +32,12 @@ const ProductDetail = () => {
   const [totalReviewPages, setTotalReviewPages] = useState(1);
   const [totalReviews, setTotalReviews] = useState(1);
 
-  console.log(selectedVariant);
-  console.log(count);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const descriptionRef = useRef(null);
+  const [showToggleButton, setShowToggleButton] = useState(false);
 
   const [user, setUserState] = useRecoilState(userState);
 
@@ -107,6 +111,13 @@ const ProductDetail = () => {
   }, [id]);
 
   useEffect(() => {
+    if (descriptionRef.current) {
+      const descriptionHeight = descriptionRef.current.scrollHeight;
+      setShowToggleButton(descriptionHeight > 250);
+    }
+  }, [product]);
+
+  useEffect(() => {
     const fetchProductReview = async () => {
       try {
         const response = await getProductReviews(id, currentReviewPage);
@@ -149,6 +160,20 @@ const ProductDetail = () => {
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
 
+  const openModal = (image) => {
+    setSelectedImage(image);
+    setIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setSelectedImage(null);
+  };
+
+  const toggleDescription = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   const textStyles = {
     Header: {
       normal: {
@@ -185,6 +210,7 @@ const ProductDetail = () => {
                       className="h-full w-full object-cover mb-4 md:mr-4 border-b border-gray-300"
                       src={image}
                       alt={`slide-${index + 1}`}
+                      onClick={() => openModal(image)}
                     />
                   </div>
                 </Swiper.Slide>
@@ -242,29 +268,61 @@ const ProductDetail = () => {
               <p className="text-xl font-bold mt-4 bold-text">
                 Thông tin sản phẩm
               </p>
-              <p className="text-base">{product.description}</p>
+              <div className="relative mt-2">
+                <p
+                  ref={descriptionRef}
+                  className={`text-base transition-all duration-300 ${isExpanded ? 'max-h-none' : 'max-h-[250px] overflow-hidden'}`}
+                >
+                  {product.description}
+                </p>
 
-              <h2 className="text-xl font-bold mt-4">Thành phần</h2>
-              <ul className="list-none ">
-                {product.ingredients && product.ingredients.length > 0 ? (
-                  product.ingredients.map((ingredient) => (
-                    <li key={ingredient._id} className="my-2 ml-2">
-                      {ingredient.name} - {ingredient.percentage}%
-                    </li>
-                  ))
-                ) : (
-                  <p className="text-gray-500">
-                    Chưa có thông tin về thành phần.
-                  </p>
+                {!isExpanded && showToggleButton && (
+                  <div className="absolute bottom-6 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent z-1"></div>
                 )}
-              </ul>
+
+                {showToggleButton && (
+                  <div className="flex justify-center mt-2">
+                    <button
+                      onClick={toggleDescription}
+                      className="text-gray-900 bg-white border border-gray-500 font-medium rounded-full text-sm px-5 py-1.5 relative"
+                    >
+                      {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+                      {isExpanded ? (<Icon icon='zi-chevron-double-up' />) : (<Icon icon='zi-chevron-double-down' />)}
+                    </button>
+                  </div>
+                )}
+              </div>
+              <h2 className="text-xl font-bold mt-4">Thành phần</h2>
+              {product.ingredients && product.ingredients.length > 0 ? (
+                <table className="min-w-full border-collapse border border-gray-300 mt-4">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border border-gray-300 px-4 py-2 text-left">Thành phần</th>
+                      <th className="border border-gray-300 px-4 py-2 text-left">Tỉ lệ (%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.ingredients.map((ingredient) => (
+                      <tr key={ingredient._id} className="hover:bg-gray-50">
+                        <td className="border border-gray-300 px-4 py-2">{ingredient.name}</td>
+                        <td className="border border-gray-300 px-4 py-2">{ingredient.percentage}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500 mt-4">Chưa có thông tin về thành phần.</p>
+              )}
 
               <h2 className="text-xl font-bold mt-4">Lợi ích</h2>
-              <ul className="list-none ">
+              <ul className="max-w-md space-y-1 text-gray-500 list-disc list-inside">
                 {product.benefits && product.benefits.length > 0 ? (
                   product.benefits.map((benefit, index) => (
-                    <li key={index} className="my-2 ml-2">
-                      - {benefit}
+                    <li key={index} className="flex items-center space-x-3 my-2 ml-2 rtl:space-x-reverse">
+                      <svg class="flex-shrink-0 w-3.5 h-3.5 text-green-500 dark:text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                      </svg>
+                      <span>{benefit}</span>
                     </li>
                   ))
                 ) : (
@@ -278,8 +336,8 @@ const ProductDetail = () => {
               <h2 className="text-xl font-bold mt-4 mb-2">Đánh Giá Sản Phẩm</h2>
               <div className="flex items-center gap-2">
                 <div className="flex items-center">
-                  <StarRating rating={product.averageRating} />
-                  <p className="text-red-500 ml-2">{product.averageRating}/5</p>
+                  <StarRating rating={product?.averageRating} />
+                  <p className="text-red-500 ml-2">{product?.averageRating?.toFixed(1)}/5</p>
                 </div>
                 <span className="text-gray-500">
                   ({reviews.length} đánh giá)
@@ -287,8 +345,8 @@ const ProductDetail = () => {
               </div>
               <div className="mt-4 border px-4 py-2 rounded-md">
                 {/* Hiển thị review ở đây */}
-                {reviews.length > 0 ? (
-                  reviews.map((review) => (
+                {reviews?.length > 0 ? (
+                  reviews?.map((review) => (
                     <div
                       key={review._id}
                       className="border-b border-gray-300 pb-4 mb-4 flex flex-col gap-2"
@@ -311,13 +369,14 @@ const ProductDetail = () => {
                         <span>{review.comment}</span>
                       </p>
                       {review.images && review.images.length > 0 && (
-                        <div className="flex flex-col gap-2">
-                          {review.images.map((image, index) => (
+                        <div className="flex flex-row gap-2 overflow-x-auto flex-nowrap">
+                          {review?.images?.map((image, index) => (
                             <img
                               key={index}
                               src={image}
                               alt={`Review image ${index}`}
                               className="h-20 w-20 object-cover mr-2"
+                              onClick={() => openModal(image)}
                             />
                           ))}
                         </div>
@@ -329,13 +388,15 @@ const ProductDetail = () => {
                     Chưa có đánh giá cho sản phẩm này.
                   </p>
                 )}
-              </div>
 
-              <Pagination
-                currentPage={currentReviewPage}
-                totalPages={totalReviewPages}
-                onPageChange={handlePageChange}
-              />
+                {reviews?.length > 0 && (
+                  <Pagination
+                    currentPage={currentReviewPage}
+                    totalPages={totalReviewPages}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </div>
 
               <h2 className="text-xl font-bold mt-4">Sản phẩm tương tự</h2>
               <div className="mt-4 ">
@@ -363,6 +424,28 @@ const ProductDetail = () => {
           </div>
         </div>
       </Suspense>
+
+      {isOpen && (
+        <div
+          className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-75"
+          onClick={closeModal}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={selectedImage}
+              alt="Zoomed"
+              className="max-w-full max-h-screen p-2"
+            />
+            <button
+              onClick={closeModal}
+              className="absolute top-0 right-0 p-4 text-white"
+            >
+              <Icon icon='zi-close'></Icon>
+            </button>
+          </div>
+        </div>
+      )}
+
     </Page>
   );
 };
