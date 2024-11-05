@@ -15,3 +15,5 @@ export const paymentResultState = atom({
   key: 'paymentResultState',
   default: { orderId: '', status: 'pending' },
 });
+
+export const APP_MODE = new URLSearchParams(location.search).get("env") || null;

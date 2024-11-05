@@ -33,6 +33,7 @@
     "recoil": "^0.7.7",
     "spa-mini-app": "file:",
     "swiper": "^11.1.14",
+    "zmp-qrcode": "^3.0.0",
     "zmp-sdk": "latest",
     "zmp-ui": "latest"
   },

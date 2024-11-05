@@ -108,6 +108,10 @@ export const loginAPI = async (zaloAccessToken) => {
       }
     );
 
+    const referralCode = new URLSearchParams(location.search).get("referralCode");
+
+    console.log("CODE LẤY TỪ QR: " + referralCode);
+
     if (!response.ok) {
       // Kiểm tra mã lỗi
       console.log(response);
@@ -116,7 +120,7 @@ export const loginAPI = async (zaloAccessToken) => {
         let registerResult = null;
         // Nếu người dùng không tồn tại, yêu cầu nhập mã tiếp thị liên kết
         while (!registerResult) {
-          const referralCode = prompt('Vui lòng nhập mã tiếp thị liên kết:');
+          // const referralCode = prompt('Vui lòng nhập mã tiếp thị liên kết:');
           console.log(referralCode);
 
           if (referralCode) {

@@ -7,7 +7,8 @@ import {
   getZaloPhoneNumber,
 } from '../services/zalo.service';
 import { loginAPI } from '../services/auth.service';
-import { userState } from '../state';
+import { APP_MODE, userState } from '../state';
+import { QRCode } from 'zmp-qrcode';
 
 const ProfilePage = () => {
   const [accessToken, setAccessToken] = useState('');
@@ -15,6 +16,10 @@ const ProfilePage = () => {
   const setUserState = useSetRecoilState(userState);
   const { userInfo: user } = useRecoilValue(userState);
   const navigate = useNavigate();
+  const env = APP_MODE;
+
+  console.log("APP VERSION", window.APP_VERSION)
+  console.log("ENV", env)
 
   // Hàm xác thực người dùng và lấy access token
   const handleAuthorization = async () => {
@@ -184,6 +189,13 @@ const ProfilePage = () => {
               <span className="text-white">Chi tiết</span>
             </button>
           </div>
+        </div>
+        
+        {/* Referral QRCode */}
+        <div className="flex items-center justify-center mt-5">
+          {user?.referralCode && window.APP_ID && (
+            <QRCode value={`https://zalo.me/s/${window.APP_ID}/profile/?env=${env}&version=${window.APP_VERSION}&referralCode=${user.referralCode}`} />
+          )}
         </div>
       </div>
     </Page>
