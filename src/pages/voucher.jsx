@@ -83,7 +83,7 @@ const VoucherPage = () => {
               {(filterStatus === 'Ưu đãi' ? vouchers : invalidVouchers).map((voucher) => (
                 <li
                   key={voucher._id}
-                  className="border border-gray-300 p-4 rounded-md flex items-start m-3"
+                  className="border border-gray-300 p-4 rounded-md flex items-start m-3 shadow-md"
                 >
                   {/* Hình biểu tượng FaTicket */}
                   <div className="mr-4">

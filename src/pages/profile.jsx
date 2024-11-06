@@ -138,29 +138,25 @@ const ProfilePage = () => {
 
         {/* Các phần khác của Profile */}
         <div className="flex justify-between items-center">
-          <div className="flex items-center justify-center">
-            <button
-              className="px-4 py-2 rounded-full flex items-center justify-center bg-red-500"
-              onClick={() => {
-                navigate('/order-status');
-              }}
-            >
-              <span className="text-white">Sản phẩm đã mua</span>
-            </button>
-          </div>
-          <div className="flex items-center justify-center">
-            <button
-              className="px-4 py-2 rounded-full flex items-center justify-center border border-red-500"
-              onClick={() => {
-                navigate('/order-status');
-              }}
-            >
-              <span className="text-red-500">Đánh giá sản phẩm</span>
-            </button>
-          </div>
+          <button
+            className="ms-1 me-1 px-4 py-2 rounded-full flex-auto items-center justify-center bg-red-500"
+            onClick={() => {
+              navigate('/order-status');
+            }}
+          >
+            <span className="text-white">Sản phẩm đã mua</span>
+          </button>
+          <button
+            className="ms-1 me-1 px-4 py-2 rounded-full flex-auto items-center justify-center border border-red-500"
+            onClick={() => {
+              navigate('/voucher');
+            }}
+          >
+            <span className="text-red-500">Voucher của bạn</span>
+          </button>
         </div>
         <div className="flex items-center justify-center mt-5">
-          <div className="w-80 rounded-lg border flex items-center justify-around">
+          <div className="w-80 rounded-lg shadow-md border py-2 flex items-center justify-around">
             <div className="flex flex-col items-start mr-20">
               <span className="text-xl font-bold mb-1">Điểm</span>
               <div className="flex items-end text-orange-500 gap-2">
@@ -177,7 +173,7 @@ const ProfilePage = () => {
           </div>
         </div>
         <div className="flex items-center justify-center mt-5">
-          <div className="w-80 rounded-lg border flex items-center justify-around">
+          <div className="w-80 rounded-lg shadow-md py-2 border flex items-center justify-around">
             <div className="flex flex-col items-start">
               <span className="text-xl font-bold mb-1">Tiếp thị liên kết</span>
               <span className="mt-1 text-orange-500">0 VND</span>
@@ -190,9 +186,10 @@ const ProfilePage = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Referral QRCode */}
-        <div className="flex items-center justify-center mt-5">
+        <div className="flex items-center justify-center mt-5 flex-col">
+          <Text.Title>Giới thiệu bạn bè</Text.Title>
           {user?.referralCode && window.APP_ID && (
             <QRCode value={`https://zalo.me/s/${window.APP_ID}/profile/?env=${env}&version=${window.APP_VERSION}&referralCode=${user.referralCode}`} />
           )}
