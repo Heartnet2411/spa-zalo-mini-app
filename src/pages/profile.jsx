@@ -176,7 +176,7 @@ const ProfilePage = () => {
           <div className="w-80 rounded-lg shadow-md py-2 border flex items-center justify-around">
             <div className="flex flex-col items-start">
               <span className="text-xl font-bold mb-1">Tiếp thị liên kết</span>
-              <span className="mt-1 text-orange-500">0 VND</span>
+              <span className="mt-1 text-orange-500">{user?.amounts?.toLocaleString('vi-VN') || 0} VND</span>
             </div>
             <button
               className="w-20 h-10 rounded-xl bg-orange-400"
